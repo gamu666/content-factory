@@ -29,3 +29,14 @@ The Content Factory brand logo is embedded in app.js, so no assets folder is req
 Public signups become `agent` by default. Create the two real admin accounts through the website first, then promote their profile rows to `admin` from a trusted database action.
 
 Never put a Supabase service-role/secret key in config.js. The publishable key is intentionally used in the browser and is protected by RLS.
+
+
+## V26
+- Login now accepts either email or an 8-digit Mongolian phone number.
+- 8-digit phone login is normalized internally to +976XXXXXXXX for Supabase Auth.
+- +97680114941 is reserved by the database trigger to receive admin role when that Auth user is created.
+
+
+## V27
+- Agent order form has no content photo/video/material upload.
+- Added cache-busting query strings to styles.css, config.js and app.js for GitHub Pages/browser cache.

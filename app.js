@@ -679,7 +679,7 @@ function loginPage(mode='login') {
   return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Контентын явц<br>нэг дор.</h1><p>Үл хөдлөхийн агент, контент production багийн хоорондох захиалга, зураг авалт, edit, delivery-г цэгцтэй удирдах веб орчин.</p></div><div style="color:#777c85;font-size:11px">Real estate контент үйлдвэрлэлийн портал</div></section><section class="auth-side"><div class="auth-box"><h2>${register?'Бүртгэл үүсгэх':'Тавтай морил'}</h2><p>${register?'Контент захиалга өгч, үйлдвэрлэлийн явцаа нэг дор хянаарай.':'Өөрийн захиалга, зураг авалт, бичлэгийн явцаа харахын тулд нэвтэрнэ үү.'}</p>
   <form id="${register?'register-form':'login-form'}" class="auth-form">
     ${register?`<div class="field"><label>Овог нэр</label><input name="full_name" required placeholder="Б. Тэмүүлэн" autocomplete="name" /></div><div class="field"><label>Утасны дугаар</label><input name="phone" required placeholder="9911 2233" autocomplete="tel" /></div><div class="field"><label>Байгууллага / агентлаг</label><input name="agency_name" placeholder="Prime Realty" /></div>`:''}
-    <div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="name@example.mn" autocomplete="email" /></div>
+    ${register?`<div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="name@example.mn" autocomplete="email" /></div>`:`<div class="field"><label>Нэвтрэх нэр / и-мэйл</label><input name="identifier" type="text" required placeholder="80114941 эсвэл name@example.mn" autocomplete="username" /></div>`}
     <div class="field"><label>Нууц үг</label><input id="register-password" name="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="${register?'new-password':'current-password'}" /></div>
     ${register?`<div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>`:''}
     <button class="btn btn-primary" type="submit">${register?'Бүртгүүлэх':'Нэвтрэх'}</button>
@@ -828,10 +828,15 @@ function addActivity(db, orderId, message, visible=true, by=null) {
 }
 
 async function handleLogin(form) {
-  const fd=new FormData(form), email=String(fd.get('email')).trim().toLowerCase(), password=String(fd.get('password'));
+  const fd=new FormData(form), identifier=String(fd.get('identifier')||fd.get('email')||'').trim(), password=String(fd.get('password'));
+  const compact=identifier.replace(/\s+/g,'');
+  const isMnPhone=/^\d{8}$/.test(compact);
+  const email=identifier.toLowerCase();
+  const phone=isMnPhone?`+976${compact}`:'';
   if (REMOTE_ENABLED) {
     try {
-      const r=await sb.auth.signInWithPassword({email,password});
+      const credentials=isMnPhone?{phone,password}:{email,password};
+      const r=await sb.auth.signInWithPassword(credentials);
       throwIfError(r,'Нэвтрэхэд алдаа гарлаа');
       REMOTE_LOADED=false;
       await loadRemoteDb();
@@ -840,12 +845,16 @@ async function handleLogin(form) {
       if(!u) throw new Error('Профайл олдсонгүй.');
       toast('Амжилттай нэвтэрлээ.','success');
       navigate(u.role==='admin'?'/admin':'/dashboard');
-    } catch(e) { toast(e.message==='Invalid login credentials'?'И-мэйл эсвэл нууц үг буруу байна.':e.message,'error'); }
+    } catch(e) { toast(e.message==='Invalid login credentials'?'Нэвтрэх нэр эсвэл нууц үг буруу байна.':e.message,'error'); }
     return;
   }
   const db=getDb();
-  const u=db.profiles.find(p=>p.email.toLowerCase()===email && p.password===password);
-  if(!u) { toast('И-мэйл эсвэл нууц үг буруу байна.','error'); return; }
+  const u=db.profiles.find(p=>{
+    const pEmail=String(p.email||'').toLowerCase();
+    const pPhone=String(p.phone||'').replace(/\D/g,'').slice(-8);
+    return (isMnPhone?pPhone===compact:pEmail===email) && p.password===password;
+  });
+  if(!u) { toast('Нэвтрэх нэр эсвэл нууц үг буруу байна.','error'); return; }
   setSession(u.id); toast('Амжилттай нэвтэрлээ.','success'); navigate(u.role==='admin'?'/admin':'/dashboard');
 }
 
