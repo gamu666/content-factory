@@ -3433,3 +3433,103 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
   font-size:12px;
   font-weight:700;
 }
+
+
+/* =========================================================
+   V35 — compact left profile media cards
+   Keep preview/button widths aligned, but make the two left
+   media cards clearly smaller than the information cards.
+   ========================================================= */
+@media (min-width: 821px) {
+  .profile-layout-v10,
+  .admin-profile-layout-v31 {
+    grid-template-columns: 224px minmax(0, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .profile-media-stack-v10,
+  .admin-profile-media-v31 {
+    width: 224px !important;
+    gap: 14px !important;
+  }
+
+  .profile-media-card-v10,
+  .profile-photo-card-v10,
+  .profile-logo-card-v10,
+  .admin-profile-photo-card-v31 {
+    width: 224px !important;
+    min-height: 0 !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .profile-card-copy {
+    margin-top: 4px !important;
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+  }
+
+  .profile-avatar-v10,
+  .profile-logo-v10 {
+    width: 100% !important;
+    height: 118px !important;
+    margin: 14px 0 10px !important;
+    border-radius: 18px !important;
+  }
+
+  .profile-avatar-v10 img,
+  .profile-avatar-v10 > span {
+    width: 86px !important;
+    height: 86px !important;
+  }
+
+  .profile-logo-v10 img {
+    padding: 16px !important;
+  }
+
+  .profile-media-actions-v10 {
+    gap: 6px !important;
+  }
+
+  .profile-media-actions-v10 .btn,
+  .profile-remove-btn-v10 {
+    width: 100% !important;
+    min-height: 40px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+    font-size: 12px !important;
+  }
+
+  .profile-help-v10 {
+    margin-top: 8px !important;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+  }
+
+  .profile-info-stack-v10,
+  .admin-profile-info-v31 {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1080px) {
+  .profile-layout-v10,
+  .admin-profile-layout-v31 {
+    grid-template-columns: 210px minmax(0, 1fr) !important;
+  }
+  .profile-media-stack-v10,
+  .admin-profile-media-v31,
+  .profile-media-card-v10,
+  .profile-photo-card-v10,
+  .profile-logo-card-v10,
+  .admin-profile-photo-card-v31 {
+    width: 210px !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .profile-media-card-v10 {
+    min-height: 0 !important;
+  }
+}
