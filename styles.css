@@ -3166,3 +3166,100 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
   .queue-you-badge { grid-column: 2 / -1; justify-self: start; min-height: 25px; }
   .queue-rule-note { flex-direction: column; gap: 4px; }
 }
+
+
+/* =========================================================
+   V31 — unified profile media proportions (agent + admin)
+   ========================================================= */
+.profile-media-card-v10 {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+.profile-avatar-v10,
+.profile-logo-v10 {
+  width: 100% !important;
+  max-width: none !important;
+  height: 150px !important;
+  box-sizing: border-box !important;
+  margin: 18px 0 12px !important;
+}
+.profile-media-actions-v10,
+.profile-media-actions-v10 .btn,
+.profile-remove-btn-v10 {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.profile-media-actions-v10 .btn,
+.profile-remove-btn-v10 {
+  min-height: 46px !important;
+}
+.profile-avatar-v10 {
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 24px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--surface-2) !important;
+  box-shadow: none !important;
+}
+.profile-avatar-v10 img,
+.profile-avatar-v10 > span {
+  width: 112px !important;
+  height: 112px !important;
+  border-radius: 50% !important;
+}
+.profile-avatar-v10 img {
+  object-fit: cover !important;
+  padding: 0 !important;
+}
+.profile-avatar-v10 > span {
+  display: grid !important;
+  place-items: center !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+}
+.profile-logo-v10 {
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 24px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--surface-2) !important;
+}
+.profile-logo-v10 img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  padding: 22px !important;
+}
+
+.admin-profile-page-v31 { max-width: 1240px; }
+.admin-profile-layout-v31 { align-items: start; }
+.admin-profile-media-v31 { align-content: start; }
+.admin-profile-photo-card-v31 {
+  min-height: 0 !important;
+  border-radius: 28px !important;
+}
+.admin-role-card-v31 {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 210px;
+  border-radius: 28px;
+}
+.admin-profile-info-v31 { min-height: 100%; }
+.admin-profile-save-row-v31 { margin-top: 20px; }
+
+@media (max-width: 820px) {
+  .admin-profile-media-v31 { grid-template-columns: 1fr 1fr; }
+  .admin-role-card-v31 { min-height: 100%; }
+}
+
+@media (max-width: 620px) {
+  .admin-profile-media-v31 { grid-template-columns: 1fr; }
+  .profile-avatar-v10,
+  .profile-logo-v10 { height: 112px !important; }
+  .profile-avatar-v10 img,
+  .profile-avatar-v10 > span {
+    width: 72px !important;
+    height: 72px !important;
+  }
+  .admin-role-card-v31 { min-height: 150px; }
+}

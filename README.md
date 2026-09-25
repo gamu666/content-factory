@@ -61,3 +61,11 @@ Never put a Supabase service-role/secret key in config.js. The publishable key i
 - This avoids the Phone provider dependency entirely.
 - Public login UI still does not show the private admin username.
 - Cache-busting updated to v30.
+
+
+## V31
+- Unified agent/admin profile media layout.
+- Profile image preview box and upload button now use exactly the same width.
+- Organization logo preview and upload button also use exactly the same width.
+- Admin profile now uses the same visual system and spacing as the agent profile.
+- Mobile proportions remain matched.

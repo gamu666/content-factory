@@ -641,34 +641,50 @@ function profilePage() {
 function adminProfilePage() {
   const db=getDb(), user=currentUser(db);
   const avatar=user.avatar_url||'';
-  return shell(`<div class="container">${pageHead('Профайл','Админы хувийн мэдээлэл болон профайл зургаа удирдана.')}
-    <form id="admin-profile-form" class="card profile-form-card profile-form-v3 admin-profile-form">
-      <div class="profile-media-pane admin-profile-media">
-        <div class="profile-upload-block">
-          <div class="panel-title">Профайл зураг</div>
-          <div id="profile-avatar-preview" class="profile-avatar-preview ${avatar?'has-photo':''}">${avatar?`<img src="${esc(avatar)}" alt="Профайл зураг" />`:`<span>${esc(initials(user.full_name))}</span>`}</div>
+  return shell(`<div class="container profile-page-v10 admin-profile-page-v31">${pageHead('Профайл','Админы хувийн мэдээлэл болон профайл зургаа удирдана.')}
+    <form id="admin-profile-form" class="profile-layout-v10 admin-profile-layout-v31">
+      <aside class="profile-media-stack-v10 admin-profile-media-v31">
+        <section class="card profile-media-card-v10 profile-photo-card-v10 admin-profile-photo-card-v31">
+          <div class="profile-card-kicker">Профайл зураг</div>
+          <div class="profile-card-copy">Админы профайл зураг.</div>
+          <div id="profile-avatar-preview" class="profile-avatar-preview profile-avatar-v10 ${avatar?'has-photo':''}">${avatar?`<img src="${esc(avatar)}" alt="Профайл зураг" />`:`<span>${esc(initials(user.full_name))}</span>`}</div>
           <input id="profile-avatar-input" name="avatar_image" type="file" accept="image/png,image/jpeg,image/webp" hidden />
           <input id="remove-avatar-flag" name="remove_avatar" type="hidden" value="0" />
-          <label class="btn btn-secondary media-upload-button" for="profile-avatar-input">${icon('upload')} Зураг оруулах</label>
-          ${avatar?`<button class="btn btn-soft media-upload-button" type="button" data-action="remove-profile-avatar">Зураг арилгах</button>`:''}
-          <p class="help">Өөрийн профайл зураг. JPG, PNG, WEBP · 10MB хүртэл.</p>
-        </div>
-        <div class="admin-role-card">
+          <div class="profile-media-actions-v10">
+            <label class="btn btn-secondary" for="profile-avatar-input">${icon('upload')} Зураг оруулах</label>
+            ${avatar?`<button class="profile-remove-btn-v10" type="button" data-action="remove-profile-avatar">Арилгах</button>`:''}
+          </div>
+          <p class="help profile-help-v10">JPG, PNG, WEBP · 10MB хүртэл.</p>
+        </section>
+
+        <section class="admin-role-card admin-role-card-v31">
           <div class="admin-role-icon">${icon('settings')}</div>
           <span>Системийн эрх</span>
           <strong>Админ</strong>
           <p>Захиалга, агент, зураг авалт болон production төлөвийг удирдах эрхтэй.</p>
-        </div>
-      </div>
-      <div class="profile-fields-pane">
-        <div class="profile-section-title">Хувийн мэдээлэл</div>
-        <div class="form-grid">
-          <div class="field"><label>Овог нэр</label><input name="full_name" value="${esc(user.full_name)}" required /></div>
-          <div class="field"><label>Утасны дугаар</label><input name="phone" value="${esc(user.phone||'')}" placeholder="9900 1100" /></div>
-          <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">И-мэйл солих шаардлагатай бол админтай холбогдоно уу.</div></div>
-          <div class="field full"><label>Эрх</label><input value="Админ" disabled /></div>
-        </div>
-        <div class="form-actions"><button class="btn btn-primary" type="submit">Хадгалах</button></div>
+        </section>
+      </aside>
+
+      <div class="profile-info-stack-v10">
+        <section class="card profile-info-card-v10 profile-personal-card-v10 admin-profile-info-v31">
+          <div class="profile-info-head-v10">
+            <div>
+              <span>Хувийн мэдээлэл</span>
+              <h2>${esc(user.full_name)}</h2>
+            </div>
+            <div class="profile-mini-avatar-v10">${userAvatarHtml(user)}</div>
+          </div>
+          <div class="form-grid profile-form-grid-v10">
+            <div class="field"><label>Овог нэр</label><input name="full_name" value="${esc(user.full_name)}" required /></div>
+            <div class="field"><label>Утасны дугаар</label><input name="phone" value="${esc(user.phone||'')}" placeholder="9900 1100" /></div>
+            <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">И-мэйл солих шаардлагатай бол админтай холбогдоно уу.</div></div>
+            <div class="field full"><label>Эрх</label><input value="Админ" disabled /></div>
+          </div>
+          <div class="profile-save-row-v10 admin-profile-save-row-v31">
+            <span>Өөрчлөлт хийсний дараа хадгална уу.</span>
+            <button class="btn btn-primary profile-save-v10" type="submit">Хадгалах</button>
+          </div>
+        </section>
       </div>
     </form>
   </div>`,'admin-profile');
