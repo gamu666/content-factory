@@ -34,7 +34,6 @@ Never put a Supabase service-role/secret key in config.js. The publishable key i
 ## V26
 - Login now accepts either email or an 8-digit Mongolian phone number.
 - 8-digit phone login is normalized internally to +976XXXXXXXX for Supabase Auth.
-- +97680114941 is reserved by the database trigger to receive admin role when that Auth user is created.
 
 
 ## V27
@@ -51,13 +50,11 @@ Never put a Supabase service-role/secret key in config.js. The publishable key i
 ## V29
 - Removed Supabase phone-password login dependency.
 - Agents sign in with email.
-- Private admin username 80114941 is translated internally to a hidden Supabase email account.
 - Public login UI still does not reveal the admin username.
 - Cache-busting updated to v29.
 
 ## V30
 - Private admin username no longer uses Supabase phone auth.
-- Username 80114941 maps internally to owner@contentfactory.mn.
 - This avoids the Phone provider dependency entirely.
 - Public login UI still does not show the private admin username.
 - Cache-busting updated to v30.
@@ -69,3 +66,28 @@ Never put a Supabase service-role/secret key in config.js. The publishable key i
 - Organization logo preview and upload button also use exactly the same width.
 - Admin profile now uses the same visual system and spacing as the agent profile.
 - Mobile proportions remain matched.
+## V32
+- Removed personal names, phone numbers, email addresses, and real-business names from example placeholders.
+- Added Forgot password flow using Supabase recovery email.
+- Added Reset password page for recovery links.
+- Added Change password section to both agent and admin profiles.
+- GitHub Pages recovery redirect uses the current deployed path with `?reset=1`.
+- Cache-busting updated to v32.
+
+## V33
+- Admin dashboard workflow KPI cards are clickable.
+- Each stage opens the admin order list filtered to that exact production status.
+- Added filter chips with live counts on the admin orders page.
+- Agents can request a revision from a completed video.
+- Revision request moves the order to REVISION, appears in activity, and notifies admins.
+- Admin order detail highlights the latest agent revision request.
+- Cache-busting updated to v33.
+
+## V34
+- Completed agent orders no longer hide the delivery area when the final video link is missing.
+- Agent sees a clear “Бичлэгийн линк хараахан оруулаагүй байна” state.
+- Completed cards show whether the video link is ready or still waiting.
+- Admin “Final delivery / Final video URL” is now Mongolian: “Бэлэн болсон бичлэг / Бичлэгийн линк”.
+- Admin cannot mark an order Completed without entering a final video link.
+- Database also rejects future Completed orders without a final video link.
+- Cache-busting updated to v34.

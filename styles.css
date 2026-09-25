@@ -3263,3 +3263,173 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
   }
   .admin-role-card-v31 { min-height: 150px; }
 }
+
+
+/* V32 — account security */
+.auth-recovery-link{display:flex;justify-content:flex-end;margin-top:-6px;margin-bottom:2px}
+.auth-recovery-link button{border:0;background:transparent;padding:0;color:var(--blue,#168af2);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.profile-security-card-v32{margin-top:18px;padding:24px}
+.profile-security-card-v32 .profile-info-head-v10{margin-bottom:18px}
+.profile-security-card-v32 .profile-save-row-v10{margin-top:20px}
+@media (max-width:760px){.profile-security-card-v32{margin-top:14px;padding:18px}}
+
+
+/* V33 — interactive production stages + revision requests */
+.admin-kpi-link{
+  width:100%;
+  text-align:left;
+  appearance:none;
+  font:inherit;
+  color:inherit;
+  cursor:pointer;
+  position:relative;
+}
+.admin-kpi-link small{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin-top:8px;
+  font-size:11px;
+  font-weight:700;
+  opacity:.58;
+}
+.admin-kpi-link small svg{width:13px;height:13px}
+.admin-kpi-link:hover{
+  transform:translateY(-2px);
+  border-color:rgba(76,166,255,.48);
+  background:rgba(255,255,255,.075);
+}
+.stage-filter-chips{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:12px 0 16px;
+}
+.stage-chip{
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  border-radius:999px;
+  padding:9px 13px;
+  font:inherit;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.stage-chip strong{margin-left:5px}
+.stage-chip.active{
+  background:var(--blue);
+  color:#fff;
+  border-color:var(--blue);
+}
+.revision-request-form{
+  margin-top:18px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.revision-request-head{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+}
+.revision-request-head strong{
+  display:block;
+  font-size:14px;
+}
+.revision-request-head span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+}
+.revision-request-form textarea{
+  min-height:105px;
+  resize:vertical;
+}
+.revision-request-sent{
+  margin-top:18px;
+  padding:15px 16px;
+  border-radius:16px;
+  border:1px solid rgba(245,158,11,.28);
+  background:rgba(245,158,11,.08);
+}
+.revision-request-sent strong{display:block;margin-bottom:5px}
+.revision-request-sent p{margin:0;color:var(--muted);line-height:1.55}
+.revision-admin-alert{
+  border-color:rgba(245,158,11,.32)!important;
+  background:linear-gradient(180deg,rgba(245,158,11,.08),transparent);
+}
+.revision-admin-message{
+  font-size:15px;
+  font-weight:700;
+  line-height:1.6;
+}
+.revision-admin-meta{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+}
+@media (max-width:760px){
+  .stage-filter-chips{gap:6px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
+  .stage-chip{white-space:nowrap}
+  .admin-kpi-link small{display:none}
+}
+
+
+/* V34 — delivery link visibility */
+.delivery-card-state{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  border-radius:999px;
+  padding:6px 9px;
+}
+.delivery-card-state svg{width:13px;height:13px}
+.delivery-card-state.ready{
+  color:#087443;
+  background:rgba(16,185,129,.12);
+}
+.delivery-card-state.waiting{
+  color:#96620a;
+  background:rgba(245,158,11,.13);
+}
+.final-delivery-missing{
+  border-color:rgba(245,158,11,.26)!important;
+}
+.delivery-missing-box{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  padding:16px;
+  border-radius:16px;
+  background:rgba(245,158,11,.08);
+  border:1px solid rgba(245,158,11,.22);
+}
+.delivery-missing-box>svg{
+  width:22px;
+  height:22px;
+  flex:0 0 auto;
+  margin-top:2px;
+}
+.delivery-missing-box strong{
+  display:block;
+  margin-bottom:5px;
+}
+.delivery-missing-box p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+}
+.delivery-admin-warning{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:rgba(239,68,68,.08);
+  border:1px solid rgba(239,68,68,.18);
+  color:#b42318;
+  font-size:12px;
+  font-weight:700;
+}

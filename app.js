@@ -42,6 +42,7 @@ let REMOTE_USER_ID = null;
 let REMOTE_LOADED = false;
 let realtimeChannel = null;
 let remoteRefreshTimer = null;
+let PASSWORD_RECOVERY_ACTIVE = new URLSearchParams(window.location.search).get('reset') === '1';
 
 function blankDb() {
   return {profiles:[],orders:[],briefs:[],activity:[],notifications:[],order_status_history:[],productionQueue:[]};
@@ -167,12 +168,12 @@ function fileToDataUrl(file) { return new Promise((resolve,reject)=>{ const r=ne
 
 function seedDb() {
   const profiles = [
-    {id:'agent_1', email:'agent@demo.mn', password:'demo123', full_name:'Б. Тэмүүлэн', phone:'9911 2233', agency_name:'Prime Realty', organization_name:'Prime Realty', branch_name:'Зайсан салбар', organization_logo_url:'', role:'agent', avatar_url:'', created_at:'2026-09-01T08:00:00Z'},
-    {id:'admin_1', email:'admin@demo.mn', password:'admin123', full_name:'Тэмүүлэн', phone:'9900 1100', agency_name:BRAND_NAME, role:'admin', avatar_url:'', created_at:'2026-09-01T08:00:00Z'},
+    {id:'agent_1', email:'agent@demo.mn', password:'demo123', full_name:'Агент хэрэглэгч', phone:'0000 0000', agency_name:'Demo Agency', organization_name:'Demo Agency', branch_name:'Төв салбар', organization_logo_url:'', role:'agent', avatar_url:'', created_at:'2026-09-01T08:00:00Z'},
+    {id:'admin_1', email:'admin@demo.mn', password:'admin123', full_name:'Админ хэрэглэгч', phone:'0000 0000', agency_name:BRAND_NAME, role:'admin', avatar_url:'', created_at:'2026-09-01T08:00:00Z'},
     {id:'admin_2', email:'admin2@demo.mn', password:'admin123', full_name:'Ган-Эрдэнэ', phone:'9900 2200', agency_name:BRAND_NAME, role:'admin', avatar_url:'', created_at:'2026-09-01T08:00:00Z'}
   ];
   const orders = [
-    {id:'order_24', order_number:'Контент-0024', agent_id:'agent_1', assigned_admin_id:'admin_1', property_name:'Seven Star', location:'Зайсан', property_type:'Үйлчилгээний талбай', purpose:'Зарах', description:'Зайсан орчим дахь үйлчилгээний зориулалттай талбай.', listing_url:'', additional_notes:'Өргөн өнцгийн орон зай, байршлын давуу талыг онцолно.', status:'EDITING', sub_status:'EDITING', agreed_price:350000, payment_status:'PENDING', shoot_date:'2026-09-25T11:00:00+08:00', shoot_started_at:'2026-09-25T11:08:00+08:00', shoot_location:'Зайсан, ХУД', thumbnail_url:'', final_video_url:'', created_at:'2026-09-24T06:32:00Z', updated_at:'2026-09-26T01:20:00Z', completed_at:null},
+    {id:'order_24', order_number:'Контент-0024', agent_id:'agent_1', assigned_admin_id:'admin_1', property_name:'Жишээ объект', location:'Жишээ байршил', property_type:'Үйлчилгээний талбай', purpose:'Зарах', description:'Зайсан орчим дахь үйлчилгээний зориулалттай талбай.', listing_url:'', additional_notes:'Өргөн өнцгийн орон зай, байршлын давуу талыг онцолно.', status:'EDITING', sub_status:'EDITING', agreed_price:350000, payment_status:'PENDING', shoot_date:'2026-09-25T11:00:00+08:00', shoot_started_at:'2026-09-25T11:08:00+08:00', shoot_location:'Жишээ байршил', thumbnail_url:'', final_video_url:'', created_at:'2026-09-24T06:32:00Z', updated_at:'2026-09-26T01:20:00Z', completed_at:null},
     {id:'order_25', order_number:'Контент-0025', agent_id:'agent_1', assigned_admin_id:'admin_2', property_name:'River Garden', location:'Хан-Уул', property_type:'Орон сууц', purpose:'Зарах', description:'3 өрөө орон сууц.', listing_url:'', additional_notes:'', status:'SHOOTING', sub_status:'', agreed_price:300000, payment_status:'PAID', shoot_date:'2026-09-28T14:00:00+08:00', shoot_started_at:null, shoot_location:'River Garden, ХУД', thumbnail_url:'', final_video_url:'', created_at:'2026-09-23T04:10:00Z', updated_at:'2026-09-24T09:00:00Z', completed_at:null},
     {id:'order_26', order_number:'Контент-0026', agent_id:'agent_1', assigned_admin_id:'admin_1', property_name:'Japan Town', location:'Хан-Уул', property_type:'Орон сууц', purpose:'Түрээслүүлэх', description:'2 өрөө байр.', listing_url:'', additional_notes:'', status:'COMPLETED', sub_status:'', agreed_price:280000, payment_status:'PAID', shoot_date:'2026-09-18T10:30:00+08:00', shoot_started_at:'2026-09-18T10:35:00+08:00', shoot_location:'Japan Town, ХУД', thumbnail_url:'', final_video_url:'https://example.com/final/reel-0026', created_at:'2026-09-15T05:20:00Z', updated_at:'2026-09-20T08:30:00Z', completed_at:'2026-09-20T08:30:00Z'}
   ];
@@ -193,8 +194,8 @@ function seedDb() {
   ];
   const notifications = [
     {id:'n1', recipient_id:'agent_1', type:'STATUS_CHANGE', title:'Бичлэгийн төлөв шинэчлэгдлээ', message:'Контент-0024 · Боловсруулж байна', order_id:'order_24', read_at:null, created_at:'2026-09-26T01:20:00Z'},
-    {id:'n2', recipient_id:'admin_1', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Б. Тэмүүлэн · Контент-0025 · River Garden', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'},
-    {id:'n3', recipient_id:'admin_2', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Б. Тэмүүлэн · Контент-0025 · River Garden', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'}
+    {id:'n2', recipient_id:'admin_1', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Агент хэрэглэгч · Контент-0025 · Жишээ объект', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'},
+    {id:'n3', recipient_id:'admin_2', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Агент хэрэглэгч · Контент-0025 · Жишээ объект', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'}
   ];
   return {profiles, orders, briefs, activity, notifications};
 }
@@ -435,10 +436,13 @@ function pageHead(title, sub='', actions='') {
 }
 
 function orderCard(order) {
+  const deliveryState=order.status==='COMPLETED'
+    ? `<span class="delivery-card-state ${order.final_video_url?'ready':'waiting'}">${order.final_video_url?`${icon('video')} Бичлэг үзэх боломжтой`:`${icon('clock')} Бичлэгийн линк хүлээгдэж байна`}</span>`
+    : '';
   return `<article class="card order-card" data-nav="/orders/${order.id}">
     <div class="order-card-top"><div><div class="order-number">${esc(order.order_number)}</div><h3>${esc(order.property_name)}</h3><div class="order-location">${esc(order.location)}</div></div>${statusPill(order)}</div>
     ${progressHtml(order.status)}
-    <div class="order-meta"><span>${order.shoot_date?`Зураг авалт: <strong>${formatDate(order.shoot_date,true)}</strong>`:`Сүүлд шинэчилсэн: <strong>${formatDate(order.updated_at,true)}</strong>`}</span></div>
+    <div class="order-meta"><span>${order.shoot_date?`Зураг авалт: <strong>${formatDate(order.shoot_date,true)}</strong>`:`Сүүлд шинэчилсэн: <strong>${formatDate(order.updated_at,true)}</strong>`}</span>${deliveryState}</div>
   </article>`;
 }
 
@@ -490,7 +494,7 @@ function newOrderPage() {
   return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Объектын үндсэн мэдээллээ илгээнэ үү. Зураг, бичлэг файл оруулах шаардлагагүй. Бичлэгийн style, зураг авалтын шийдлийг дараа нь хамт ярилцана.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
     <form id="new-order-form" class="card form-card">
       <div class="form-grid">
-        <div class="field"><label>Объектын нэр *</label><input name="property_name" required placeholder="Жишээ: Seven Star" /></div>
+        <div class="field"><label>Объектын нэр *</label><input name="property_name" required placeholder="Объектын нэрийг оруулна уу" /></div>
         <div class="field"><label>Байршил *</label><input name="location" required placeholder="Жишээ: Зайсан, ХУД" /></div>
         <div class="field"><label>Үл хөдлөхийн төрөл *</label><select name="property_type" required><option value="">Сонгох</option>${propertyTypes.map(x=>`<option>${x}</option>`).join('')}</select></div>
         <div class="field"><label>Бичлэгийн зорилго *</label><select name="purpose" required><option value="">Сонгох</option>${purposes.map(x=>`<option>${x}</option>`).join('')}</select></div>
@@ -510,7 +514,21 @@ function orderDetailPage(id) {
   const acts=db.activity.filter(a=>a.order_id===order.id && a.visible_to_agent).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const sub=order.sub_status ? subStatusLabels[order.sub_status] : '';
   const price = order.agreed_price!=null ? formatMoney(order.agreed_price) : 'Үнэ тохиролцож байна';
-  const finalPanel=order.final_video_url?`<section class="card panel"><div class="panel-title">Final video</div><p class="brief">Бичлэг тань бэлэн болсон.</p><div class="actions" style="margin-top:14px"><a class="btn btn-primary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">${icon('video')} Бичлэг үзэх</a><a class="btn btn-secondary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">Файл татах</a></div></section>`:'';
+  const revisionRequest=acts.filter(a=>a.activity_type==='REVISION_REQUEST').slice(-1)[0];
+  const revisionUi=order.status==='COMPLETED'
+    ? `<form id="revision-request-form" class="revision-request-form" data-order-id="${order.id}">
+        <div class="revision-request-head"><div><strong>Засварын хүсэлт</strong><span>Өөрчлөх шаардлагатай хэсгээ тодорхой бичнэ үү.</span></div></div>
+        <div class="field"><textarea name="revision_message" required maxlength="1200" placeholder="Жишээ: 00:08–00:12 хэсгийн кадрыг солих, төгсгөлийн текстийг богиносгох..."></textarea></div>
+        <button class="btn btn-secondary" type="submit">${icon('orders')} Засварын хүсэлт илгээх</button>
+      </form>`
+    : order.status==='REVISION'
+      ? `<div class="revision-request-sent"><strong>Засварын хүсэлт илгээгдсэн</strong><p>${esc(revisionRequest?.public_message?.replace(/^Засварын хүсэлт:\s*/,'')||'Манай баг хүсэлтийг хүлээн авч засварлаж байна.')}</p></div>`
+      : '';
+  const finalPanel=order.final_video_url
+    ? `<section class="card panel final-delivery-agent"><div class="panel-title">Бэлэн болсон бичлэг</div><p class="brief">${order.status==='REVISION'?'Засварын хүсэлт дээр ажиллаж байна.':'Бичлэг тань бэлэн болсон.'}</p><div class="actions" style="margin-top:14px"><a class="btn btn-primary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">${icon('video')} Бичлэг үзэх</a><a class="btn btn-secondary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">Линк нээх</a></div>${revisionUi}</section>`
+    : order.status==='COMPLETED'
+      ? `<section class="card panel final-delivery-agent final-delivery-missing"><div class="panel-title">Бэлэн болсон бичлэг</div><div class="delivery-missing-box">${icon('video')}<div><strong>Бичлэгийн линк хараахан оруулаагүй байна</strong><p>Админ бичлэгийн линк нэммэгц энд <b>Бичлэг үзэх</b> товч автоматаар гарна.</p></div></div></section>`
+      : '';
   return shell(`<div class="container">${pageHead(`${esc(order.order_number)} · ${esc(order.property_name)}`, esc(order.location), `<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
     <div class="detail-grid"><div class="detail-main">
       <section class="card panel"><div class="panel-title">Одоогийн төлөв</div><div class="current-status"><div><h2>${esc(statusLabels[order.status])}</h2><p>${esc(sub||'Явц шинэчлэгдэж байна')}</p></div>${statusPill(order)}</div>${progressHtml(order.status)}</section>
@@ -624,14 +642,29 @@ function profilePage() {
             </div>
           </div>
           <div class="form-grid profile-form-grid-v10">
-            <div class="field"><label>Байгууллага / агентлагийн нэр</label><input name="organization_name" value="${esc(orgName(user))}" placeholder="Prime Realty" /></div>
-            <div class="field"><label>Салбарын нэр</label><input name="branch_name" value="${esc(user.branch_name||'')}" placeholder="Жишээ: Зайсан салбар" /></div>
+            <div class="field"><label>Байгууллага / агентлагийн нэр</label><input name="organization_name" value="${esc(orgName(user))}" placeholder="Байгууллагын нэр" /></div>
+            <div class="field"><label>Салбарын нэр</label><input name="branch_name" value="${esc(user.branch_name||'')}" placeholder="Салбарын нэр" /></div>
           </div>
           <div class="profile-save-row-v10">
             <span>Өөрчлөлт хийсний дараа хадгална уу.</span>
             <button class="btn btn-primary profile-save-v10" type="submit">Хадгалах</button>
           </div>
         </section>
+      </div>
+    </form>
+
+    <form id="change-password-form" class="card profile-security-card-v32">
+      <div class="profile-info-head-v10 compact">
+        <div><span>Нууцлал</span><h2>Нууц үг солих</h2></div>
+      </div>
+      <div class="form-grid profile-form-grid-v10">
+        <div class="field"><label>Одоогийн нууц үг</label><input name="current_password" type="password" required minlength="6" autocomplete="current-password" placeholder="Одоогийн нууц үг" /></div>
+        <div class="field"><label>Шинэ нууц үг</label><input id="change-password-new" name="new_password" type="password" required minlength="6" autocomplete="new-password" placeholder="Шинэ нууц үг" /></div>
+        <div class="field"><label>Шинэ нууц үг давтах</label><input id="change-password-confirm" name="new_password_confirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Шинэ нууц үг давтах" /></div>
+      </div>
+      <div class="profile-save-row-v10">
+        <span>Нууц үгээ тогтмол шинэчилж, бусадтай бүү хуваалцаарай.</span>
+        <button class="btn btn-primary profile-save-v10" type="submit">Нууц үг солих</button>
       </div>
     </form>
   </div>`,'profile');
@@ -676,7 +709,7 @@ function adminProfilePage() {
           </div>
           <div class="form-grid profile-form-grid-v10">
             <div class="field"><label>Овог нэр</label><input name="full_name" value="${esc(user.full_name)}" required /></div>
-            <div class="field"><label>Утасны дугаар</label><input name="phone" value="${esc(user.phone||'')}" placeholder="9900 1100" /></div>
+            <div class="field"><label>Утасны дугаар</label><input name="phone" value="${esc(user.phone||'')}" placeholder="Утасны дугаараа оруулна уу" /></div>
             <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">И-мэйл солих шаардлагатай бол админтай холбогдоно уу.</div></div>
             <div class="field full"><label>Эрх</label><input value="Админ" disabled /></div>
           </div>
@@ -687,6 +720,21 @@ function adminProfilePage() {
         </section>
       </div>
     </form>
+
+    <form id="change-password-form" class="card profile-security-card-v32 admin-profile-security-v32">
+      <div class="profile-info-head-v10 compact">
+        <div><span>Нууцлал</span><h2>Нууц үг солих</h2></div>
+      </div>
+      <div class="form-grid profile-form-grid-v10">
+        <div class="field"><label>Одоогийн нууц үг</label><input name="current_password" type="password" required minlength="6" autocomplete="current-password" placeholder="Одоогийн нууц үг" /></div>
+        <div class="field"><label>Шинэ нууц үг</label><input id="change-password-new" name="new_password" type="password" required minlength="6" autocomplete="new-password" placeholder="Шинэ нууц үг" /></div>
+        <div class="field"><label>Шинэ нууц үг давтах</label><input id="change-password-confirm" name="new_password_confirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Шинэ нууц үг давтах" /></div>
+      </div>
+      <div class="profile-save-row-v10">
+        <span>Админ эрхтэй account тул хүчтэй, давтагдаагүй нууц үг ашиглана уу.</span>
+        <button class="btn btn-primary profile-save-v10" type="submit">Нууц үг солих</button>
+      </div>
+    </form>
   </div>`,'admin-profile');
 }
 
@@ -694,13 +742,36 @@ function loginPage(mode='login') {
   const register=mode==='register';
   return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Контентын явц<br>нэг дор.</h1><p>Үл хөдлөхийн агент, контент production багийн хоорондох захиалга, зураг авалт, edit, delivery-г цэгцтэй удирдах веб орчин.</p></div><div style="color:#777c85;font-size:11px">Real estate контент үйлдвэрлэлийн портал</div></section><section class="auth-side"><div class="auth-box"><h2>${register?'Бүртгэл үүсгэх':'Тавтай морил'}</h2><p>${register?'Контент захиалга өгч, үйлдвэрлэлийн явцаа нэг дор хянаарай.':'Өөрийн захиалга, зураг авалт, бичлэгийн явцаа харахын тулд нэвтэрнэ үү.'}</p>
   <form id="${register?'register-form':'login-form'}" class="auth-form">
-    ${register?`<div class="field"><label>Овог нэр</label><input name="full_name" required placeholder="Б. Тэмүүлэн" autocomplete="name" /></div><div class="field"><label>Утасны дугаар</label><input name="phone" required placeholder="9911 2233" autocomplete="tel" /></div><div class="field"><label>Байгууллага / агентлаг</label><input name="agency_name" placeholder="Prime Realty" /></div>`:''}
-    ${register?`<div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="name@example.mn" autocomplete="email" /></div>`:`<div class="field"><label>И-мэйл</label><input name="identifier" type="text" inputmode="email" required placeholder="name@example.mn" autocomplete="username" /></div>`}
+    ${register?`<div class="field"><label>Овог нэр</label><input name="full_name" required placeholder="Овог нэрээ оруулна уу" autocomplete="name" /></div><div class="field"><label>Утасны дугаар</label><input name="phone" required placeholder="Утасны дугаараа оруулна уу" autocomplete="tel" /></div><div class="field"><label>Байгууллага / агентлаг</label><input name="agency_name" placeholder="Байгууллагын нэр" /></div>`:''}
+    ${register?`<div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="email" /></div>`:`<div class="field"><label>И-мэйл</label><input name="identifier" type="text" inputmode="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="username" /></div>`}
     <div class="field"><label>Нууц үг</label><input id="register-password" name="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="${register?'new-password':'current-password'}" /></div>
     ${register?`<div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>`:''}
     <button class="btn btn-primary" type="submit">${register?'Бүртгүүлэх':'Нэвтрэх'}</button>
-  </form><div class="auth-foot">${register?'Бүртгэлтэй юу?':'Бүртгэлгүй юу?'} <button data-nav="${register?'/login':'/register'}">${register?'Нэвтрэх':'Бүртгэл үүсгэх'}</button></div>
+  </form>
+  ${!register?`<div class="auth-recovery-link"><button type="button" data-nav="/forgot-password">Нууц үгээ мартсан уу?</button></div>`:''}
+  <div class="auth-foot">${register?'Бүртгэлтэй юу?':'Бүртгэлгүй юу?'} <button data-nav="${register?'/login':'/register'}">${register?'Нэвтрэх':'Бүртгэл үүсгэх'}</button></div>
   ${!register && !REMOTE_ENABLED?`<div class="demo-box"><strong>Demo нэвтрэх</strong><br>Agent: agent@demo.mn / demo123<br>Admin: admin@demo.mn / admin123</div>`:''}
+  </div></section></div>`;
+}
+
+
+function forgotPasswordPage() {
+  return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Нууц үгээ<br>сэргээх.</h1><p>Бүртгэлтэй и-мэйл хаяг руу нууц үг шинэчлэх хамгаалалттай холбоос илгээнэ.</p></div></section><section class="auth-side"><div class="auth-box"><h2>Нууц үгээ мартсан уу?</h2><p>Бүртгэлтэй и-мэйл хаягаа оруулна уу.</p>
+    <form id="forgot-password-form" class="auth-form">
+      <div class="field"><label>И-мэйл</label><input name="email" type="email" required autocomplete="email" placeholder="И-мэйл хаягаа оруулна уу" /></div>
+      <button class="btn btn-primary" type="submit">Сэргээх холбоос илгээх</button>
+    </form>
+    <div class="auth-foot"><button type="button" data-nav="/login">Нэвтрэх рүү буцах</button></div>
+  </div></section></div>`;
+}
+
+function resetPasswordPage() {
+  return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Шинэ нууц үг<br>тохируулах.</h1><p>Шинэ нууц үгээ хоёр удаа ижил оруулж баталгаажуулна.</p></div></section><section class="auth-side"><div class="auth-box"><h2>Нууц үг шинэчлэх</h2><p>Доорх шинэ нууц үг цаашид таны нэвтрэх нууц үг болно.</p>
+    <form id="reset-password-form" class="auth-form">
+      <div class="field"><label>Шинэ нууц үг</label><input id="reset-password-new" name="new_password" type="password" required minlength="6" autocomplete="new-password" placeholder="Шинэ нууц үг" /></div>
+      <div class="field"><label>Шинэ нууц үг давтах</label><input id="reset-password-confirm" name="new_password_confirm" type="password" required minlength="6" autocomplete="new-password" placeholder="Шинэ нууц үг давтах" /></div>
+      <button class="btn btn-primary" type="submit">Нууц үг шинэчлэх</button>
+    </form>
   </div></section></div>`;
 }
 
@@ -711,11 +782,18 @@ function adminDashboard() {
   const upcoming=orders.filter(o=>o.shoot_date && o.shoot_date.slice(0,10)>=today && o.status!=='COMPLETED').sort((a,b)=>new Date(a.shoot_date)-new Date(b.shoot_date));
   const nextShoot=upcoming[0];
   const newNotifs=(db.notifications||[]).filter(n=>n.type==='NEW_ORDER'&&!n.read_at).length;
-  const kpis=[['Төлөвлөлт',count('PLANNING')],['Зураг авалт',count('SHOOTING')],['Боловсруулалт',count('EDITING')],['Хянаж байгаа',count('REVIEW')],['Засвар',count('REVISION')],['Бэлэн',count('COMPLETED')]];
+  const kpis=[
+    ['Төлөвлөлт',count('PLANNING'),'PLANNING'],
+    ['Зураг авалт',count('SHOOTING'),'SHOOTING'],
+    ['Боловсруулалт',count('EDITING'),'EDITING'],
+    ['Хянаж байгаа',count('REVIEW'),'REVIEW'],
+    ['Засвар',count('REVISION'),'REVISION'],
+    ['Бэлэн',count('COMPLETED'),'COMPLETED']
+  ];
   const recent=[...orders].sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at)).slice(0,6);
   const nextPanel=nextShoot?`<div class="admin-next-shoot" data-nav="/admin/orders/${nextShoot.id}"><div class="module-head"><span>Дараагийн зураг авалт</span>${icon('calendar')}</div><div class="admin-next-time">${formatDate(nextShoot.shoot_date,true)}</div><strong>${esc(nextShoot.property_name)}</strong><p>${esc(nextShoot.shoot_location||nextShoot.location)}</p><span class="mini-link">Нээх ${icon('arrow')}</span></div>`:`<div class="admin-next-shoot"><div class="module-head"><span>Дараагийн зураг авалт</span>${icon('calendar')}</div><div class="module-empty-mark">—</div><strong>Товлогдоогүй</strong></div>`;
   return shell(`<div class="container admin-home">${pageHead('Хяналтын самбар','Өнөөдрийн production ажлын тойм.',`<button class="btn btn-secondary" data-nav="/admin/orders">Бүх захиалга</button>`)}
-    <div class="admin-command-grid"><section class="admin-command-center"><div class="feature-top"><div><span class="feature-kicker">Production control</span><div class="feature-order-no">${BRAND_NAME}</div></div><span class="module-live light"><i></i> ажиллаж байна</span></div><div class="admin-command-title"><h2>Ажлын урсгал</h2><p>Захиалга бүрийн одоогийн шат нэг дор.</p></div><div class="admin-kpis">${kpis.map(([l,v])=>`<div class="admin-kpi"><span>${l}</span><strong>${v}</strong></div>`).join('')}</div></section><aside class="admin-side-stack"><div class="module-card admin-alert-card"><div class="module-head"><span>Шинэ захиалга</span>${icon('bell')}</div><strong>${newNotifs}</strong><p>Уншаагүй admin мэдэгдэл</p></div>${nextPanel}</aside></div>
+    <div class="admin-command-grid"><section class="admin-command-center"><div class="feature-top"><div><span class="feature-kicker">Production control</span><div class="feature-order-no">${BRAND_NAME}</div></div><span class="module-live light"><i></i> ажиллаж байна</span></div><div class="admin-command-title"><h2>Ажлын урсгал</h2><p>Захиалга бүрийн одоогийн шат нэг дор.</p></div><div class="admin-kpis">${kpis.map(([l,v,status])=>`<button class="admin-kpi admin-kpi-link" type="button" data-nav="/admin/orders?status=${status}" title="${l} шатны захиалгуудыг харах"><span>${l}</span><strong>${v}</strong><small>Нээх ${icon('arrow')}</small></button>`).join('')}</div></section><aside class="admin-side-stack"><div class="module-card admin-alert-card"><div class="module-head"><span>Шинэ захиалга</span>${icon('bell')}</div><strong>${newNotifs}</strong><p>Уншаагүй admin мэдэгдэл</p></div>${nextPanel}</aside></div>
     <section class="section"><div class="section-head"><h2 class="section-title">Удахгүй болох зураг авалт</h2><span class="section-note">${upcoming.length} тов</span></div>${upcoming.length?`<div class="shoot-list">${upcoming.slice(0,5).map(o=>shootItem(o,db)).join('')}</div>`:emptyState('Зураг авалт товлогдоогүй','Одоогоор upcoming зураг авалт алга.')}</section>
     <section class="section"><div class="section-head"><h2 class="section-title">Сүүлд шинэчлэгдсэн</h2></div><div class="card table-wrap">${adminOrdersTable(recent,db)}</div></section>
   </div>`,'admin');
@@ -726,10 +804,19 @@ function adminOrdersTable(orders,db) {
 }
 
 function adminOrdersPage() {
-  const db=getDb(), admins=db.profiles.filter(p=>p.role==='admin'), orders=[...db.orders].sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
-  return shell(`<div class="container">${pageHead('Захиалгууд','Бүх контент үйлдвэрлэлийн ажлыг удирдана.')}
-    <div class="filter-row"><input id="admin-order-search" placeholder="Захиалга, агент хайх..."/><select id="admin-status-filter"><option value="">Бүх төлөв</option>${Object.entries(statusLabels).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></div>
-    <div class="card table-wrap">${adminOrdersTable(orders,db)}</div>
+  const db=getDb();
+  const q=route().split('?')[1]||'';
+  const params=new URLSearchParams(q);
+  const status=params.get('status')||'';
+  const all=[...db.orders].sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+  const orders=status?all.filter(o=>o.status===status):all;
+  const subtitle=status
+    ? `${statusLabels[status]||status} шатны ${orders.length} захиалга.`
+    : 'Бүх контент үйлдвэрлэлийн ажлыг удирдана.';
+  return shell(`<div class="container">${pageHead('Захиалгууд',subtitle)}
+    <div class="filter-row"><input id="admin-order-search" placeholder="Захиалга, агент хайх..."/><select id="admin-status-filter"><option value="">Бүх төлөв</option>${Object.entries(statusLabels).map(([v,l])=>`<option value="${v}" ${status===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="stage-filter-chips"><button type="button" class="stage-chip ${!status?'active':''}" data-nav="/admin/orders">Бүгд <strong>${all.length}</strong></button>${Object.entries(statusLabels).map(([v,l])=>`<button type="button" class="stage-chip ${status===v?'active':''}" data-nav="/admin/orders?status=${v}">${l} <strong>${all.filter(o=>o.status===v).length}</strong></button>`).join('')}</div>
+    <div class="card table-wrap">${orders.length?adminOrdersTable(orders,db):`<div class="empty compact"><h3>${esc(statusLabels[status]||'Энэ шат')} захиалга алга</h3><p>Одоогоор энэ шатанд байгаа контент байхгүй байна.</p></div>`}</div>
   </div>`,'admin-orders');
 }
 
@@ -737,16 +824,19 @@ function adminOrderDetailPage(id) {
   const db=getDb(), order=db.orders.find(o=>o.id===id); if(!order) return notFound();
   const agent=db.profiles.find(p=>p.id===order.agent_id); const admins=db.profiles.filter(p=>p.role==='admin'); const brief=db.briefs.find(b=>b.order_id===order.id);
   const acts=db.activity.filter(a=>a.order_id===order.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const revisionRequests=acts.filter(a=>a.activity_type==='REVISION_REQUEST');
+  const latestRevision=revisionRequests.slice(-1)[0];
   const shootLocal=order.shoot_date?new Date(order.shoot_date):null;
   const shootValue=shootLocal?`${shootLocal.getFullYear()}-${String(shootLocal.getMonth()+1).padStart(2,'0')}-${String(shootLocal.getDate()).padStart(2,'0')}T${String(shootLocal.getHours()).padStart(2,'0')}:${String(shootLocal.getMinutes()).padStart(2,'0')}`:'';
   return shell(`<div class="container">${pageHead(`${esc(order.order_number)} · ${esc(order.property_name)}`, `${esc(agent?.full_name||'Агент')} · ${esc(order.location)}`,`<button class="btn btn-secondary" data-nav="/admin/orders">${icon('back')} Буцах</button>`)}
     <form id="admin-order-form" data-order-id="${order.id}"><div class="detail-grid"><div class="detail-main">
       <section class="card panel"><div class="panel-title">Production</div><div class="form-grid"><div class="field"><label>Үндсэн төлөв</label><select name="status">${Object.entries(statusLabels).map(([v,l])=>`<option value="${v}" ${order.status===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="field"><label>Дэд төлөв</label><select name="sub_status"><option value="">—</option>${Object.entries(subStatusLabels).map(([v,l])=>`<option value="${v}" ${order.sub_status===v?'selected':''}>${l}</option>`).join('')}</select></div><div class="field"><label>Зураг авалтын огноо, цаг</label><input name="shoot_date" type="datetime-local" value="${shootValue}"/></div><div class="field full"><label>Зураг авалтын байршил</label><input name="shoot_location" value="${esc(order.shoot_location||'')}" /></div><div class="field full"><label class="queue-start-toggle"><input name="shoot_started" type="checkbox" ${effectiveShootStartedAt(order)?'checked':''} /><span><strong>Зураг авалт эхэлсэн</strong><small>Төлбөр төлөгдсөн үед энэ захиалга production дараалалд тоологдоно.</small></span></label></div></div>${progressHtml(order.status)}</section>
+      ${latestRevision?`<section class="card panel revision-admin-alert"><div class="panel-title">Agent-ийн засварын хүсэлт</div><div class="revision-admin-message">${esc(latestRevision.public_message||'Засварын хүсэлт ирсэн.')}</div><div class="revision-admin-meta">${formatDate(latestRevision.created_at,true)}</div></section>`:''}
       <section class="card panel"><div class="panel-title">Creative brief</div><div class="form-grid"><div class="field"><label>Зорилго</label><input name="objective" value="${esc(brief?.objective||'')}"/></div><div class="field"><label>Онцлох давуу тал</label><input name="selling_points" value="${esc(brief?.selling_points||'')}"/></div><div class="field"><label>Зураг авалтын концепц</label><input name="filming_concept" value="${esc(brief?.filming_concept||'')}"/></div><div class="field"><label>Edit style</label><input name="editing_style" value="${esc(brief?.editing_style||'')}"/></div><div class="field full"><label>Agent-д харагдах товч төлөвлөгөө</label><textarea name="client_summary">${esc(brief?.client_summary||'')}</textarea></div><div class="field full"><label>Дотоод тэмдэглэл</label><textarea name="internal_notes">${esc(brief?.internal_notes||'')}</textarea></div></div></section>
       <section class="card panel"><div class="panel-title">Public update</div><div class="field"><label>Agent-д харагдах шинэчлэлт</label><input name="public_update" placeholder="Жишээ: Боловсруулалт эхэллээ" /></div></section>
     </div><aside class="detail-side">
       <section class="card panel"><div class="panel-title">Төлбөр</div><div class="field"><label>Тохиролцсон үнэ</label><input name="agreed_price" type="number" min="0" step="1000" value="${order.agreed_price??''}" placeholder="350000" /></div><div class="field" style="margin-top:14px"><label>Төлбөрийн төлөв</label><select name="payment_status">${Object.entries(paymentLabels).map(([v,l])=>`<option value="${v}" ${order.payment_status===v?'selected':''}>${l}</option>`).join('')}</select></div></section>
-      <section class="card panel"><div class="panel-title">Final delivery</div><div class="field"><label>Final video URL</label><input name="final_video_url" value="${esc(order.final_video_url||'')}" placeholder="https://..." /></div></section>
+      <section class="card panel final-delivery-admin"><div class="panel-title">Бэлэн болсон бичлэг</div><div class="field"><label>Бичлэгийн линк</label><input name="final_video_url" value="${esc(order.final_video_url||'')}" placeholder="Google Drive, YouTube, Vimeo зэрэг линк..." /></div>${order.status==='COMPLETED'&&!order.final_video_url?`<div class="delivery-admin-warning">Бэлэн болсон төлөвтэй боловч бичлэгийн линк оруулаагүй байна.</div>`:`<p class="help">Линк хадгалагдсаны дараа agent-ийн захиалгын дэлгэрэнгүй болон “Бэлэн болсон” хэсэгт шууд харагдана.</p>`}</section>
       <section class="card panel"><div class="panel-title">Агент</div>${agent?`<button class="agent-profile-mini" type="button" data-nav="/admin/agents/${agent.id}">${userAvatarHtml(agent,'agent-card-logo')}<span><strong>${esc(agent.full_name)}</strong><small>${esc(agentSubtitle(agent))}</small></span>${icon('arrow')}</button>`:''}<div class="info-list" style="margin-top:14px"><div class="info-row"><span>Утас</span><strong>${esc(agent?.phone||'—')}</strong></div><div class="info-row"><span>Байгууллага</span><strong>${esc(orgName(agent||{})||'—')}</strong></div><div class="info-row"><span>Салбар</span><strong>${esc(agent?.branch_name||'—')}</strong></div></div></section>
       <button class="btn btn-primary" type="submit" style="width:100%;min-height:46px">Өөрчлөлт хадгалах</button>
     </aside></div></form>
@@ -802,6 +892,14 @@ async function render() {
     return;
   }
   const db=getDb(), user=currentUser(db); let r=route();
+  if(PASSWORD_RECOVERY_ACTIVE || r==='/reset-password') {
+    document.getElementById('app').innerHTML=resetPasswordPage();
+    return;
+  }
+  if(r==='/forgot-password') {
+    document.getElementById('app').innerHTML=forgotPasswordPage();
+    return;
+  }
   if(r==='/') { navigate(user?(user.role==='admin'?'/admin':'/dashboard'):'/login'); return; }
   if(!user) {
     if(r==='/register') document.getElementById('app').innerHTML=loginPage('register');
@@ -812,7 +910,7 @@ async function render() {
     if(!r.startsWith('/admin')) { navigate('/admin'); return; }
     let html;
     if(r==='/admin') html=adminDashboard();
-    else if(r==='/admin/orders') html=adminOrdersPage();
+    else if(r==='/admin/orders' || r.startsWith('/admin/orders?')) html=adminOrdersPage();
     else if(r.startsWith('/admin/orders/')) html=adminOrderDetailPage(r.split('/')[3]);
     else if(r==='/admin/agents') html=adminAgentsPage();
     else if(r.startsWith('/admin/agents/')) html=adminAgentDetailPage(r.split('/')[3]);
@@ -909,6 +1007,106 @@ async function handleRegister(form) {
   const u={id:uid('agent'),email,password,full_name,phone,agency_name:organization,organization_name:organization,branch_name:'',organization_logo_url:'',role:'agent',avatar_url:'',created_at:nowIso()};
   db.profiles.push(u); saveDb(db); setSession(u.id); toast('Бүртгэл амжилттай үүслээ.','success'); navigate('/dashboard');
 }
+
+
+async function handleForgotPassword(form) {
+  if(!REMOTE_ENABLED) { toast('Нууц үг сэргээх нь online систем дээр ажиллана.','error'); return; }
+  const fd=new FormData(form);
+  const email=String(fd.get('email')||'').trim().toLowerCase();
+  try {
+    const redirectTo=`${window.location.origin}${window.location.pathname}?reset=1`;
+    const r=await sb.auth.resetPasswordForEmail(email,{redirectTo});
+    throwIfError(r,'Сэргээх холбоос илгээж чадсангүй');
+    toast('Нууц үг сэргээх холбоос и-мэйл рүү илгээгдлээ.','success');
+    form.reset();
+  } catch(e) { console.error(e); toast(e.message,'error'); }
+}
+
+async function handleResetPassword(form) {
+  if(!REMOTE_ENABLED) { toast('Нууц үг шинэчлэх нь online систем дээр ажиллана.','error'); return; }
+  const fd=new FormData(form);
+  const password=String(fd.get('new_password')||'');
+  const confirm=String(fd.get('new_password_confirm')||'');
+  if(password!==confirm) { toast('Шинэ нууц үгнүүд таарахгүй байна.','error'); return; }
+  try {
+    const r=await sb.auth.updateUser({password});
+    throwIfError(r,'Нууц үг шинэчилж чадсангүй');
+    PASSWORD_RECOVERY_ACTIVE=false;
+    REMOTE_LOADED=false;
+    await loadRemoteDb();
+    const u=currentUser();
+    const next=u?(u.role==='admin'?'/admin/profile':'/profile'):'/login';
+    history.replaceState(null,'',`${window.location.pathname}#${next}`);
+    toast('Нууц үг амжилттай шинэчлэгдлээ.','success');
+    await render();
+  } catch(e) { console.error(e); toast(e.message,'error'); }
+}
+
+async function handleChangePassword(form) {
+  const fd=new FormData(form);
+  const current=String(fd.get('current_password')||'');
+  const next=String(fd.get('new_password')||'');
+  const confirm=String(fd.get('new_password_confirm')||'');
+  if(next!==confirm) { toast('Шинэ нууц үгнүүд таарахгүй байна.','error'); return; }
+  if(current===next) { toast('Шинэ нууц үг одоогийнхоос өөр байх ёстой.','error'); return; }
+
+  if(REMOTE_ENABLED) {
+    try {
+      const sessionRes=await sb.auth.getSession();
+      throwIfError(sessionRes,'Session шалгаж чадсангүй');
+      const email=sessionRes.data?.session?.user?.email;
+      if(!email) throw new Error('Account-ийн и-мэйл олдсонгүй.');
+
+      const verify=await sb.auth.signInWithPassword({email,password:current});
+      if(verify.error) throw new Error('Одоогийн нууц үг буруу байна.');
+
+      const updated=await sb.auth.updateUser({password:next});
+      throwIfError(updated,'Нууц үг сольж чадсангүй');
+      form.reset();
+      toast('Нууц үг амжилттай солигдлоо.','success');
+    } catch(e) { console.error(e); toast(e.message,'error'); }
+    return;
+  }
+
+  const db=getDb(), u=currentUser(db);
+  const p=db.profiles.find(x=>x.id===u?.id);
+  if(!p || p.password!==current) { toast('Одоогийн нууц үг буруу байна.','error'); return; }
+  p.password=next;
+  saveDb(db);
+  form.reset();
+  toast('Нууц үг амжилттай солигдлоо.','success');
+}
+
+async function handleRevisionRequest(form) {
+  const fd=new FormData(form);
+  const orderId=form.dataset.orderId;
+  const message=String(fd.get('revision_message')||'').trim();
+  if(!message) { toast('Засварын хүсэлтээ бичнэ үү.','error'); return; }
+
+  if(REMOTE_ENABLED) {
+    try {
+      const r=await sb.rpc('request_order_revision',{p_order_id:orderId,p_message:message});
+      throwIfError(r,'Засварын хүсэлт илгээж чадсангүй');
+      await loadRemoteDb();
+      toast('Засварын хүсэлт амжилттай илгээгдлээ.','success');
+      await render();
+    } catch(e) { console.error(e); toast(e.message,'error'); }
+    return;
+  }
+
+  const db=getDb(), u=currentUser(db), o=db.orders.find(x=>x.id===orderId && x.agent_id===u?.id);
+  if(!o || o.status!=='COMPLETED') { toast('Зөвхөн бэлэн болсон контент дээр засвар хүсэх боломжтой.','error'); return; }
+  addActivity(db,o.id,`Засварын хүсэлт: ${message}`,true,u.id);
+  const last=db.activity[db.activity.length-1];
+  if(last) last.activity_type='REVISION_REQUEST';
+  o.status='REVISION';
+  o.updated_at=nowIso();
+  db.profiles.filter(p=>p.role==='admin').forEach(a=>addNotification(db,a.id,'REVISION_REQUEST','Засварын хүсэлт',`${o.order_number} · ${u.full_name||'Агент'}`,o.id));
+  saveDb(db);
+  toast('Засварын хүсэлт амжилттай илгээгдлээ.','success');
+  render();
+}
+
 
 async function handleNewOrder(form) {
   const fd=new FormData(form);
@@ -1047,6 +1245,11 @@ async function handleAdminOrder(form) {
       else if(newStatus==='SHOOTING' && !shootStartedChecked) shoot_started_at=null;
       else if(newStatus==='PLANNING') shoot_started_at=null;
       const price=String(fd.get('agreed_price')||'').trim();
+      const finalVideoUrl=String(fd.get('final_video_url')||'').trim();
+      if(newStatus==='COMPLETED' && !finalVideoUrl) {
+        toast('Бэлэн болсон төлөвт оруулахын өмнө бичлэгийн линк оруулна уу.','error');
+        return;
+      }
       const patch={
         status:newStatus,
         sub_status:String(fd.get('sub_status')||'')||null,
@@ -1055,7 +1258,7 @@ async function handleAdminOrder(form) {
         shoot_location:String(fd.get('shoot_location')||'').trim()||null,
         agreed_price:price?Number(price):null,
         payment_status:String(fd.get('payment_status')),
-        final_video_url:String(fd.get('final_video_url')||'').trim()||null
+        final_video_url:finalVideoUrl||null
       };
       const up=await sb.from('orders').update(patch).eq('id',id);
       throwIfError(up,'Захиалга шинэчилж чадсангүй');
@@ -1082,7 +1285,9 @@ async function handleAdminOrder(form) {
     return;
   }
   const db=getDb(), o=db.orders.find(x=>x.id===id); if(!o) return;
-  const prevStatus=o.status; const newStatus=String(fd.get('status')); const hadShootStarted=!!effectiveShootStartedAt(o); o.status=newStatus; o.sub_status=String(fd.get('sub_status')); const shoot=String(fd.get('shoot_date')||''); o.shoot_date=shoot?new Date(shoot).toISOString():null; o.shoot_location=String(fd.get('shoot_location')||'').trim(); const shootStartedChecked=fd.get('shoot_started')==='on'; if(['EDITING','REVIEW','REVISION','COMPLETED'].includes(newStatus)) { o.shoot_started_at=o.shoot_started_at||o.shoot_date||nowIso(); } else if(newStatus==='SHOOTING' && shootStartedChecked) { o.shoot_started_at=o.shoot_started_at||nowIso(); } else if(newStatus==='SHOOTING' && !shootStartedChecked) { o.shoot_started_at=null; } else if(newStatus==='PLANNING') { o.shoot_started_at=null; } const price=String(fd.get('agreed_price')||'').trim(); o.agreed_price=price?Number(price):null; o.payment_status=String(fd.get('payment_status')); o.final_video_url=String(fd.get('final_video_url')||'').trim(); o.updated_at=nowIso(); if(!hadShootStarted && !!effectiveShootStartedAt(o) && newStatus==='SHOOTING') addActivity(db,o.id,'Зураг авалт эхэллээ',true,getSession());
+  const prevStatus=o.status; const newStatus=String(fd.get('status')); const finalVideoUrl=String(fd.get('final_video_url')||'').trim();
+  if(newStatus==='COMPLETED' && !finalVideoUrl) { toast('Бэлэн болсон төлөвт оруулахын өмнө бичлэгийн линк оруулна уу.','error'); return; }
+  const hadShootStarted=!!effectiveShootStartedAt(o); o.status=newStatus; o.sub_status=String(fd.get('sub_status')); const shoot=String(fd.get('shoot_date')||''); o.shoot_date=shoot?new Date(shoot).toISOString():null; o.shoot_location=String(fd.get('shoot_location')||'').trim(); const shootStartedChecked=fd.get('shoot_started')==='on'; if(['EDITING','REVIEW','REVISION','COMPLETED'].includes(newStatus)) { o.shoot_started_at=o.shoot_started_at||o.shoot_date||nowIso(); } else if(newStatus==='SHOOTING' && shootStartedChecked) { o.shoot_started_at=o.shoot_started_at||nowIso(); } else if(newStatus==='SHOOTING' && !shootStartedChecked) { o.shoot_started_at=null; } else if(newStatus==='PLANNING') { o.shoot_started_at=null; } const price=String(fd.get('agreed_price')||'').trim(); o.agreed_price=price?Number(price):null; o.payment_status=String(fd.get('payment_status')); o.final_video_url=finalVideoUrl; o.updated_at=nowIso(); if(!hadShootStarted && !!effectiveShootStartedAt(o) && newStatus==='SHOOTING') addActivity(db,o.id,'Зураг авалт эхэллээ',true,getSession());
   if(prevStatus!==newStatus) {
     db.order_status_history ||= []; db.order_status_history.push({id:uid('hist'),order_id:o.id,previous_status:prevStatus,new_status:newStatus,changed_by:getSession(),created_at:nowIso()});
     addActivity(db,o.id,`${statusLabels[newStatus]} төлөвт шилжлээ`,true,getSession());
@@ -1143,6 +1348,10 @@ document.addEventListener('submit', e=>{
   e.preventDefault();
   if(e.target.id==='login-form') void handleLogin(e.target);
   else if(e.target.id==='register-form') void handleRegister(e.target);
+  else if(e.target.id==='forgot-password-form') void handleForgotPassword(e.target);
+  else if(e.target.id==='reset-password-form') void handleResetPassword(e.target);
+  else if(e.target.id==='change-password-form') void handleChangePassword(e.target);
+  else if(e.target.id==='revision-request-form') void handleRevisionRequest(e.target);
   else if(e.target.id==='new-order-form') void handleNewOrder(e.target);
   else if(e.target.id==='profile-form') void handleProfile(e.target);
   else if(e.target.id==='admin-profile-form') void handleAdminProfile(e.target);
@@ -1150,6 +1359,11 @@ document.addEventListener('submit', e=>{
 });
 
 document.addEventListener('change', e=>{
+  if(e.target.id==='admin-status-filter') {
+    const v=e.target.value||'';
+    navigate(v?`/admin/orders?status=${v}`:'/admin/orders');
+    return;
+  }
   if(e.target.id==='profile-avatar-input') {
     const file=e.target.files?.[0], preview=document.getElementById('profile-avatar-preview'), flag=document.getElementById('remove-avatar-flag');
     if(flag) flag.value='0';
@@ -1176,13 +1390,22 @@ document.addEventListener('input', e=>{
     const p=document.getElementById('register-password'), c=document.getElementById('register-password-confirm');
     if(c) c.setCustomValidity(p && c.value && p.value!==c.value ? 'Нууц үг таарахгүй байна.' : '');
   }
+  if(['change-password-new','change-password-confirm'].includes(e.target.id)) {
+    const p=document.getElementById('change-password-new'), c=document.getElementById('change-password-confirm');
+    if(c) c.setCustomValidity(p && c.value && p.value!==c.value ? 'Нууц үг таарахгүй байна.' : '');
+  }
+  if(['reset-password-new','reset-password-confirm'].includes(e.target.id)) {
+    const p=document.getElementById('reset-password-new'), c=document.getElementById('reset-password-confirm');
+    if(c) c.setCustomValidity(p && c.value && p.value!==c.value ? 'Нууц үг таарахгүй байна.' : '');
+  }
 });
 
 window.addEventListener('hashchange', ()=>{ void render(); });
 window.addEventListener('storage', e=>{ if(!REMOTE_ENABLED && (e.key===DB_KEY || e.key===SESSION_KEY)) void render(); if(e.key===THEME_KEY) { applyTheme(); void render(); } });
 applyTheme();
 if (REMOTE_ENABLED) {
-  sb.auth.onAuthStateChange(async (_event, session)=>{
+  sb.auth.onAuthStateChange(async (event, session)=>{
+    if(event==='PASSWORD_RECOVERY') PASSWORD_RECOVERY_ACTIVE=true;
     const nextId=session?.user?.id||null;
     if(nextId===REMOTE_USER_ID && REMOTE_LOADED) return;
     REMOTE_USER_ID=nextId;
