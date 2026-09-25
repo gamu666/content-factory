@@ -30,6 +30,108 @@ const purposes = ['Зарах','Түрээслүүлэх','Агентын person
 const primaryStages = ['PLANNING','SHOOTING','EDITING','COMPLETED'];
 const QUEUE_HOURS_PER_CONTENT = 8;
 
+const SUPABASE_CONFIG = window.REEL_FLOW_CONFIG || {};
+const REMOTE_ENABLED = !!(SUPABASE_CONFIG.SUPABASE_URL && SUPABASE_CONFIG.SUPABASE_ANON_KEY && window.supabase?.createClient);
+const sb = REMOTE_ENABLED ? window.supabase.createClient(
+  SUPABASE_CONFIG.SUPABASE_URL,
+  SUPABASE_CONFIG.SUPABASE_ANON_KEY,
+  { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+) : null;
+let REMOTE_DB = null;
+let REMOTE_USER_ID = null;
+let REMOTE_LOADED = false;
+let realtimeChannel = null;
+let remoteRefreshTimer = null;
+
+function blankDb() {
+  return {profiles:[],orders:[],briefs:[],activity:[],notifications:[],order_status_history:[],productionQueue:[]};
+}
+function throwIfError(result, fallback='Supabase алдаа') {
+  if (result?.error) throw new Error(result.error.message || fallback);
+  return result?.data;
+}
+function normalizeRemoteDb(db) {
+  db ||= blankDb();
+  db.profiles ||= []; db.orders ||= []; db.briefs ||= []; db.activity ||= []; db.notifications ||= []; db.order_status_history ||= []; db.productionQueue ||= [];
+  db.profiles = db.profiles.map(p=>({organization_name:p.organization_name||p.agency_name||'',branch_name:p.branch_name||'',organization_logo_url:p.organization_logo_url||'',avatar_url:p.avatar_url||'',...p}));
+  db.orders = db.orders.map(o=>({shoot_started_at:o.shoot_started_at??null,...o,order_number:String(o.order_number||'').replace(/^REEL-/i,'Контент-')}));
+  db.notifications = db.notifications.map(n=>({...n,message:String(n.message||'').replace(/REEL-/gi,'Контент-'),title:String(n.title||'').replace(/Reel/gi,'контент')}));
+  return db;
+}
+async function loadRemoteDb() {
+  if (!REMOTE_ENABLED) return;
+  const sess = await sb.auth.getSession();
+  if (sess.error) throw sess.error;
+  REMOTE_USER_ID = sess.data.session?.user?.id || null;
+  if (!REMOTE_USER_ID) {
+    REMOTE_DB = blankDb();
+    REMOTE_LOADED = true;
+    return;
+  }
+
+  const profileRes = await sb.from('profiles').select('*').order('created_at',{ascending:true});
+  const profiles = throwIfError(profileRes,'Профайл уншиж чадсангүй') || [];
+  const me = profiles.find(p=>p.id===REMOTE_USER_ID) || null;
+  if (!me) {
+    REMOTE_DB = normalizeRemoteDb({profiles,orders:[],briefs:[],activity:[],notifications:[],order_status_history:[],productionQueue:[]});
+    REMOTE_LOADED = true;
+    return;
+  }
+
+  const [ordersRes, activityRes, notificationsRes, historyRes, queueRes] = await Promise.all([
+    sb.from('orders').select('*').order('created_at',{ascending:false}),
+    sb.from('order_activity').select('*').order('created_at',{ascending:true}),
+    sb.from('notifications').select('*').order('created_at',{ascending:false}),
+    sb.from('order_status_history').select('*').order('created_at',{ascending:true}),
+    sb.rpc('get_production_queue')
+  ]);
+  const orders = throwIfError(ordersRes,'Захиалга уншиж чадсангүй') || [];
+  const activity = throwIfError(activityRes,'Үйл явц уншиж чадсангүй') || [];
+  const notifications = throwIfError(notificationsRes,'Мэдэгдэл уншиж чадсангүй') || [];
+  const order_status_history = throwIfError(historyRes,'Төлөвийн түүх уншиж чадсангүй') || [];
+  const productionQueue = queueRes.error ? [] : (queueRes.data || []);
+
+  let briefs = [];
+  if (me.role === 'admin') {
+    const briefsRes = await sb.from('creative_briefs').select('*');
+    briefs = throwIfError(briefsRes,'Creative brief уншиж чадсангүй') || [];
+  } else {
+    const rows = await Promise.all(orders.map(async o=>{
+      const r = await sb.rpc('get_agent_brief',{p_order_id:o.id});
+      return r.error ? [] : (r.data || []);
+    }));
+    briefs = rows.flat().map(b=>({id:`safe_${b.order_id}`, ...b}));
+  }
+
+  REMOTE_DB = normalizeRemoteDb({profiles,orders,briefs,activity,notifications,order_status_history,productionQueue});
+  REMOTE_LOADED = true;
+}
+function scheduleRemoteRefresh() {
+  if (!REMOTE_ENABLED || !REMOTE_USER_ID) return;
+  clearTimeout(remoteRefreshTimer);
+  remoteRefreshTimer = setTimeout(async ()=>{
+    try { await loadRemoteDb(); await render(); } catch (e) { console.error(e); }
+  }, 250);
+}
+function setupRealtime() {
+  if (!REMOTE_ENABLED || !REMOTE_USER_ID) return;
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  realtimeChannel = sb.channel(`content-factory-${REMOTE_USER_ID}`)
+    .on('postgres_changes',{event:'*',schema:'public',table:'orders'},scheduleRemoteRefresh)
+    .on('postgres_changes',{event:'*',schema:'public',table:'notifications'},scheduleRemoteRefresh)
+    .on('postgres_changes',{event:'*',schema:'public',table:'order_activity'},scheduleRemoteRefresh)
+    .on('postgres_changes',{event:'*',schema:'public',table:'creative_briefs'},scheduleRemoteRefresh)
+    .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},scheduleRemoteRefresh)
+    .subscribe();
+}
+async function uploadPublicProfileAsset(bucket,userId,file,baseName) {
+  const ext=(file.name.split('.').pop()||'png').toLowerCase().replace(/[^a-z0-9]/g,'') || 'png';
+  const path=`${userId}/${baseName}.${ext}`;
+  const r=await sb.storage.from(bucket).upload(path,file,{upsert:true,cacheControl:'3600',contentType:file.type||undefined});
+  throwIfError(r,'Файл upload хийж чадсангүй');
+  return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl + `?v=${Date.now()}`;
+}
+
 function uid(prefix='id') { return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`; }
 function nowIso() { return new Date().toISOString(); }
 function dateOnly(offset=0) {
@@ -94,16 +196,16 @@ function seedDb() {
     {id:'n2', recipient_id:'admin_1', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Б. Тэмүүлэн · Контент-0025 · River Garden', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'},
     {id:'n3', recipient_id:'admin_2', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Б. Тэмүүлэн · Контент-0025 · River Garden', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'}
   ];
-  return {profiles, orders, briefs, activity, notifications, orderFiles:[]};
+  return {profiles, orders, briefs, activity, notifications};
 }
 
 function getDb() {
+  if (REMOTE_ENABLED) return REMOTE_DB || blankDb();
   try {
     const raw=localStorage.getItem(DB_KEY);
     if (raw) {
       const db=JSON.parse(raw);
       db.notifications ||= [];
-      db.orderFiles ||= [];
       db.order_status_history ||= [];
       db.orders=(db.orders||[]).map(o=>({
         ...o,
@@ -121,9 +223,9 @@ function getDb() {
   } catch {}
   const db=seedDb(); localStorage.setItem(DB_KEY, JSON.stringify(db)); return db;
 }
-function saveDb(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-function getSession() { return localStorage.getItem(SESSION_KEY); }
-function setSession(id) { if (id) localStorage.setItem(SESSION_KEY,id); else localStorage.removeItem(SESSION_KEY); }
+function saveDb(db) { if (!REMOTE_ENABLED) localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function getSession() { return REMOTE_ENABLED ? REMOTE_USER_ID : localStorage.getItem(SESSION_KEY); }
+function setSession(id) { if (REMOTE_ENABLED) { REMOTE_USER_ID=id||null; return; } if (id) localStorage.setItem(SESSION_KEY,id); else localStorage.removeItem(SESSION_KEY); }
 function currentUser(db=getDb()) { const id=getSession(); return db.profiles.find(p=>p.id===id) || null; }
 function route() { const h=location.hash.replace(/^#/,'') || '/'; return h; }
 function navigate(path) { if (route()===path) render(); else location.hash=path; }
@@ -216,6 +318,21 @@ function queueEligible(order) {
   return order?.payment_status === 'PAID' && !!effectiveShootStartedAt(order) && order.status !== 'COMPLETED';
 }
 function productionQueue(db) {
+  if (REMOTE_ENABLED && Array.isArray(db.productionQueue)) {
+    return db.productionQueue.map((q,i)=>{
+      const own = q.order_id ? (db.orders||[]).find(o=>o.id===q.order_id) : null;
+      if (own) return own;
+      return {
+        id:q.order_id||`queue_${i+1}`,
+        order_number:q.order_number,
+        agent_id:q.is_mine?getSession():null,
+        status:q.status||'SHOOTING',
+        payment_status:'PAID',
+        shoot_started_at:q.started_at||null,
+        created_at:q.started_at||null
+      };
+    });
+  }
   return (db.orders||[]).filter(queueEligible).sort((a,b)=>{
     const ta=new Date(effectiveShootStartedAt(a)||0).getTime();
     const tb=new Date(effectiveShootStartedAt(b)||0).getTime();
@@ -370,7 +487,7 @@ function ordersPage() {
 
 function newOrderPage() {
   const db=getDb(), user=currentUser(db);
-  return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Объектын үндсэн мэдээллээ илгээнэ үү. Бичлэгийн style, зураг авалтын шийдлийг дараа нь хамт ярилцана.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
+  return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Объектын үндсэн мэдээллээ илгээнэ үү. Зураг, бичлэг файл оруулах шаардлагагүй. Бичлэгийн style, зураг авалтын шийдлийг дараа нь хамт ярилцана.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
     <form id="new-order-form" class="card form-card">
       <div class="form-grid">
         <div class="field"><label>Объектын нэр *</label><input name="property_name" required placeholder="Жишээ: Seven Star" /></div>
@@ -379,7 +496,6 @@ function newOrderPage() {
         <div class="field"><label>Бичлэгийн зорилго *</label><select name="purpose" required><option value="">Сонгох</option>${purposes.map(x=>`<option>${x}</option>`).join('')}</select></div>
         <div class="field full"><label>Объектын товч мэдээлэл *</label><textarea name="description" required placeholder="Талбай, өрөөний тоо, онцлох давуу тал зэрэг..."></textarea></div>
         <div class="field full"><label>Зарын холбоос</label><input name="listing_url" type="url" placeholder="https://..." /></div>
-        <div class="field full"><label>Зураг / материал</label><div class="upload-box new-order-upload" id="order-upload-box"><label class="upload-label" for="order-files"><div class="upload-title">${icon('upload')} Файл сонгох</div><div class="upload-copy">Зураг, PDF, reference video — demo хувилбарт файлын нэр хадгалагдана.</div></label><input id="order-files" name="files" type="file" multiple accept="image/*,video/*,.pdf"/><div id="file-preview" class="file-list"></div></div></div>
         <div class="field full"><label>Нэмэлт тайлбар</label><textarea name="additional_notes" placeholder="Зураг авалтын цаг, онцгой хүсэлт байвал энд бичнэ үү."></textarea></div>
       </div>
       <div class="form-actions"><button type="button" class="btn btn-secondary" data-nav="/orders">Цуцлах</button><button class="btn btn-primary" type="submit">Захиалга илгээх</button></div>
@@ -496,7 +612,7 @@ function profilePage() {
           <div class="form-grid profile-form-grid-v10">
             <div class="field"><label>Овог нэр</label><input name="full_name" value="${esc(user.full_name)}" required /></div>
             <div class="field"><label>Утасны дугаар</label><input name="phone" value="${esc(user.phone||'')}" /></div>
-            <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">Demo хувилбарт и-мэйл солихгүй.</div></div>
+            <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">И-мэйл солих шаардлагатай бол админтай холбогдоно уу.</div></div>
           </div>
         </section>
 
@@ -549,7 +665,7 @@ function adminProfilePage() {
         <div class="form-grid">
           <div class="field"><label>Овог нэр</label><input name="full_name" value="${esc(user.full_name)}" required /></div>
           <div class="field"><label>Утасны дугаар</label><input name="phone" value="${esc(user.phone||'')}" placeholder="9900 1100" /></div>
-          <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">Demo хувилбарт и-мэйл солихгүй.</div></div>
+          <div class="field full"><label>И-мэйл</label><input value="${esc(user.email)}" disabled /><div class="help">И-мэйл солих шаардлагатай бол админтай холбогдоно уу.</div></div>
           <div class="field full"><label>Эрх</label><input value="Админ" disabled /></div>
         </div>
         <div class="form-actions"><button class="btn btn-primary" type="submit">Хадгалах</button></div>
@@ -568,7 +684,7 @@ function loginPage(mode='login') {
     ${register?`<div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>`:''}
     <button class="btn btn-primary" type="submit">${register?'Бүртгүүлэх':'Нэвтрэх'}</button>
   </form><div class="auth-foot">${register?'Бүртгэлтэй юу?':'Бүртгэлгүй юу?'} <button data-nav="${register?'/login':'/register'}">${register?'Нэвтрэх':'Бүртгэл үүсгэх'}</button></div>
-  ${!register?`<div class="demo-box"><strong>Demo нэвтрэх</strong><br>Agent: agent@demo.mn / demo123<br>Admin: admin@demo.mn / admin123</div>`:''}
+  ${!register && !REMOTE_ENABLED?`<div class="demo-box"><strong>Demo нэвтрэх</strong><br>Agent: agent@demo.mn / demo123<br>Admin: admin@demo.mn / admin123</div>`:''}
   </div></section></div>`;
 }
 
@@ -660,7 +776,15 @@ function notFound() {
   return u?shell(content,u.role==='admin'?'admin':'dashboard'):loginPage();
 }
 
-function render() {
+async function render() {
+  try {
+    if (REMOTE_ENABLED && !REMOTE_LOADED) await loadRemoteDb();
+  } catch (e) {
+    console.error(e);
+    const root=document.getElementById('app');
+    if(root) root.innerHTML=`<div class="container"><div class="card empty"><h3>Сервертэй холбогдож чадсангүй</h3><p>${esc(e.message||'Supabase connection error')}</p></div></div>`;
+    return;
+  }
   const db=getDb(), user=currentUser(db); let r=route();
   if(r==='/') { navigate(user?(user.role==='admin'?'/admin':'/dashboard'):'/login'); return; }
   if(!user) {
@@ -703,34 +827,125 @@ function addActivity(db, orderId, message, visible=true, by=null) {
   db.activity.push({id:uid('act'),order_id:orderId,public_message:message,internal_message:'',visible_to_agent:visible,created_by:by||getSession(),created_at:nowIso()});
 }
 
-function handleLogin(form) {
-  const db=getDb(), fd=new FormData(form), email=String(fd.get('email')).trim().toLowerCase(), password=String(fd.get('password'));
+async function handleLogin(form) {
+  const fd=new FormData(form), email=String(fd.get('email')).trim().toLowerCase(), password=String(fd.get('password'));
+  if (REMOTE_ENABLED) {
+    try {
+      const r=await sb.auth.signInWithPassword({email,password});
+      throwIfError(r,'Нэвтрэхэд алдаа гарлаа');
+      REMOTE_LOADED=false;
+      await loadRemoteDb();
+      setupRealtime();
+      const u=currentUser();
+      if(!u) throw new Error('Профайл олдсонгүй.');
+      toast('Амжилттай нэвтэрлээ.','success');
+      navigate(u.role==='admin'?'/admin':'/dashboard');
+    } catch(e) { toast(e.message==='Invalid login credentials'?'И-мэйл эсвэл нууц үг буруу байна.':e.message,'error'); }
+    return;
+  }
+  const db=getDb();
   const u=db.profiles.find(p=>p.email.toLowerCase()===email && p.password===password);
   if(!u) { toast('И-мэйл эсвэл нууц үг буруу байна.','error'); return; }
   setSession(u.id); toast('Амжилттай нэвтэрлээ.','success'); navigate(u.role==='admin'?'/admin':'/dashboard');
 }
 
-function handleRegister(form) {
-  const db=getDb(), fd=new FormData(form), email=String(fd.get('email')).trim().toLowerCase();
+async function handleRegister(form) {
+  const fd=new FormData(form), email=String(fd.get('email')).trim().toLowerCase();
   const password=String(fd.get('password')||''), confirm=String(fd.get('password_confirm')||'');
-  if(password!==confirm) { toast('Нууц үг давталттайгаа таарахгүй байна.','error'); const el=form.querySelector('[name="password_confirm"]'); el?.focus(); return; }
+  if(password!==confirm) { toast('Нууц үг давталттайгаа таарахгүй байна.','error'); form.querySelector('[name="password_confirm"]')?.focus(); return; }
+  const full_name=String(fd.get('full_name')).trim(), phone=String(fd.get('phone')).trim(), organization=String(fd.get('agency_name')||'').trim();
+  if (REMOTE_ENABLED) {
+    try {
+      const r=await sb.auth.signUp({
+        email,password,
+        options:{data:{full_name,phone,agency_name:organization,organization_name:organization}}
+      });
+      throwIfError(r,'Бүртгэл үүсгэж чадсангүй');
+      if (!r.data.session) {
+        toast('Бүртгэл үүслээ. И-мэйлээр ирсэн баталгаажуулах холбоосоо дарна уу.','success');
+        navigate('/login');
+        return;
+      }
+      REMOTE_LOADED=false;
+      await loadRemoteDb();
+      setupRealtime();
+      toast('Бүртгэл амжилттай үүслээ.','success');
+      navigate('/dashboard');
+    } catch(e) { toast(e.message,'error'); }
+    return;
+  }
+  const db=getDb();
   if(db.profiles.some(p=>p.email.toLowerCase()===email)) { toast('Энэ и-мэйл бүртгэлтэй байна.','error'); return; }
-  const organization=String(fd.get('agency_name')||'').trim();
-  const u={id:uid('agent'),email,password,full_name:String(fd.get('full_name')).trim(),phone:String(fd.get('phone')).trim(),agency_name:organization,organization_name:organization,branch_name:'',organization_logo_url:'',role:'agent',avatar_url:'',created_at:nowIso()};
+  const u={id:uid('agent'),email,password,full_name,phone,agency_name:organization,organization_name:organization,branch_name:'',organization_logo_url:'',role:'agent',avatar_url:'',created_at:nowIso()};
   db.profiles.push(u); saveDb(db); setSession(u.id); toast('Бүртгэл амжилттай үүслээ.','success'); navigate('/dashboard');
 }
 
-function handleNewOrder(form) {
-  const db=getDb(), user=currentUser(db), fd=new FormData(form); const id=uid('order');
+async function handleNewOrder(form) {
+  const fd=new FormData(form);
+  if (REMOTE_ENABLED) {
+    try {
+      const user=currentUser(); if(!user) throw new Error('Нэвтрэх шаардлагатай.');
+      const payload={
+        agent_id:user.id,
+        property_name:String(fd.get('property_name')).trim(),
+        location:String(fd.get('location')).trim(),
+        property_type:String(fd.get('property_type')),
+        purpose:String(fd.get('purpose')),
+        description:String(fd.get('description')).trim(),
+        listing_url:String(fd.get('listing_url')||'').trim()||null,
+        additional_notes:String(fd.get('additional_notes')||'').trim()||null
+      };
+      const ins=await sb.from('orders').insert(payload).select('*').single();
+      const order=throwIfError(ins,'Захиалга хадгалж чадсангүй');
+      await loadRemoteDb();
+      toast('Захиалга амжилттай илгээгдлээ.','success');
+      navigate(`/orders/${order.id}`);
+    } catch(e) { console.error(e); toast(e.message,'error'); }
+    return;
+  }
+  const db=getDb(), user=currentUser(db); const id=uid('order');
   const order={id,order_number:generateOrderNumber(db),agent_id:user.id,assigned_admin_id:null,property_name:String(fd.get('property_name')).trim(),location:String(fd.get('location')).trim(),property_type:String(fd.get('property_type')),purpose:String(fd.get('purpose')),description:String(fd.get('description')).trim(),listing_url:String(fd.get('listing_url')||'').trim(),additional_notes:String(fd.get('additional_notes')||'').trim(),status:'PLANNING',sub_status:'',agreed_price:null,payment_status:'NOT_SET',shoot_date:null,shoot_started_at:null,shoot_location:'',thumbnail_url:'',final_video_url:'',created_at:nowIso(),updated_at:nowIso(),completed_at:null};
-  db.orders.push(order); const files=fd.getAll('files').filter(f=>f&&f.name); files.forEach(f=>db.orderFiles.push({id:uid('file'),order_id:id,uploaded_by:user.id,file_type:f.type,file_url:'',original_name:f.name,created_at:nowIso()}));
+  db.orders.push(order);
   addActivity(db,id,'Захиалга хүлээн авлаа',true,user.id);
   db.profiles.filter(p=>p.role==='admin').forEach(admin=>addNotification(db,admin.id,'NEW_ORDER','Шинэ контент захиалга',`${user.full_name} · ${order.order_number} · ${order.property_name}`,order.id));
   saveDb(db); toast('Захиалга амжилттай илгээгдлээ.','success'); navigate(`/orders/${id}`);
 }
 
 async function handleProfile(form) {
-  const db=getDb(), u=currentUser(db), fd=new FormData(form); const p=db.profiles.find(x=>x.id===u.id);
+  const fd=new FormData(form);
+  if (REMOTE_ENABLED) {
+    try {
+      const u=currentUser(); if(!u) throw new Error('Нэвтрэх шаардлагатай.');
+      const patch={
+        full_name:String(fd.get('full_name')).trim(),
+        phone:String(fd.get('phone')).trim(),
+        organization_name:String(fd.get('organization_name')||'').trim(),
+        agency_name:String(fd.get('organization_name')||'').trim(),
+        branch_name:String(fd.get('branch_name')||'').trim()
+      };
+      if(String(fd.get('remove_avatar'))==='1') patch.avatar_url=null;
+      const avatarFile=fd.get('avatar_image');
+      if(avatarFile && avatarFile.name) {
+        if(!String(avatarFile.type).startsWith('image/')) throw new Error('Профайл зураг image файл байх ёстой.');
+        if(avatarFile.size>10*1024*1024) throw new Error('Профайл зураг 10MB-аас бага байх ёстой.');
+        patch.avatar_url=await uploadPublicProfileAsset('avatars',u.id,avatarFile,'avatar');
+      }
+      if(String(fd.get('remove_logo'))==='1') patch.organization_logo_url=null;
+      const logoFile=fd.get('organization_logo');
+      if(logoFile && logoFile.name) {
+        if(!String(logoFile.type).startsWith('image/')) throw new Error('Лого зураг файл байх ёстой.');
+        if(logoFile.size>10*1024*1024) throw new Error('Лого 10MB-аас бага байх ёстой.');
+        patch.organization_logo_url=await uploadPublicProfileAsset('org-logos',u.id,logoFile,'logo');
+      }
+      const r=await sb.from('profiles').update(patch).eq('id',u.id);
+      throwIfError(r,'Профайл хадгалж чадсангүй');
+      await loadRemoteDb();
+      toast('Профайл хадгалагдлаа.','success');
+      await render();
+    } catch(e) { console.error(e); toast(e.message,'error'); }
+    return;
+  }
+  const db=getDb(), u=currentUser(db); const p=db.profiles.find(x=>x.id===u.id);
   p.full_name=String(fd.get('full_name')).trim();
   p.phone=String(fd.get('phone')).trim();
   const organization=String(fd.get('organization_name')||'').trim();
@@ -755,7 +970,25 @@ async function handleProfile(form) {
 
 
 async function handleAdminProfile(form) {
-  const db=getDb(), u=currentUser(db), fd=new FormData(form); const p=db.profiles.find(x=>x.id===u.id);
+  const fd=new FormData(form);
+  if (REMOTE_ENABLED) {
+    try {
+      const u=currentUser(); if(!u || u.role!=='admin') return;
+      const patch={full_name:String(fd.get('full_name')).trim(),phone:String(fd.get('phone')||'').trim()};
+      if(String(fd.get('remove_avatar'))==='1') patch.avatar_url=null;
+      const avatarFile=fd.get('avatar_image');
+      if(avatarFile && avatarFile.name) {
+        if(!String(avatarFile.type).startsWith('image/')) throw new Error('Профайл зураг image файл байх ёстой.');
+        if(avatarFile.size>10*1024*1024) throw new Error('Профайл зураг 10MB-аас бага байх ёстой.');
+        patch.avatar_url=await uploadPublicProfileAsset('avatars',u.id,avatarFile,'avatar');
+      }
+      const r=await sb.from('profiles').update(patch).eq('id',u.id);
+      throwIfError(r,'Админ профайл хадгалж чадсангүй');
+      await loadRemoteDb(); toast('Админ профайл хадгалагдлаа.','success'); await render();
+    } catch(e) { console.error(e); toast(e.message,'error'); }
+    return;
+  }
+  const db=getDb(), u=currentUser(db); const p=db.profiles.find(x=>x.id===u.id);
   if(!p || p.role!=='admin') return;
   p.full_name=String(fd.get('full_name')).trim();
   p.phone=String(fd.get('phone')||'').trim();
@@ -769,8 +1002,56 @@ async function handleAdminProfile(form) {
   saveDb(db); toast('Админ профайл хадгалагдлаа.','success'); render();
 }
 
-function handleAdminOrder(form) {
-  const db=getDb(), fd=new FormData(form), id=form.dataset.orderId, o=db.orders.find(x=>x.id===id); if(!o) return;
+
+async function handleAdminOrder(form) {
+  const fd=new FormData(form), id=form.dataset.orderId;
+  if (REMOTE_ENABLED) {
+    try {
+      const db=getDb(), o=db.orders.find(x=>x.id===id); if(!o) return;
+      const newStatus=String(fd.get('status'));
+      const shoot=String(fd.get('shoot_date')||'');
+      const shootStartedChecked=fd.get('shoot_started')==='on';
+      let shoot_started_at=o.shoot_started_at||null;
+      if(['EDITING','REVIEW','REVISION','COMPLETED'].includes(newStatus)) shoot_started_at=shoot_started_at|| (shoot?new Date(shoot).toISOString():null) || nowIso();
+      else if(newStatus==='SHOOTING' && shootStartedChecked) shoot_started_at=shoot_started_at||nowIso();
+      else if(newStatus==='SHOOTING' && !shootStartedChecked) shoot_started_at=null;
+      else if(newStatus==='PLANNING') shoot_started_at=null;
+      const price=String(fd.get('agreed_price')||'').trim();
+      const patch={
+        status:newStatus,
+        sub_status:String(fd.get('sub_status')||'')||null,
+        shoot_date:shoot?new Date(shoot).toISOString():null,
+        shoot_started_at,
+        shoot_location:String(fd.get('shoot_location')||'').trim()||null,
+        agreed_price:price?Number(price):null,
+        payment_status:String(fd.get('payment_status')),
+        final_video_url:String(fd.get('final_video_url')||'').trim()||null
+      };
+      const up=await sb.from('orders').update(patch).eq('id',id);
+      throwIfError(up,'Захиалга шинэчилж чадсангүй');
+      const briefPayload={
+        order_id:id,
+        objective:String(fd.get('objective')||'')||null,
+        selling_points:String(fd.get('selling_points')||'')||null,
+        filming_concept:String(fd.get('filming_concept')||'')||null,
+        editing_style:String(fd.get('editing_style')||'')||null,
+        client_summary:String(fd.get('client_summary')||'')||null,
+        internal_notes:String(fd.get('internal_notes')||'')||null
+      };
+      const br=await sb.from('creative_briefs').upsert(briefPayload,{onConflict:'order_id'});
+      throwIfError(br,'Creative brief хадгалж чадсангүй');
+      const msg=String(fd.get('public_update')||'').trim();
+      if(msg) {
+        const ar=await sb.from('order_activity').insert({order_id:id,activity_type:'MANUAL_UPDATE',public_message:msg,visible_to_agent:true,created_by:getSession()});
+        throwIfError(ar,'Шинэчлэлт хадгалж чадсангүй');
+      }
+      await loadRemoteDb();
+      toast('Захиалгын өөрчлөлт хадгалагдлаа.','success');
+      await render();
+    } catch(e) { console.error(e); toast(e.message,'error'); }
+    return;
+  }
+  const db=getDb(), o=db.orders.find(x=>x.id===id); if(!o) return;
   const prevStatus=o.status; const newStatus=String(fd.get('status')); const hadShootStarted=!!effectiveShootStartedAt(o); o.status=newStatus; o.sub_status=String(fd.get('sub_status')); const shoot=String(fd.get('shoot_date')||''); o.shoot_date=shoot?new Date(shoot).toISOString():null; o.shoot_location=String(fd.get('shoot_location')||'').trim(); const shootStartedChecked=fd.get('shoot_started')==='on'; if(['EDITING','REVIEW','REVISION','COMPLETED'].includes(newStatus)) { o.shoot_started_at=o.shoot_started_at||o.shoot_date||nowIso(); } else if(newStatus==='SHOOTING' && shootStartedChecked) { o.shoot_started_at=o.shoot_started_at||nowIso(); } else if(newStatus==='SHOOTING' && !shootStartedChecked) { o.shoot_started_at=null; } else if(newStatus==='PLANNING') { o.shoot_started_at=null; } const price=String(fd.get('agreed_price')||'').trim(); o.agreed_price=price?Number(price):null; o.payment_status=String(fd.get('payment_status')); o.final_video_url=String(fd.get('final_video_url')||'').trim(); o.updated_at=nowIso(); if(!hadShootStarted && !!effectiveShootStartedAt(o) && newStatus==='SHOOTING') addActivity(db,o.id,'Зураг авалт эхэллээ',true,getSession());
   if(prevStatus!==newStatus) {
     db.order_status_history ||= []; db.order_status_history.push({id:uid('hist'),order_id:o.id,previous_status:prevStatus,new_status:newStatus,changed_by:getSession(),created_at:nowIso()});
@@ -794,7 +1075,7 @@ document.addEventListener('click', e=>{
   const nav=e.target.closest('[data-nav]'); if(nav){ e.preventDefault(); navigate(nav.dataset.nav); return; }
   const actionEl=e.target.closest('[data-action]');
   const action=actionEl?.dataset.action;
-  if(action==='logout'){ setSession(null); toast('Системээс гарлаа.'); navigate('/login'); return; }
+  if(action==='logout'){ if(REMOTE_ENABLED){ void (async()=>{ await sb.auth.signOut(); REMOTE_USER_ID=null; REMOTE_DB=blankDb(); REMOTE_LOADED=true; if(realtimeChannel){ sb.removeChannel(realtimeChannel); realtimeChannel=null; } toast('Системээс гарлаа.'); navigate('/login'); })(); } else { setSession(null); toast('Системээс гарлаа.'); navigate('/login'); } return; }
   if(action==='toggle-theme'){ setTheme(getTheme()==='dark'?'light':'dark'); render(); return; }
   if(action==='set-theme'){ setTheme(actionEl.dataset.theme==='dark'?'dark':'light'); render(); return; }
   if(action==='toggle-notifications'){
@@ -804,10 +1085,14 @@ document.addEventListener('click', e=>{
     pop?.classList.toggle('open'); return;
   }
   if(action==='open-notification'){
-    const db=getDb(), n=(db.notifications||[]).find(x=>x.id===actionEl.dataset.notificationId); if(n) n.read_at=nowIso(); saveDb(db); navigate(actionEl.dataset.path||'/dashboard'); return;
+    if(REMOTE_ENABLED){ void (async()=>{ await sb.rpc('mark_notification_read',{p_notification_id:actionEl.dataset.notificationId}); await loadRemoteDb(); navigate(actionEl.dataset.path||'/dashboard'); })(); }
+    else { const db=getDb(), n=(db.notifications||[]).find(x=>x.id===actionEl.dataset.notificationId); if(n) n.read_at=nowIso(); saveDb(db); navigate(actionEl.dataset.path||'/dashboard'); }
+    return;
   }
   if(action==='mark-all-notifications-read'){
-    const db=getDb(), u=currentUser(db); (db.notifications||[]).filter(n=>n.recipient_id===u.id&&!n.read_at).forEach(n=>n.read_at=nowIso()); saveDb(db); render(); return;
+    if(REMOTE_ENABLED){ void (async()=>{ await sb.rpc('mark_all_notifications_read'); await loadRemoteDb(); await render(); })(); }
+    else { const db=getDb(), u=currentUser(db); (db.notifications||[]).filter(n=>n.recipient_id===u.id&&!n.read_at).forEach(n=>n.read_at=nowIso()); saveDb(db); render(); }
+    return;
   }
   if(action==='remove-profile-avatar'){
     const preview=document.getElementById('profile-avatar-preview'); const flag=document.getElementById('remove-avatar-flag'); const input=document.getElementById('profile-avatar-input');
@@ -826,35 +1111,15 @@ document.addEventListener('click', e=>{
 
 document.addEventListener('submit', e=>{
   e.preventDefault();
-  if(e.target.id==='login-form') handleLogin(e.target);
-  else if(e.target.id==='register-form') handleRegister(e.target);
-  else if(e.target.id==='new-order-form') handleNewOrder(e.target);
+  if(e.target.id==='login-form') void handleLogin(e.target);
+  else if(e.target.id==='register-form') void handleRegister(e.target);
+  else if(e.target.id==='new-order-form') void handleNewOrder(e.target);
   else if(e.target.id==='profile-form') void handleProfile(e.target);
   else if(e.target.id==='admin-profile-form') void handleAdminProfile(e.target);
-  else if(e.target.id==='admin-order-form') handleAdminOrder(e.target);
+  else if(e.target.id==='admin-order-form') void handleAdminOrder(e.target);
 });
 
 document.addEventListener('change', e=>{
-  if(e.target.id==='order-files') {
-    const preview=document.getElementById('file-preview');
-    const box=document.getElementById('order-upload-box');
-    const files=[...e.target.files];
-    box?.classList.toggle('has-files', files.length>0);
-    if(preview) {
-      preview.innerHTML='';
-      files.forEach(file=>{
-        const item=document.createElement('div'); item.className='file-preview-item';
-        if(String(file.type).startsWith('image/')) {
-          const img=document.createElement('img'); img.alt=file.name; item.appendChild(img);
-          const r=new FileReader(); r.onload=()=>{ img.src=r.result; }; r.readAsDataURL(file);
-        } else {
-          const iconWrap=document.createElement('span'); iconWrap.className='file-preview-generic'; iconWrap.innerHTML=icon('film'); item.appendChild(iconWrap);
-        }
-        const name=document.createElement('span'); name.className='file-preview-name'; name.textContent=file.name; item.appendChild(name);
-        preview.appendChild(item);
-      });
-    }
-  }
   if(e.target.id==='profile-avatar-input') {
     const file=e.target.files?.[0], preview=document.getElementById('profile-avatar-preview'), flag=document.getElementById('remove-avatar-flag');
     if(flag) flag.value='0';
@@ -883,7 +1148,18 @@ document.addEventListener('input', e=>{
   }
 });
 
-window.addEventListener('hashchange', render);
-window.addEventListener('storage', e=>{ if(e.key===DB_KEY || e.key===SESSION_KEY) render(); if(e.key===THEME_KEY) { applyTheme(); render(); } });
+window.addEventListener('hashchange', ()=>{ void render(); });
+window.addEventListener('storage', e=>{ if(!REMOTE_ENABLED && (e.key===DB_KEY || e.key===SESSION_KEY)) void render(); if(e.key===THEME_KEY) { applyTheme(); void render(); } });
 applyTheme();
-render();
+if (REMOTE_ENABLED) {
+  sb.auth.onAuthStateChange(async (_event, session)=>{
+    const nextId=session?.user?.id||null;
+    if(nextId===REMOTE_USER_ID && REMOTE_LOADED) return;
+    REMOTE_USER_ID=nextId;
+    REMOTE_LOADED=false;
+    try { await loadRemoteDb(); setupRealtime(); await render(); } catch(e) { console.error(e); }
+  });
+  void (async()=>{ try { await loadRemoteDb(); setupRealtime(); await render(); } catch(e) { console.error(e); await render(); } })();
+} else {
+  void render();
+}

@@ -210,6 +210,25 @@ create trigger orders_notify_admins
 after insert on public.orders
 for each row execute function public.notify_admins_new_order();
 
+
+-- Initial public timeline event when an order is created.
+create or replace function public.create_initial_order_activity()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.order_activity(order_id, activity_type, public_message, created_by, visible_to_agent)
+  values (new.id, 'ORDER_CREATED', 'Захиалга хүлээн авлаа', new.agent_id, true);
+  return new;
+end;
+$$;
+
+create trigger orders_initial_activity
+after insert on public.orders
+for each row execute function public.create_initial_order_activity();
+
 -- Keep history + notify only the relevant agent when status changes.
 create or replace function public.handle_order_status_change()
 returns trigger
@@ -226,6 +245,8 @@ begin
 
     if new.status = 'COMPLETED' then
       new.completed_at := coalesce(new.completed_at, now());
+    elsif old.status = 'COMPLETED' and new.status <> 'COMPLETED' then
+      new.completed_at := null;
     end if;
 
     mn_status := case new.status
@@ -237,6 +258,14 @@ begin
       when 'COMPLETED' then 'Бэлэн болсон'
       else new.status::text
     end;
+
+    if old.shoot_started_at is null and new.shoot_started_at is not null then
+      insert into public.order_activity(order_id, activity_type, public_message, created_by, visible_to_agent)
+      values (new.id, 'SHOOT_STARTED', 'Зураг авалт эхэллээ', auth.uid(), true);
+    end if;
+
+    insert into public.order_activity(order_id, activity_type, public_message, created_by, visible_to_agent)
+    values (new.id, 'STATUS_CHANGE', mn_status || ' төлөвт шилжлээ', auth.uid(), true);
 
     insert into public.notifications(recipient_id, type, title, message, order_id)
     values (
@@ -254,6 +283,28 @@ $$;
 create trigger orders_status_change
 before update of status on public.orders
 for each row execute function public.handle_order_status_change();
+
+-- If an admin only toggles "shoot started" while status stays SHOOTING, add timeline event.
+create or replace function public.handle_shoot_started_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if old.status is not distinct from new.status
+     and old.shoot_started_at is null
+     and new.shoot_started_at is not null then
+    insert into public.order_activity(order_id, activity_type, public_message, created_by, visible_to_agent)
+    values (new.id, 'SHOOT_STARTED', 'Зураг авалт эхэллээ', auth.uid(), true);
+  end if;
+  return new;
+end;
+$$;
+
+create trigger orders_shoot_started_change
+after update of shoot_started_at on public.orders
+for each row execute function public.handle_shoot_started_change();
 
 -- Notification read helpers: users can mark only their own notifications as read.
 create or replace function public.mark_notification_read(p_notification_id uuid)
@@ -421,3 +472,135 @@ grant execute on function public.get_agent_brief(uuid) to authenticated;
 -- 3) avatars       private/public based on product choice: <user_id>/avatar.ext
 -- 4) org-logos     private/public based on product choice: <user_id>/logo.ext
 -- Admin UI can generate signed URLs for downloading organization logos.
+
+
+-- Safe production queue for agents. It exposes only order number/status for other agents.
+create or replace function public.get_production_queue()
+returns table (
+  order_id uuid,
+  order_number text,
+  status public.order_status,
+  started_at timestamptz,
+  is_mine boolean,
+  queue_position bigint
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    case when o.agent_id = auth.uid() or public.is_admin() then o.id else null end as order_id,
+    o.order_number,
+    o.status,
+    o.shoot_started_at as started_at,
+    (o.agent_id = auth.uid()) as is_mine,
+    row_number() over (order by o.shoot_started_at asc, o.created_at asc) as queue_position
+  from public.orders o
+  where o.payment_status = 'PAID'
+    and o.shoot_started_at is not null
+    and o.status <> 'COMPLETED'
+  order by o.shoot_started_at asc, o.created_at asc;
+$$;
+
+grant execute on function public.get_production_queue() to authenticated;
+
+-- Storage buckets.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('avatars','avatars',true,10485760,array['image/jpeg','image/png','image/webp']),
+  ('org-logos','org-logos',true,10485760,array['image/jpeg','image/png','image/webp','image/svg+xml']),
+  ('order-assets','order-assets',false,52428800,null),
+  ('final-videos','final-videos',false,1073741824,null)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Own-folder upload/update/delete for profile media. Public buckets handle anonymous reads.
+create policy "cf avatars insert own" on storage.objects
+for insert to authenticated
+with check (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "cf avatars update own" on storage.objects
+for update to authenticated
+using (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text)
+with check (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "cf avatars select own" on storage.objects
+for select to authenticated
+using (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "cf avatars delete own" on storage.objects
+for delete to authenticated
+using (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text);
+
+create policy "cf org logos insert own" on storage.objects
+for insert to authenticated
+with check (bucket_id='org-logos' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "cf org logos update own" on storage.objects
+for update to authenticated
+using (bucket_id='org-logos' and (storage.foldername(name))[1]=auth.uid()::text)
+with check (bucket_id='org-logos' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "cf org logos select own or admin" on storage.objects
+for select to authenticated
+using (bucket_id='org-logos' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()));
+create policy "cf org logos delete own" on storage.objects
+for delete to authenticated
+using (bucket_id='org-logos' and (storage.foldername(name))[1]=auth.uid()::text);
+
+-- Order materials: agents can upload/read their own user folder; admins can read all.
+create policy "cf order assets insert own" on storage.objects
+for insert to authenticated
+with check (bucket_id='order-assets' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "cf order assets read own or admin" on storage.objects
+for select to authenticated
+using (bucket_id='order-assets' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()));
+create policy "cf order assets delete own or admin" on storage.objects
+for delete to authenticated
+using (bucket_id='order-assets' and ((storage.foldername(name))[1]=auth.uid()::text or public.is_admin()));
+
+-- Final videos are private. Admins manage, the owning agent can read.
+create policy "cf final videos admin insert" on storage.objects
+for insert to authenticated
+with check (bucket_id='final-videos' and public.is_admin());
+create policy "cf final videos admin update" on storage.objects
+for update to authenticated
+using (bucket_id='final-videos' and public.is_admin())
+with check (bucket_id='final-videos' and public.is_admin());
+create policy "cf final videos read own or admin" on storage.objects
+for select to authenticated
+using (
+  bucket_id='final-videos' and (
+    public.is_admin() or (storage.foldername(name))[1]=auth.uid()::text
+  )
+);
+
+-- Realtime publication (idempotent).
+do $$
+declare t text;
+begin
+  foreach t in array array['orders','notifications','order_activity','creative_briefs','profiles'] loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname='supabase_realtime' and schemaname='public' and tablename=t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;
+
+-- V24 security/performance hardening applied to the live project.
+alter function public.set_updated_at() set search_path = public;
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+revoke all on function public.notify_admins_new_order() from public, anon, authenticated;
+revoke all on function public.create_initial_order_activity() from public, anon, authenticated;
+revoke all on function public.handle_order_status_change() from public, anon, authenticated;
+revoke all on function public.handle_shoot_started_change() from public, anon, authenticated;
+revoke all on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
+revoke all on function public.get_agent_brief(uuid) from public, anon;
+grant execute on function public.get_agent_brief(uuid) to authenticated;
+revoke all on function public.get_production_queue() from public, anon;
+grant execute on function public.get_production_queue() to authenticated;
+revoke all on function public.mark_notification_read(uuid) from public, anon;
+grant execute on function public.mark_notification_read(uuid) to authenticated;
+revoke all on function public.mark_all_notifications_read() from public, anon;
+grant execute on function public.mark_all_notifications_read() to authenticated;

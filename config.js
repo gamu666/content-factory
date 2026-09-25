@@ -1,6 +1,7 @@
-// Optional Supabase configuration for the next integration step.
-// Keep the anon key here only for browser use. Never put a service_role key in frontend code.
+// Content Factory — Supabase browser configuration.
+// Publishable key is safe in the browser when RLS is enabled.
+// Never put a service_role/secret key here.
 window.REEL_FLOW_CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: ""
+  SUPABASE_URL: "https://egadvdhadhalpunxfern.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_3TuOJ151VzW91pRVuewd5A_0rCkG8rr"
 };
