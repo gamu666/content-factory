@@ -98,3 +98,9 @@ Never put a Supabase service-role/secret key in config.js. The publishable key i
 - Preview болон upload button нь хоорондоо яг ижил өргөнтэй хэвээр.
 - Avatar preview, logo preview, padding, button height-уудыг proportional багасгасан.
 - Cache-busting updated to v35.
+
+## V36
+- “Нууц үгээ мартсан уу?” link-ийг login button-ийн доороос авч, нууц үгийн input-ийн яг доор баруун талд байрлуулсан.
+- Бүртгүүлэх / Нэвтрэх footer-тай давхцахаа больсон.
+- Mobile/desktop дээр ижил байрлалтай.
+- Cache-busting updated to v36.

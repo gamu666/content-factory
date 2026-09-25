@@ -745,10 +745,9 @@ function loginPage(mode='login') {
     ${register?`<div class="field"><label>Овог нэр</label><input name="full_name" required placeholder="Овог нэрээ оруулна уу" autocomplete="name" /></div><div class="field"><label>Утасны дугаар</label><input name="phone" required placeholder="Утасны дугаараа оруулна уу" autocomplete="tel" /></div><div class="field"><label>Байгууллага / агентлаг</label><input name="agency_name" placeholder="Байгууллагын нэр" /></div>`:''}
     ${register?`<div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="email" /></div>`:`<div class="field"><label>И-мэйл</label><input name="identifier" type="text" inputmode="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="username" /></div>`}
     <div class="field"><label>Нууц үг</label><input id="register-password" name="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="${register?'new-password':'current-password'}" /></div>
-    ${register?`<div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>`:''}
+    ${register?`<div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>`:`<div class="auth-recovery-link"><button type="button" data-nav="/forgot-password">Нууц үгээ мартсан уу?</button></div>`}
     <button class="btn btn-primary" type="submit">${register?'Бүртгүүлэх':'Нэвтрэх'}</button>
   </form>
-  ${!register?`<div class="auth-recovery-link"><button type="button" data-nav="/forgot-password">Нууц үгээ мартсан уу?</button></div>`:''}
   <div class="auth-foot">${register?'Бүртгэлтэй юу?':'Бүртгэлгүй юу?'} <button data-nav="${register?'/login':'/register'}">${register?'Нэвтрэх':'Бүртгэл үүсгэх'}</button></div>
   ${!register && !REMOTE_ENABLED?`<div class="demo-box"><strong>Demo нэвтрэх</strong><br>Agent: agent@demo.mn / demo123<br>Admin: admin@demo.mn / admin123</div>`:''}
   </div></section></div>`;
