@@ -53,26 +53,6 @@
       nav.appendChild(link);
     });
 
-    document.querySelectorAll('.auth-box').forEach((box) => {
-      const form = box.querySelector('.auth-form');
-      if (form?.id !== 'login-form') return;
-      const side = box.closest('.auth-side');
-      if (!side || side.querySelector('[data-pricing-auth]')) return;
-
-      box.classList.add('pricing-login-layout');
-      side.classList.add('pricing-login-side');
-
-      const link = document.createElement('a');
-      link.className = 'pricing-auth-promo';
-      link.href = PRICE_URL;
-      link.dataset.pricingAuth = '1';
-      link.innerHTML = `
-        <span class="pricing-auth-promo-copy"><strong>Үнийн мэдээлэл харах</strong></span>
-        <span class="pricing-auth-promo-arrow" aria-hidden="true">→</span>
-      `;
-      side.appendChild(link);
-    });
-
     document.querySelectorAll('.topbar,.mobile-top-actions').forEach((bar) => {
       if (bar.querySelector('[data-pricing-top]')) return;
       const link = document.createElement('a');
