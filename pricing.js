@@ -27,9 +27,9 @@
   function updateSummary() {
     document.getElementById('order-title').textContent = `${currentPlan.name} багц`;
     document.getElementById('order-plan-input').value = currentPlan.name;
-    document.getElementById('order-base-price').textContent = money(currentPlan.price);
+    document.getElementById('order-base-price').textContent = money(currentPlan.price);\n    const planSummary = document.getElementById('order-plan-summary');\n    if (planSummary) planSummary.textContent = currentPlan.name;
     document.getElementById('order-included-agents').textContent = `${currentPlan.includedAgents} agent`;
-    document.getElementById('order-total-price').textContent = `${money(totalPrice())} / сар`;
+    document.getElementById('order-total-price').textContent = money(totalPrice());
   }
 
   function openModal(planName) {
@@ -104,11 +104,11 @@
     const message = [
       '[Content Factory багцын хүсэлт]',
       `Багц: ${currentPlan.name}`,
-      `Сарын суурь үнэ: ${money(currentPlan.price)}`,
+      `Суурь үнэ: ${money(currentPlan.price)}`,
       `Багтсан agent: ${currentPlan.includedAgents}`,
       `Нэмэлт agent: ${extraAgents}${extraAgents ? ` (+${money(extraAgents * EXTRA_AGENT_PRICE)} / сар)` : ''}`,
-      `Тооцоолсон нийт: ${money(total)} / сар`,
-      'Automation: эхний сар FREE',
+      `Тооцоолсон нийт: ${money(total)}`,
+      'Automation: эхний хугацаа FREE',
       'Source: Content Factory pricing page',
       note ? `Нэмэлт: ${note}` : null,
     ].filter(Boolean).join('\n');
