@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050506" />
   <title>Content Factory — Үнийн мэдээлэл</title>
   <meta name="description" content="Content Factory real estate контент үйлдвэрлэл, Facebook automation багцын үнийн мэдээлэл." />
-  <link rel="stylesheet" href="./pricing.css?v=2" />
+  <link rel="stylesheet" href="./pricing.css?v=3" />
 </head>
 <body>
   <main class="pricing-page">
@@ -128,7 +128,7 @@
       <p class="order-kicker">ЗАХИАЛГА</p>
       <h2 id="order-title">Багц захиалах</h2>
 
-      <div class="order-summary">
+      <div class="order-summary" id="order-summary">
         <div><span>Багц</span><strong id="order-plan-summary">—</strong></div>
         <div><span>Суурь үнэ</span><strong id="order-base-price">₮0</strong></div>
         <div><span>Багтсан agent</span><strong id="order-included-agents">0</strong></div>
@@ -162,11 +162,18 @@
         <button class="order-submit" type="submit">Захиалгын хүсэлт илгээх <span>→</span></button>
         <p class="order-feedback" id="order-feedback" role="status">Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.</p>
       </form>
+
+      <div class="order-success" id="order-success" hidden>
+        <div class="order-success-icon" aria-hidden="true">✓</div>
+        <h3>Хүсэлт илгээгдлээ</h3>
+        <p>Таны хүсэлт амжилттай бүртгэгдлээ. НАЙМАН САР-ын админ хэсэгт очсон.</p>
+        <button class="order-success-close" type="button" data-close-modal>Хаах</button>
+      </div>
     </section>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./config.js?v=36"></script>
-  <script src="./pricing.js?v=2"></script>
+  <script src="./pricing.js?v=3"></script>
 </body>
 </html>
