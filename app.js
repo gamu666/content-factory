@@ -1100,24 +1100,44 @@ function adminOrderDetailPage(id) {
 function adminPlansPage() {
   const db=getDb();
   const requests=[...(db.contentPlanRequests||[])].sort((a,b)=>{
-    if(a.status==='PENDING'&&b.status!=='PENDING') return -1;
-    if(b.status==='PENDING'&&a.status!=='PENDING') return 1;
+    if(a.status==='PENDING' && b.status!=='PENDING') return -1;
+    if(b.status==='PENDING' && a.status!=='PENDING') return 1;
     return new Date(b.created_at)-new Date(a.created_at);
   });
-  return shell(`<div class="container">${pageHead('Багцын хүсэлт','Агентын сонгосон багцыг баталгаажуулсны дараа контентын эрхүүд автоматаар идэвхжинэ.')}
-    ${requests.length?`<div class="plan-request-list">${requests.map(r=>{
-      const a=db.profiles.find(p=>p.id===r.agent_id);
-      const ent=entitlementFor(db,r.agent_id);
-      return `<article class="card plan-request-card">
-        <div class="plan-request-main">
-          <div><span class="feature-kicker">${esc(r.status)}</span><h3>${esc(a?.full_name||'Агент')}</h3><p>${esc(agentSubtitle(a||{}))}</p></div>
-          <div class="plan-request-plan"><span>Хүссэн багц</span><strong>${esc(r.plan_code)}</strong><small>${formatMoney(planPrice(r.plan_code))}</small></div>
-          <div class="plan-request-plan"><span>Одоогийн багц</span><strong>${esc(ent?.plan_code||'—')}</strong><small>${formatDate(r.created_at,true)}</small></div>
-        </div>
-        ${r.status==='PENDING'?`<div class="plan-request-actions"><button class="btn btn-secondary" type="button" data-action="reject-plan-request" data-request-id="${r.id}">Татгалзах</button><button class="btn btn-primary" type="button" data-action="approve-plan-request" data-request-id="${r.id}">Баталгаажуулах</button></div>`:`<div class="plan-request-status">${r.status==='APPROVED'?'Баталгаажсан':'Татгалзсан'} · ${r.reviewed_at?formatDate(r.reviewed_at,true):'—'}</div>`}
-      </article>`;
-    }).join('')}</div>`:emptyState('Багцын хүсэлт алга','Одоогоор шийдвэрлэх шинэ хүсэлт байхгүй байна.')}`
-  </div>`,'admin-plans');
+
+  const rows=requests.map(r=>{
+    const agent=db.profiles.find(p=>p.id===r.agent_id);
+    const ent=entitlementFor(db,r.agent_id);
+    let actions='';
+    if(r.status==='PENDING'){
+      actions='<div class="plan-request-actions">'
+        + '<button class="btn btn-secondary" type="button" data-action="reject-plan-request" data-request-id="'+esc(r.id)+'">Татгалзах</button>'
+        + '<button class="btn btn-primary" type="button" data-action="approve-plan-request" data-request-id="'+esc(r.id)+'">Баталгаажуулах</button>'
+        + '</div>';
+    } else {
+      actions='<div class="plan-request-status">'
+        + (r.status==='APPROVED'?'Баталгаажсан':'Татгалзсан')
+        + ' · ' + (r.reviewed_at?formatDate(r.reviewed_at,true):'—')
+        + '</div>';
+    }
+    return '<article class="card plan-request-card">'
+      + '<div class="plan-request-main">'
+      + '<div><span class="feature-kicker">'+esc(r.status)+'</span><h3>'+esc(agent?.full_name||'Агент')+'</h3><p>'+esc(agentSubtitle(agent||{}))+'</p></div>'
+      + '<div class="plan-request-plan"><span>Хүссэн багц</span><strong>'+esc(r.plan_code)+'</strong><small>'+formatMoney(planPrice(r.plan_code))+'</small></div>'
+      + '<div class="plan-request-plan"><span>Одоогийн багц</span><strong>'+esc(ent?.plan_code||'—')+'</strong><small>'+formatDate(r.created_at,true)+'</small></div>'
+      + '</div>'
+      + actions
+      + '</article>';
+  }).join('');
+
+  const body=requests.length
+    ? '<div class="plan-request-list">'+rows+'</div>'
+    : emptyState('Багцын хүсэлт алга','Одоогоор шийдвэрлэх шинэ хүсэлт байхгүй байна.');
+
+  return shell('<div class="container">'
+    + pageHead('Багцын хүсэлт','Агентын сонгосон багцыг баталгаажуулсны дараа контентын эрхүүд автоматаар идэвхжинэ.')
+    + body
+    + '</div>','admin-plans');
 }
 
 function adminAgentsPage() {
