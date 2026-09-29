@@ -8,6 +8,78 @@
     PRO: { name: 'PRO', price: 5490000, includedAgents: 3 },
   };
 
+  const I18N = {
+    mn: {
+      navLogin:'Нэвтрэх', navPlans:'Багц харах',
+      heroTitle:'Танд тохирох багц.', heroLead:'Контент үйлдвэрлэл болон Facebook түгээлтийн automation нэг системд.', heroPill:'Контент + Automation',
+      startChip:'Эхлэхэд', startCopy:'Өөрийн зураг, бичлэгтэй агентуудад зориулсан үндсэн багц.',
+      startAutomation:'1 agent automation included', facebookPosting:'Facebook auto posting', captionQueue:'Caption variation + posting queue',
+      recommended:'САНАЛ БОЛГОХ', growCopy:'Тогтмол property контент болон expert presence хөгжүүлэх агентуудад.', growAutomation:'2 agent automation included',
+      proCopy:'Контентын бүх урсгал болон personal branding-аа цогцоор нь хөгжүүлэх багц.', proAutomation:'3 agent automation included', priorityProduction:'Priority production',
+      orderBtn:'Захиалах',
+      guideEyebrow:'БАГЦ ДОТОРХ ҮЙЛЧИЛГЭЭ', guideTitle:'Яг юу багтаж байгаа вэ?', guideLead:'Нэршил бүр ямар төрлийн контент, үйлчилгээ болохыг товч бөгөөд ойлгомжтой тайлбарлав.',
+      propertyReelDesc:'Үл хөдлөхийн объект танилцуулах богино босоо видео. Үндсэн Property Reel-д манай зураг авалт орохгүй — захиалагч өөрийн зураг, бичлэгээ өгнө. Манайхаар объектын зураг авалт хийлгэх бол тусад нь зураг авалт / Drone Credit тооцно.',
+      dronePrice:'Drone зураг авалт: 1 удаа — 250,000₮',
+      posterDesc:'Зар сурталчилгаанд ашиглах нэг кадрын дизайн. Захиалагчийн өгсөн property зураг, мэдээллээр social post-д бэлэн poster бэлтгэнэ. Drone зураг хэрэгтэй бол тусдаа зураг авалт тооцно.',
+      expertDesc:'Агент өөрийн мэдлэг, туршлагаа тайлбарласан 2–3 минутын мэргэжлийн контент. Сэдэв, мэдээлэл, ярих агуулгыг захиалагч бэлтгэнэ; манай баг зураг авалт, edit, subtitle, visual treatment-ийг хариуцна.',
+      brandingDesc:'Агентыг өөрийг нь брэнд болгон таниулах богино видео. Ажлын хэв маяг, дүр төрх, үйлчилгээний онцлог, өдөр тутмын professional image-ийг тогтмол контент болгон хөгжүүлнэ.',
+      droneCreditDesc:'Объект, орчин, байршлыг агаараас авах нэмэлт зураг авалтын эрх. Багцад Drone Credit байвал тухайн credit-ээ ашиглана; credit хүрэлцэхгүй бол нэмэлт drone зураг авалт 250,000₮-өөр тооцогдоно.',
+      automationDesc:'Facebook зар түгээлтийг системээр удирдах хэсэг. Agent бүр өөрийн account/page-аа холбоод post queue, caption variation болон auto posting урсгалаа нэг дороос хянах боломжтой.',
+      footerSub:'Real estate content production portal',
+      orderKicker:'ЗАХИАЛГА', planLabel:'Багц', basePriceLabel:'Суурь үнэ', includedAgentLabel:'Багтсан agent', extraAgentLabel:'Нэмэлт agent', totalLabel:'Тооцоолсон нийт',
+      nameLabel:'Таны нэр *', namePlaceholder:'Таны нэр', orgLabel:'Байгууллага', orgPlaceholder:'Байгууллага / агентлаг', emailLabel:'И-мэйл *', phoneLabel:'Утас *',
+      noteLabel:'Нэмэх зүйл?', optionalLabel:'(заавал биш)', notePlaceholder:'Нэмэлт хэрэгцээ, асуултаа бичнэ үү.', submitOrder:'Захиалгын хүсэлт илгээх',
+      requestDestination:'Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.', successTitle:'Хүсэлт илгээгдлээ', successDesc:'Таны хүсэлт амжилттай бүртгэгдлээ. НАЙМАН САР-ын админ хэсэгт очсон.', closeBtn:'Хаах',
+      submitting:'Илгээж байна…', sending:'Хүсэлтийг илгээж байна…', sendError:'Хүсэлт илгээгдсэнгүй. Түр хүлээгээд дахин оролдоно уу.', packageSuffix:'багц', agentSuffix:'agent'
+    },
+    en: {
+      navLogin:'Log in', navPlans:'View plans',
+      heroTitle:'Choose the right plan.', heroLead:'Content production and Facebook distribution automation in one system.', heroPill:'Content + Automation',
+      startChip:'Starter', startCopy:'A core plan for agents who already have their own property photos and footage.',
+      startAutomation:'1 agent automation included', facebookPosting:'Facebook auto posting', captionQueue:'Caption variation + posting queue',
+      recommended:'RECOMMENDED', growCopy:'For agents building consistent property content and expert presence.', growAutomation:'2 agent automation included',
+      proCopy:'A complete package for content production and personal brand growth.', proAutomation:'3 agent automation included', priorityProduction:'Priority production',
+      orderBtn:'Order',
+      guideEyebrow:'WHAT IS INCLUDED', guideTitle:'What does each service mean?', guideLead:'A clear explanation of every content type and service included in the plans.',
+      propertyReelDesc:'A short vertical video created to present a real-estate listing. Standard Property Reel does not include our filming service — the client provides photos or footage. If you want our team to film the property, filming / Drone Credit is charged separately.',
+      dronePrice:'Drone filming: 1 session — 250,000₮',
+      posterDesc:'A single-frame promotional design for social media. We create the poster using the property photos and information supplied by the client. Drone photography is charged separately when required.',
+      expertDesc:'A 2–3 minute professional video where the agent shares knowledge and experience. The client prepares the topic, information and talking points; our team handles filming, editing, subtitles and visual treatment.',
+      brandingDesc:'Short-form content focused on building the agent as a recognizable personal brand — work style, professional image, service strengths and day-to-day presence.',
+      droneCreditDesc:'A credit for aerial filming of the property, surrounding area or location. If your plan includes Drone Credit, it can be used for that shoot. Additional drone filming is 250,000₮ per session.',
+      automationDesc:'A system for managing Facebook distribution. Each agent can connect their own account/page and manage posting queue, caption variations and auto posting from one place.',
+      footerSub:'Real estate content production portal',
+      orderKicker:'ORDER', planLabel:'Plan', basePriceLabel:'Base price', includedAgentLabel:'Included agents', extraAgentLabel:'Extra agents', totalLabel:'Estimated total',
+      nameLabel:'Your name *', namePlaceholder:'Your name', orgLabel:'Organization', orgPlaceholder:'Organization / agency', emailLabel:'Email *', phoneLabel:'Phone *',
+      noteLabel:'Anything to add?', optionalLabel:'(optional)', notePlaceholder:'Add any extra needs or questions.', submitOrder:'Send order request',
+      requestDestination:'Your request goes directly to the NAIMAN SAR admin panel.', successTitle:'Request sent', successDesc:'Your request has been registered successfully and sent to the NAIMAN SAR admin panel.', closeBtn:'Close',
+      submitting:'Sending…', sending:'Sending your request…', sendError:'Request could not be sent. Please try again shortly.', packageSuffix:'plan', agentSuffix:'agent'
+    }
+  };
+
+  let currentLang = localStorage.getItem('cf_pricing_lang') === 'en' ? 'en' : 'mn';
+
+  function t(key) {
+    return I18N[currentLang]?.[key] || I18N.mn[key] || key;
+  }
+
+  function applyLanguage(lang) {
+    currentLang = lang === 'en' ? 'en' : 'mn';
+    localStorage.setItem('cf_pricing_lang', currentLang);
+    document.documentElement.lang = currentLang === 'en' ? 'en' : 'mn';
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.dataset.i18n;
+      if (I18N[currentLang]?.[key] != null) el.textContent = I18N[currentLang][key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+      const key = el.dataset.i18nPlaceholder;
+      if (I18N[currentLang]?.[key] != null) el.placeholder = I18N[currentLang][key];
+    });
+    document.querySelectorAll('[data-lang]').forEach((btn) => btn.classList.toggle('is-active', btn.dataset.lang === currentLang));
+    updateSummary();
+  }
+
   let currentPlan = PLANS.GROW;
   const modal = document.getElementById('order-modal');
   const form = document.getElementById('pricing-order-form');
@@ -28,12 +100,12 @@
   }
 
   function updateSummary() {
-    document.getElementById('order-title').textContent = `${currentPlan.name} багц`;
+    document.getElementById('order-title').textContent = `${currentPlan.name} ${t('packageSuffix')}`;
     document.getElementById('order-plan-input').value = currentPlan.name;
     document.getElementById('order-base-price').textContent = money(currentPlan.price);
     const planSummary = document.getElementById('order-plan-summary');
     if (planSummary) planSummary.textContent = currentPlan.name;
-    document.getElementById('order-included-agents').textContent = `${currentPlan.includedAgents} agent`;
+    document.getElementById('order-included-agents').textContent = `${currentPlan.includedAgents} ${t('agentSuffix')}`;
     document.getElementById('order-total-price').textContent = money(totalPrice());
   }
 
@@ -43,7 +115,7 @@
     updateSummary();
     if (feedback) {
       feedback.hidden = false;
-      feedback.textContent = 'Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.';
+      feedback.textContent = t('requestDestination');
       feedback.className = 'order-feedback';
     }
     dialog?.classList.remove('is-success');
@@ -118,15 +190,14 @@
       `Багтсан agent: ${currentPlan.includedAgents}`,
       `Нэмэлт agent: ${extraAgents}${extraAgents ? ` (+${money(extraAgents * EXTRA_AGENT_PRICE)})` : ''}`,
       `Тооцоолсон нийт: ${money(total)}`,
-      'Automation: эхний хугацаа FREE',
       'Source: Content Factory pricing page',
       note ? `Нэмэлт: ${note}` : null,
     ].filter(Boolean).join('\n');
 
     submitButton.disabled = true;
-    submitButton.innerHTML = 'Илгээж байна…';
+    submitButton.textContent = t('submitting');
     feedback.className = 'order-feedback';
-    feedback.textContent = 'Хүсэлтийг илгээж байна…';
+    feedback.textContent = t('sending');
 
     try {
       const response = await fetch(`${NAIMAN_SUPABASE_URL}/rest/v1/contact_requests`, {
@@ -165,12 +236,13 @@
     } catch (error) {
       console.error(error);
       feedback.className = 'order-feedback is-error';
-      feedback.textContent = 'Хүсэлт илгээгдсэнгүй. Түр хүлээгээд дахин оролдоно уу.';
+      feedback.textContent = t('sendError');
     } finally {
       submitButton.disabled = false;
-      submitButton.innerHTML = 'Захиалгын хүсэлт илгээх <span>→</span>';
+      submitButton.innerHTML = `<span>${t('submitOrder')}</span> <span>→</span>`;
     }
   });
 
+  applyLanguage(currentLang);
   void prefillFromContentFactory();
 })();
