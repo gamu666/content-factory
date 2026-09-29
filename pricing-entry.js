@@ -18,8 +18,20 @@
       .pricing-auth-promo-icon{display:none}
       .pricing-auth-promo-arrow{width:44px;height:40px;display:grid;place-items:center;flex:0 0 44px;border-radius:999px;color:#fff;font-size:25px;line-height:1;font-weight:950;transition:transform .18s ease;text-shadow:0 1px 3px rgba(0,0,0,.18)}
       .pricing-auth-promo:hover .pricing-auth-promo-arrow{transform:translateX(2px)}
-      .auth-box.pricing-login-layout{transform:translateY(-62px)}
-      @media(max-width:820px){.auth-box.pricing-login-layout{transform:translateY(-24px)}.pricing-auth-promo{margin-top:34px}}
+      .auth-side.pricing-login-side{position:relative}
+      .auth-box.pricing-login-layout{transform:translateY(-86px)}
+      .auth-side.pricing-login-side>.pricing-auth-promo{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);margin:0}
+      .auth-side.pricing-login-side>.pricing-auth-promo:hover{transform:translateX(-50%) translateY(-2px)}
+      @media(max-height:820px) and (min-width:821px){
+        .auth-box.pricing-login-layout{transform:translateY(-62px)}
+        .auth-side.pricing-login-side>.pricing-auth-promo{bottom:38px}
+      }
+      @media(max-width:820px){
+        .auth-side.pricing-login-side{display:flex;flex-direction:column;justify-content:center}
+        .auth-box.pricing-login-layout{transform:translateY(-30px)}
+        .auth-side.pricing-login-side>.pricing-auth-promo{position:static;transform:none;margin:34px auto 0}
+        .auth-side.pricing-login-side>.pricing-auth-promo:hover{transform:translateY(-2px)}
+      }
       .pricing-top-link{height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#5a5f68;text-decoration:none}
       .pricing-top-link:hover{background:var(--surface-2);color:var(--text)}
       .pricing-top-link svg{width:15px;height:15px}
@@ -42,7 +54,14 @@
     });
 
     document.querySelectorAll('.auth-box').forEach((box) => {
-      if (box.querySelector('[data-pricing-auth]')) return;
+      const form = box.querySelector('.auth-form');
+      if (form?.id !== 'login-form') return;
+      const side = box.closest('.auth-side');
+      if (!side || side.querySelector('[data-pricing-auth]')) return;
+
+      box.classList.add('pricing-login-layout');
+      side.classList.add('pricing-login-side');
+
       const link = document.createElement('a');
       link.className = 'pricing-auth-promo';
       link.href = PRICE_URL;
@@ -51,11 +70,7 @@
         <span class="pricing-auth-promo-copy"><strong>Үнийн мэдээлэл харах</strong></span>
         <span class="pricing-auth-promo-arrow" aria-hidden="true">→</span>
       `;
-      const form = box.querySelector('.auth-form');
-      if (form?.id === 'login-form') box.classList.add('pricing-login-layout');
-      const foot = box.querySelector('.auth-foot');
-      if (foot) foot.insertAdjacentElement('afterend', link);
-      else box.appendChild(link);
+      side.appendChild(link);
     });
 
     document.querySelectorAll('.topbar,.mobile-top-actions').forEach((bar) => {
