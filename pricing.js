@@ -2,10 +2,12 @@
   const NAIMAN_SUPABASE_URL = 'https://buvmtdlvynfrjwcatlsv.supabase.co';
   const NAIMAN_SUPABASE_KEY = 'sb_publishable_o8Q6jjCR_Am7ggsLc8rQyg_9lq7ThQ0';
   const EXTRA_AGENT_PRICE = 79900;
+  const CAMERA_CREDIT_PRICE = 250000;
+  const DRONE_CREDIT_PRICE = 250000;
   const PLANS = {
-    START: { name: 'START', price: 1290000, includedAgents: 1 },
-    GROW: { name: 'GROW', price: 2990000, includedAgents: 2 },
-    PRO: { name: 'PRO', price: 5490000, includedAgents: 3 },
+    START: { name: 'START', price: 1290000, includedAgents: 1, includedCamera: 0, includedDrone: 0 },
+    GROW: { name: 'GROW', price: 2990000, includedAgents: 2, includedCamera: 1, includedDrone: 1 },
+    PRO: { name: 'PRO', price: 5490000, includedAgents: 3, includedCamera: 2, includedDrone: 2 },
   };
 
   const I18N = {
@@ -19,14 +21,17 @@
       orderBtn:'Захиалах',
       guideEyebrow:'БАГЦ ДОТОРХ ҮЙЛЧИЛГЭЭ', guideTitle:'Яг юу багтаж байгаа вэ?', guideLead:'Нэршил бүр ямар төрлийн контент, үйлчилгээ болохыг товч бөгөөд ойлгомжтой тайлбарлав.',
       propertyReelDesc:'Үл хөдлөхийн объектыг сошиал орчинд сонирхол татахуйц байдлаар танилцуулах богино босоо видео. Бэлэн зураг, бичлэгээ ашиглуулж болно, эсвэл шаардлагатай үед манай зураг авалтын үйлчилгээг нэмэлтээр сонгох боломжтой.',
-      dronePrice:'Нэмэлт Drone зураг авалт — 250,000₮',
+      shootingAddonsPrice:'Нэмэлт Camera / Drone Credit — тус бүр 250,000₮',
       posterDesc:'Объектын гол давуу тал, үнэ, байршил зэрэг мэдээллийг цэгцтэй харуулсан сошиал постын дизайн. Таны бэлэн зураг, мэдээлэл дээр тулгуурлан шууд нийтлэхэд бэлэн байдлаар бэлтгэнэ.',
       expertDesc:'Агентын мэдлэг, туршлага, зөвлөгөөг харуулсан 2–3 минутын мэргэжлийн контент. Та гол сэдэв, санаагаа өгнө; манай баг зураг авалт, edit, subtitle болон визуал боловсруулалтыг хариуцаж контент болгон гаргана.',
       brandingDesc:'Агентын өөрийн дүр төрх, ажлын хэв маяг, үйлчилгээний онцлогийг тогтмол харуулах богино видео цуврал. Хувийн брэндээ танигдахуйц, нэг өнгө аястай хөгжүүлэхэд зориулагдана.',
-      droneCreditDesc:'Объект, орчин, байршлыг агаараас илүү өргөн хүрээнд харуулах зураг авалтын эрх. Багцад орсон Drone Credit-ээ тохирох контент дээр ашиглаж болно; нэмэлт зураг авалт шаардлагатай бол тусад нь захиалах боломжтой.',
+      droneCreditDesc:'Drone ашиглан объект, орчин, байршлын зураг болон бичлэг авна. Агаараас харах өнцөг нь property контентыг илүү бүрэн, сонирхолтой харуулахад ашиглагдана.',
+      droneCreditPrice:'Нэмэлт Drone Credit — 250,000₮',
+      cameraCreditDesc:'Мэргэжлийн камераар объектын дотор, гадна орчны зураг болон бичлэг авна. Property Reel, Poster болон бусад контентод ашиглах чанартай эх материал бэлтгэнэ.',
+      cameraCreditPrice:'Нэмэлт Camera Credit — 250,000₮',
       automationDesc:'Facebook контент түгээлтийг илүү цэгцтэй удирдах автоматжуулалтын хэсэг. Agent бүр өөрийн account/page-аа холбоод post queue, caption variation болон auto posting урсгалаа нэг дороос хянах боломжтой.',
       footerSub:'Real estate content production portal',
-      orderKicker:'ЗАХИАЛГА', planLabel:'Багц', basePriceLabel:'Суурь үнэ', includedAgentLabel:'Багтсан agent', extraAgentLabel:'Нэмэлт agent', totalLabel:'Тооцоолсон нийт',
+      orderKicker:'ЗАХИАЛГА', planLabel:'Багц', basePriceLabel:'Суурь үнэ', includedAgentLabel:'Багтсан agent', includedCameraLabel:'Багтсан Camera Credit', includedDroneLabel:'Багтсан Drone Credit', extraAgentLabel:'Нэмэлт agent', extraCameraLabel:'Нэмэлт Camera Credit', extraDroneLabel:'Нэмэлт Drone Credit', cameraAddonPrice:'1 credit = 250,000₮', droneAddonPrice:'1 credit = 250,000₮', totalLabel:'Тооцоолсон нийт',
       nameLabel:'Таны нэр *', namePlaceholder:'Таны нэр', orgLabel:'Байгууллага', orgPlaceholder:'Байгууллага / агентлаг', emailLabel:'И-мэйл *', phoneLabel:'Утас *',
       noteLabel:'Нэмэх зүйл?', optionalLabel:'(заавал биш)', notePlaceholder:'Нэмэлт хэрэгцээ, асуултаа бичнэ үү.', submitOrder:'Захиалгын хүсэлт илгээх',
       requestDestination:'Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.', successTitle:'Хүсэлт илгээгдлээ', successDesc:'Таны хүсэлт амжилттай бүртгэгдлээ. НАЙМАН САР-ын админ хэсэгт очсон.', closeBtn:'Хаах',
@@ -42,14 +47,17 @@
       orderBtn:'Order',
       guideEyebrow:'WHAT IS INCLUDED', guideTitle:'What does each service mean?', guideLead:'A clear explanation of every content type and service included in the plans.',
       propertyReelDesc:'A short vertical video designed to present a real-estate listing in an engaging social-first format. You can use your existing photos and footage, or add our filming service when you need fresh visuals.',
-      dronePrice:'Additional drone filming — 250,000₮',
+      shootingAddonsPrice:'Additional Camera / Drone Credit — 250,000₮ each',
       posterDesc:'A social-ready visual that presents the property’s key selling points, price and location clearly. We build it from your available photos and listing information.',
       expertDesc:'A 2–3 minute professional video built around the agent’s knowledge, experience and advice. You bring the main topic and ideas; our team handles filming, editing, subtitles and visual treatment.',
       brandingDesc:'A short-form series that consistently presents the agent’s personality, work style and service strengths, helping build a recognizable and cohesive personal brand.',
-      droneCreditDesc:'A credit for aerial filming that gives a wider view of the property, surroundings and location. Included credits can be used where they add the most value, with extra sessions available when needed.',
+      droneCreditDesc:'Drone filming provides both photos and video of the property, surroundings and location from the air, adding a wider and more engaging perspective to property content.',
+      droneCreditPrice:'Additional Drone Credit — 250,000₮',
+      cameraCreditDesc:'Professional camera filming provides both photos and video of the property interior and exterior, creating high-quality source material for Property Reels, Posters and other content.',
+      cameraCreditPrice:'Additional Camera Credit — 250,000₮',
       automationDesc:'A streamlined way to manage Facebook content distribution. Each agent can connect their account/page and handle posting queue, caption variations and auto posting from one place.',
       footerSub:'Real estate content production portal',
-      orderKicker:'ORDER', planLabel:'Plan', basePriceLabel:'Base price', includedAgentLabel:'Included agents', extraAgentLabel:'Extra agents', totalLabel:'Estimated total',
+      orderKicker:'ORDER', planLabel:'Plan', basePriceLabel:'Base price', includedAgentLabel:'Included agents', includedCameraLabel:'Included Camera Credit', includedDroneLabel:'Included Drone Credit', extraAgentLabel:'Extra agents', extraCameraLabel:'Extra Camera Credit', extraDroneLabel:'Extra Drone Credit', cameraAddonPrice:'1 credit = 250,000₮', droneAddonPrice:'1 credit = 250,000₮', totalLabel:'Estimated total',
       nameLabel:'Your name *', namePlaceholder:'Your name', orgLabel:'Organization', orgPlaceholder:'Organization / agency', emailLabel:'Email *', phoneLabel:'Phone *',
       noteLabel:'Anything to add?', optionalLabel:'(optional)', notePlaceholder:'Add any extra needs or questions.', submitOrder:'Send order request',
       requestDestination:'Your request goes directly to the NAIMAN SAR admin panel.', successTitle:'Request sent', successDesc:'Your request has been registered successfully and sent to the NAIMAN SAR admin panel.', closeBtn:'Close',
@@ -84,6 +92,8 @@
   const modal = document.getElementById('order-modal');
   const form = document.getElementById('pricing-order-form');
   const extraAgentSelect = document.getElementById('extra-agent-count');
+  const extraCameraSelect = document.getElementById('extra-camera-count');
+  const extraDroneSelect = document.getElementById('extra-drone-count');
   const feedback = document.getElementById('order-feedback');
   const submitButton = form?.querySelector('.order-submit');
   const successState = document.getElementById('order-success');
@@ -95,8 +105,13 @@
   }
 
   function totalPrice() {
-    const extra = Number(extraAgentSelect?.value || 0);
-    return currentPlan.price + (extra * EXTRA_AGENT_PRICE);
+    const extraAgents = Number(extraAgentSelect?.value || 0);
+    const extraCamera = Number(extraCameraSelect?.value || 0);
+    const extraDrone = Number(extraDroneSelect?.value || 0);
+    return currentPlan.price
+      + (extraAgents * EXTRA_AGENT_PRICE)
+      + (extraCamera * CAMERA_CREDIT_PRICE)
+      + (extraDrone * DRONE_CREDIT_PRICE);
   }
 
   function updateSummary() {
@@ -106,12 +121,16 @@
     const planSummary = document.getElementById('order-plan-summary');
     if (planSummary) planSummary.textContent = currentPlan.name;
     document.getElementById('order-included-agents').textContent = `${currentPlan.includedAgents} ${t('agentSuffix')}`;
+    document.getElementById('order-included-camera').textContent = `${currentPlan.includedCamera} credit`;
+    document.getElementById('order-included-drone').textContent = `${currentPlan.includedDrone} credit`;
     document.getElementById('order-total-price').textContent = money(totalPrice());
   }
 
   function openModal(planName) {
     currentPlan = PLANS[planName] || PLANS.GROW;
     if (extraAgentSelect) extraAgentSelect.value = '0';
+    if (extraCameraSelect) extraCameraSelect.value = '0';
+    if (extraDroneSelect) extraDroneSelect.value = '0';
     updateSummary();
     if (feedback) {
       feedback.hidden = false;
@@ -174,6 +193,8 @@
   });
   document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', closeModal));
   extraAgentSelect?.addEventListener('change', updateSummary);
+  extraCameraSelect?.addEventListener('change', updateSummary);
+  extraDroneSelect?.addEventListener('change', updateSummary);
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !modal.hidden) closeModal();
   });
@@ -185,6 +206,8 @@
     if (String(data.get('website') || '').trim()) return;
 
     const extraAgents = Number(extraAgentSelect?.value || 0);
+    const extraCamera = Number(extraCameraSelect?.value || 0);
+    const extraDrone = Number(extraDroneSelect?.value || 0);
     const total = totalPrice();
     const note = String(data.get('note') || '').trim();
     const message = [
@@ -192,7 +215,11 @@
       `Багц: ${currentPlan.name}`,
       `Суурь үнэ: ${money(currentPlan.price)}`,
       `Багтсан agent: ${currentPlan.includedAgents}`,
+      `Багтсан Camera Credit: ${currentPlan.includedCamera}`,
+      `Багтсан Drone Credit: ${currentPlan.includedDrone}`,
       `Нэмэлт agent: ${extraAgents}${extraAgents ? ` (+${money(extraAgents * EXTRA_AGENT_PRICE)})` : ''}`,
+      `Нэмэлт Camera Credit: ${extraCamera}${extraCamera ? ` (+${money(extraCamera * CAMERA_CREDIT_PRICE)})` : ''}`,
+      `Нэмэлт Drone Credit: ${extraDrone}${extraDrone ? ` (+${money(extraDrone * DRONE_CREDIT_PRICE)})` : ''}`,
       `Тооцоолсон нийт: ${money(total)}`,
       'Source: Content Factory pricing page',
       note ? `Нэмэлт: ${note}` : null,
@@ -236,6 +263,8 @@
       form.querySelector('input[name="phone"]').value = savedPhone;
       form.querySelector('input[name="organisation"]').value = savedOrg;
       if (extraAgentSelect) extraAgentSelect.value = '0';
+      if (extraCameraSelect) extraCameraSelect.value = '0';
+      if (extraDroneSelect) extraDroneSelect.value = '0';
       updateSummary();
     } catch (error) {
       console.error(error);
