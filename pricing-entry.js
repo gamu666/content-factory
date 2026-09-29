@@ -10,13 +10,13 @@
     const style = document.createElement('style');
     style.id = 'pricing-entry-style';
     style.textContent = `
-      .pricing-auth-promo{width:min(310px,100%);display:flex;align-items:center;gap:4px;margin:46px auto 0;padding:4px;border:1px solid #dedede;border-radius:999px;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.08);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease}
-      .pricing-auth-promo:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(0,0,0,.12)}
-      .pricing-auth-promo-copy{min-width:0;flex:1;display:flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;background:#303030}
-      .pricing-auth-promo-copy strong{font-size:15px;line-height:1;color:#fff;letter-spacing:-.025em;font-weight:800;white-space:nowrap}
+      .pricing-auth-promo{width:min(310px,100%);display:flex;align-items:center;gap:4px;margin:46px auto 0;padding:4px;border:1px solid #2c2c2c;border-radius:999px;background:#2f2f2f;box-shadow:0 14px 34px rgba(0,0,0,.20),0 4px 12px rgba(0,0,0,.10);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease}
+      .pricing-auth-promo:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(0,0,0,.26),0 6px 14px rgba(0,0,0,.12)}
+      .pricing-auth-promo-copy{min-width:0;flex:1;display:flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04),0 3px 10px rgba(0,0,0,.10)}
+      .pricing-auth-promo-copy strong{font-size:15px;line-height:1;color:#202020;letter-spacing:-.015em;font-weight:500;white-space:nowrap}
       .pricing-auth-promo-copy small{display:none}
       .pricing-auth-promo-icon{display:none}
-      .pricing-auth-promo-arrow{width:44px;height:40px;display:grid;place-items:center;flex:0 0 44px;border-radius:999px;color:#242424;font-size:20px;line-height:1;font-weight:800;transition:transform .18s ease}
+      .pricing-auth-promo-arrow{width:44px;height:40px;display:grid;place-items:center;flex:0 0 44px;border-radius:999px;color:#fff;font-size:25px;line-height:1;font-weight:950;transition:transform .18s ease;text-shadow:0 1px 3px rgba(0,0,0,.18)}
       .pricing-auth-promo:hover .pricing-auth-promo-arrow{transform:translateX(2px)}
       .auth-box.pricing-login-layout{transform:translateY(-62px)}
       @media(max-width:820px){.auth-box.pricing-login-layout{transform:translateY(-24px)}.pricing-auth-promo{margin-top:34px}}
