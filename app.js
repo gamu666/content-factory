@@ -673,6 +673,8 @@ function newOrderPage() {
         <div><span>Poster</span><strong>${ent.poster_remaining}</strong></div>
         <div><span>Expert Content</span><strong>${ent.expert_content_remaining}</strong></div>
         <div><span>Agent Branding</span><strong>${ent.agent_branding_reel_remaining}</strong></div>
+        <div><span>Camera Credit</span><strong>${ent.camera_credit_remaining}</strong></div>
+        <div><span>Drone Credit</span><strong>${ent.drone_credit_remaining}</strong></div>
       </div>
     </section>
 
@@ -685,6 +687,22 @@ function newOrderPage() {
             <span class="content-type-option-main"><strong>${label}</strong><small>${desc}</small></span>
             <span class="content-type-count"><b>${count}</b><small>үлдсэн</small></span>
           </label>`).join('')}
+        </div>
+      </div>
+
+      <div class="order-addon-credit-block">
+        <div class="field-label-row"><div><strong>Зураг авалтын credit ашиглах</strong><span>Багцад үлдсэн credit-ээсээ энэ захиалгад нэмэж болно.</span></div></div>
+        <div class="order-addon-credit-options">
+          <label class="order-addon-credit-option ${Number(ent.camera_credit_remaining)<=0?'disabled':''}">
+            <input type="checkbox" name="use_camera_credit" ${Number(ent.camera_credit_remaining)<=0?'disabled':''}>
+            <span><strong>Camera Credit</strong><small>Мэргэжлийн камераар зураг + бичлэг</small></span>
+            <b>${ent.camera_credit_remaining} үлдсэн</b>
+          </label>
+          <label class="order-addon-credit-option ${Number(ent.drone_credit_remaining)<=0?'disabled':''}">
+            <input type="checkbox" name="use_drone_credit" ${Number(ent.drone_credit_remaining)<=0?'disabled':''}>
+            <span><strong>Drone Credit</strong><small>Drone зураг + бичлэг</small></span>
+            <b>${ent.drone_credit_remaining} үлдсэн</b>
+          </label>
         </div>
       </div>
 
@@ -732,7 +750,7 @@ function orderDetailPage(id) {
       ${finalPanel}
     </div><aside class="detail-side">
       <section class="card panel"><div class="panel-title">Төлбөр</div><div class="price">${price}</div>${paymentPill(order.payment_status)}</section>
-      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list"><div class="info-row"><span>Контент</span><strong>${esc(contentTypeLabel(order.content_type))}</strong></div><div class="info-row"><span>Төрөл</span><strong>${esc(order.property_type)}</strong></div><div class="info-row"><span>Зорилго</span><strong>${esc(order.purpose)}</strong></div><div class="info-row"><span>Захиалсан</span><strong>${formatDate(order.created_at,true)}</strong></div></div></section>
+      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list"><div class="info-row"><span>Контент</span><strong>${esc(contentTypeLabel(order.content_type))}</strong></div>${order.camera_credit_used?`<div class="info-row"><span>Camera Credit</span><strong>1 ашигласан</strong></div>`:''}${order.drone_credit_used?`<div class="info-row"><span>Drone Credit</span><strong>1 ашигласан</strong></div>`:''}<div class="info-row"><span>Төрөл</span><strong>${esc(order.property_type)}</strong></div><div class="info-row"><span>Зорилго</span><strong>${esc(order.purpose)}</strong></div><div class="info-row"><span>Захиалсан</span><strong>${formatDate(order.created_at,true)}</strong></div></div></section>
       <section class="card panel"><div class="panel-title">Үйл явц</div>${acts.length?`<div class="timeline">${acts.map(a=>`<div class="timeline-item"><div class="timeline-time">${formatDate(a.created_at,true)}</div><div class="timeline-text">${esc(a.public_message)}</div></div>`).join('')}</div>`:'<p class="brief">Одоогоор шинэчлэлт алга.</p>'}</section>
     </aside></div>
   </div>`,'orders');
@@ -1385,7 +1403,9 @@ async function handleNewOrder(form) {
         p_purpose:String(fd.get('purpose')||'').trim(),
         p_description:String(fd.get('description')||'').trim(),
         p_listing_url:String(fd.get('listing_url')||'').trim()||null,
-        p_additional_notes:String(fd.get('additional_notes')||'').trim()||null
+        p_additional_notes:String(fd.get('additional_notes')||'').trim()||null,
+        p_use_camera_credit:fd.get('use_camera_credit')==='on',
+        p_use_drone_credit:fd.get('use_drone_credit')==='on'
       });
       const orderId=throwIfError(rpc,'Захиалга хадгалж чадсангүй');
       await loadRemoteDb();
@@ -1401,12 +1421,22 @@ async function handleNewOrder(form) {
   if(!ent) { toast('Идэвхтэй багц байхгүй байна.','error'); return; }
   if(Number(ent[field]||0)<=0) { toast(`${contentTypeLabel(contentType)} эрх дууссан байна.`,'error'); return; }
   ent[field]=Number(ent[field])-1;
+  const useCamera=fd.get('use_camera_credit')==='on';
+  const useDrone=fd.get('use_drone_credit')==='on';
+  if(useCamera){
+    if(Number(ent.camera_credit_remaining||0)<=0){toast('Camera Credit үлдээгүй байна.','error');return;}
+    ent.camera_credit_remaining=Number(ent.camera_credit_remaining)-1;
+  }
+  if(useDrone){
+    if(Number(ent.drone_credit_remaining||0)<=0){toast('Drone Credit үлдээгүй байна.','error');return;}
+    ent.drone_credit_remaining=Number(ent.drone_credit_remaining)-1;
+  }
   ent.updated_at=nowIso();
 
   const id=uid('order');
   const order={
     id,order_number:generateOrderNumber(db),agent_id:user.id,assigned_admin_id:null,
-    content_type:contentType,credit_charged:true,
+    content_type:contentType,credit_charged:true,camera_credit_used:useCamera,drone_credit_used:useDrone,
     property_name:String(fd.get('property_name')).trim(),
     location:String(fd.get('location')).trim(),
     property_type:String(fd.get('property_type')),
