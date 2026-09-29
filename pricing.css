@@ -128,3 +128,20 @@ body.modal-open{overflow:hidden}
 .order-success p{max-width:360px;margin:0 auto 22px;color:#8f95a2;font-size:12px;line-height:1.65}
 .order-success-close{width:100%;height:48px;border:0;border-radius:999px;background:#7779ff;color:#fff;font-size:12px;font-weight:820;cursor:pointer}
 .order-success-close:hover{background:#8587ff}
+
+
+.order-dialog.is-success .order-kicker,
+.order-dialog.is-success #order-title,
+.order-dialog.is-success .order-summary,
+.order-dialog.is-success .order-form{
+  display:none !important;
+}
+.order-form[hidden],
+.order-summary[hidden],
+.order-success[hidden]{
+  display:none !important;
+}
+.order-dialog.is-success .order-success{
+  display:block !important;
+  padding-top:34px;
+}
