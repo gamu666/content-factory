@@ -398,6 +398,8 @@ function addNotification(db, recipientId, type, title, message, orderId=null) {
   db.notifications.push({id:uid('notification'),recipient_id:recipientId,type,title,message,order_id:orderId,read_at:null,created_at:nowIso()});
 }
 function notificationPath(user, notification) {
+  if (notification.type==='PLAN_REQUEST' && user.role==='admin') return '/admin/plans';
+  if (['PLAN_APPROVED','PLAN_REJECTED'].includes(notification.type) && user.role!=='admin') return '/pricing';
   if (!notification.order_id) return user.role==='admin'?'/admin':'/dashboard';
   return user.role==='admin'?`/admin/orders/${notification.order_id}`:`/orders/${notification.order_id}`;
 }
@@ -414,6 +416,7 @@ function shell(content, active='dashboard') {
     ['admin','/admin','home','Хяналтын самбар'],
     ['admin-orders','/admin/orders','orders','Захиалгууд'],
     ['admin-agents','/admin/agents','users','Агентууд'],
+    ['admin-plans','/admin/plans','money','Багцын хүсэлт'],
     ['admin-shoots','/admin/shoots','calendar','Зураг авалт'],
     ['admin-profile','/admin/profile','user','Профайл']
   ] : [
@@ -1076,6 +1079,29 @@ function adminOrderDetailPage(id) {
   </div>`,'admin-orders');
 }
 
+function adminPlansPage() {
+  const db=getDb();
+  const requests=[...(db.contentPlanRequests||[])].sort((a,b)=>{
+    if(a.status==='PENDING'&&b.status!=='PENDING') return -1;
+    if(b.status==='PENDING'&&a.status!=='PENDING') return 1;
+    return new Date(b.created_at)-new Date(a.created_at);
+  });
+  return shell(`<div class="container">${pageHead('Багцын хүсэлт','Агентын сонгосон багцыг баталгаажуулсны дараа контентын эрхүүд автоматаар идэвхжинэ.')}
+    ${requests.length?`<div class="plan-request-list">${requests.map(r=>{
+      const a=db.profiles.find(p=>p.id===r.agent_id);
+      const ent=entitlementFor(db,r.agent_id);
+      return `<article class="card plan-request-card">
+        <div class="plan-request-main">
+          <div><span class="feature-kicker">${esc(r.status)}</span><h3>${esc(a?.full_name||'Агент')}</h3><p>${esc(agentSubtitle(a||{}))}</p></div>
+          <div class="plan-request-plan"><span>Хүссэн багц</span><strong>${esc(r.plan_code)}</strong><small>${formatMoney(planPrice(r.plan_code))}</small></div>
+          <div class="plan-request-plan"><span>Одоогийн багц</span><strong>${esc(ent?.plan_code||'—')}</strong><small>${formatDate(r.created_at,true)}</small></div>
+        </div>
+        ${r.status==='PENDING'?`<div class="plan-request-actions"><button class="btn btn-secondary" type="button" data-action="reject-plan-request" data-request-id="${r.id}">Татгалзах</button><button class="btn btn-primary" type="button" data-action="approve-plan-request" data-request-id="${r.id}">Баталгаажуулах</button></div>`:`<div class="plan-request-status">${r.status==='APPROVED'?'Баталгаажсан':'Татгалзсан'} · ${r.reviewed_at?formatDate(r.reviewed_at,true):'—'}</div>`}
+      </article>`;
+    }).join('')}</div>`:emptyState('Багцын хүсэлт алга','Одоогоор шийдвэрлэх шинэ хүсэлт байхгүй байна.')}`
+  </div>`,'admin-plans');
+}
+
 function adminAgentsPage() {
   const db=getDb(), agents=db.profiles.filter(p=>p.role==='agent');
   return shell(`<div class="container">${pageHead('Агентууд','Бүртгэлтэй агентууд ба тэдний production түүх.')}
@@ -1146,6 +1172,7 @@ async function render() {
     else if(r==='/admin/orders' || r.startsWith('/admin/orders?')) html=adminOrdersPage();
     else if(r.startsWith('/admin/orders/')) html=adminOrderDetailPage(r.split('/')[3]);
     else if(r==='/admin/agents') html=adminAgentsPage();
+    else if(r==='/admin/plans') html=adminPlansPage();
     else if(r.startsWith('/admin/agents/')) html=adminAgentDetailPage(r.split('/')[3]);
     else if(r==='/admin/shoots') html=adminShootsPage();
     else if(r==='/admin/profile') html=adminProfilePage();
@@ -1585,6 +1612,54 @@ document.addEventListener('click', e=>{
   if(action==='logout'){ if(REMOTE_ENABLED){ void (async()=>{ await sb.auth.signOut(); REMOTE_USER_ID=null; REMOTE_DB=blankDb(); REMOTE_LOADED=true; if(realtimeChannel){ sb.removeChannel(realtimeChannel); realtimeChannel=null; } toast('Системээс гарлаа.'); navigate('/login'); })(); } else { setSession(null); toast('Системээс гарлаа.'); navigate('/login'); } return; }
   if(action==='toggle-theme'){ setTheme(getTheme()==='dark'?'light':'dark'); render(); return; }
   if(action==='set-theme'){ setTheme(actionEl.dataset.theme==='dark'?'dark':'light'); render(); return; }
+  if(action==='request-content-plan'){
+    const plan=actionEl.dataset.plan;
+    if(REMOTE_ENABLED){
+      void (async()=>{
+        try{
+          actionEl.disabled=true;
+          const r=await sb.rpc('request_content_plan',{p_plan_code:plan});
+          throwIfError(r,'Багцын хүсэлт илгээж чадсангүй');
+          await loadRemoteDb();
+          toast(`${plan} багцын хүсэлт илгээгдлээ.`,'success');
+          await render();
+        }catch(err){console.error(err);toast(err.message,'error');actionEl.disabled=false;}
+      })();
+    } else {
+      const db=getDb(),u=currentUser(db);
+      if(pendingPlanFor(db,u.id)){toast('Танд хүлээгдэж буй багцын хүсэлт байна.','error');return;}
+      db.contentPlanRequests.push({id:uid('plan'),agent_id:u.id,plan_code:plan,status:'PENDING',created_at:nowIso()});
+      saveDb(db); toast(`${plan} багцын хүсэлт илгээгдлээ.`,'success'); render();
+    }
+    return;
+  }
+  if(action==='approve-plan-request' || action==='reject-plan-request'){
+    const id=actionEl.dataset.requestId;
+    if(REMOTE_ENABLED){
+      void (async()=>{
+        try{
+          actionEl.disabled=true;
+          const rpcName=action==='approve-plan-request'?'approve_content_plan_request':'reject_content_plan_request';
+          const r=await sb.rpc(rpcName,{p_request_id:id});
+          throwIfError(r,'Багцын хүсэлт шинэчилж чадсангүй');
+          await loadRemoteDb();
+          toast(action==='approve-plan-request'?'Багц идэвхжлээ.':'Хүсэлт татгалзлаа.','success');
+          await render();
+        }catch(err){console.error(err);toast(err.message,'error');actionEl.disabled=false;}
+      })();
+    } else {
+      const db=getDb(),req=(db.contentPlanRequests||[]).find(x=>x.id===id); if(!req)return;
+      req.status=action==='approve-plan-request'?'APPROVED':'REJECTED'; req.reviewed_at=nowIso(); req.reviewed_by=getSession();
+      if(req.status==='APPROVED'){
+        const plan=req.plan_code;
+        const values=plan==='START'?[4,4,0,0,0,0,1]:plan==='GROW'?[6,6,2,0,1,1,2]:[8,8,4,4,2,2,3];
+        const row={agent_id:req.agent_id,plan_code:plan,property_reel_remaining:values[0],poster_remaining:values[1],expert_content_remaining:values[2],agent_branding_reel_remaining:values[3],camera_credit_remaining:values[4],drone_credit_remaining:values[5],automation_agent_limit:values[6],activated_at:nowIso(),updated_at:nowIso()};
+        const old=entitlementFor(db,req.agent_id); if(old) Object.assign(old,row); else db.contentEntitlements.push(row);
+      }
+      saveDb(db); render();
+    }
+    return;
+  }
   if(action==='toggle-notifications'){
     e.preventDefault(); e.stopPropagation();
     const wrap=actionEl.closest('.notification-wrap'); const pop=wrap?.querySelector('.notification-popover');
