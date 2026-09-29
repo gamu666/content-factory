@@ -475,14 +475,35 @@ function orderCard(order) {
 }
 
 function pricingPage() {
+  const db=getDb(), user=currentUser(db);
+  const ent=entitlementFor(db,user?.id);
+  const pending=pendingPlanFor(db,user?.id);
+  const planButton=(plan)=>{
+    if(!user || user.role==='admin') return '';
+    if(ent?.plan_code===plan) return '<button class="internal-plan-select current" type="button" disabled>Идэвхтэй багц</button>';
+    if(pending) {
+      if(pending.plan_code===plan) return '<button class="internal-plan-select pending" type="button" disabled>Хүсэлт хүлээгдэж байна</button>';
+      return '<button class="internal-plan-select" type="button" disabled>Өөр хүсэлт хүлээгдэж байна</button>';
+    }
+    return `<button class="internal-plan-select" type="button" data-action="request-content-plan" data-plan="${plan}">Энэ багцыг сонгох</button>`;
+  };
+  const statusNote = user?.role==='agent'
+    ? ent
+      ? `<div class="internal-pricing-current"><strong>Одоогийн багц: ${esc(ent.plan_code)}</strong><span>Dashboard дээр үлдсэн эрхүүд тань харагдана.</span></div>`
+      : pending
+        ? `<div class="internal-pricing-current pending"><strong>${esc(pending.plan_code)} багцын хүсэлт илгээгдсэн</strong><span>Админ баталгаажуулсны дараа эрхүүд автоматаар идэвхжинэ.</span></div>`
+        : `<div class="internal-pricing-current"><strong>Идэвхтэй багц алга</strong><span>Доорх багцаас сонгоод хүсэлт илгээнэ үү.</span></div>`
+    : '';
+
   return shell(`<div class="container internal-pricing-page">
     <div class="page-head internal-pricing-head">
       <div>
         <div class="page-kicker">CONTENT FACTORY</div>
         <h1 class="page-title">Үнийн мэдээлэл</h1>
-        <p class="page-subtitle">Контент үйлдвэрлэл болон automation багцаа нэг дороос харна.</p>
+        <p class="page-subtitle">Контент үйлдвэрлэл болон automation багцаа нэг дороос харж, тохирох багцаа сонгоно.</p>
       </div>
     </div>
+    ${statusNote}
 
     <section class="internal-plan-grid">
       <article class="internal-plan-card">
@@ -497,6 +518,7 @@ function pricingPage() {
           <li>Caption variation + posting queue</li>
         </ul>
         <div class="internal-plan-extra">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
+        ${planButton('START')}
       </article>
 
       <article class="internal-plan-card featured">
@@ -513,6 +535,7 @@ function pricingPage() {
           <li>2 agent automation</li>
         </ul>
         <div class="internal-plan-extra">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
+        ${planButton('GROW')}
       </article>
 
       <article class="internal-plan-card">
@@ -530,6 +553,7 @@ function pricingPage() {
           <li>Priority production</li>
         </ul>
         <div class="internal-plan-extra">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
+        ${planButton('PRO')}
       </article>
     </section>
 
