@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050506" />
   <title>Content Factory — Үнийн мэдээлэл</title>
   <meta name="description" content="Content Factory real estate контент үйлдвэрлэл, Facebook automation багцын үнийн мэдээлэл." />
-  <link rel="stylesheet" href="./pricing.css?v=1" />
+  <link rel="stylesheet" href="./pricing.css?v=2" />
 </head>
 <body>
   <main class="pricing-page">
@@ -23,15 +23,15 @@
 
     <section class="pricing-hero" aria-labelledby="pricing-title">
       <p class="eyebrow">REAL ESTATE CONTENT + AUTOMATION</p>
-      <h1 id="pricing-title">Энгийн. Ойлгомжтой.<br />Нэг сарын багц.</h1>
+      <h1 id="pricing-title">Энгийн. Ойлгомжтой.<br />Танд тохирох багц.</h1>
       <p class="pricing-lead">Контент үйлдвэрлэл болон Facebook түгээлтийн automation нэг системд.</p>
-      <div class="billing-pill" aria-label="Төлбөрийн төрөл"><span>Сарын багц</span></div>
+      <div class="billing-pill" aria-label="Үйлчилгээний төрөл"><span>Контент + Automation</span></div>
     </section>
 
     <section id="plans" class="plan-grid" aria-label="Content Factory багцууд">
       <article class="plan-card" data-plan="START">
         <div class="plan-topline"><span>START</span><span class="plan-chip">Эхлэхэд</span></div>
-        <div class="plan-price"><strong>₮1,290,000</strong><span>/ сар</span></div>
+        <div class="plan-price"><strong>₮1,290,000</strong></div>
         <p class="plan-copy">Өөрийн зураг, бичлэгтэй агентуудад зориулсан үндсэн багц.</p>
         <ul class="plan-features">
           <li>4 Property Reel</li>
@@ -39,15 +39,15 @@
           <li>1 agent automation included</li>
           <li>Facebook auto posting</li>
           <li>Caption variation + posting queue</li>
-          <li>Эхний сар automation FREE</li>
+          <li>Automation эхний хугацаа FREE</li>
         </ul>
         <button class="plan-order" type="button" data-order-plan="START">Захиалах</button>
       </article>
 
       <article class="plan-card plan-card--featured" data-plan="GROW">
-        <div class="plan-recommended">ХАМГИЙН ИХ СОНГОЛТТОЙ</div>
+        <div class="plan-recommended">САНАЛ БОЛГОХ</div>
         <div class="plan-topline"><span>GROW</span><span class="plan-chip">Recommended</span></div>
-        <div class="plan-price"><strong>₮2,990,000</strong><span>/ сар</span></div>
+        <div class="plan-price"><strong>₮2,990,000</strong></div>
         <p class="plan-copy">Тогтмол property контент болон expert presence хөгжүүлэх агентуудад.</p>
         <ul class="plan-features">
           <li>6 Property Reel</li>
@@ -55,14 +55,14 @@
           <li>2 Expert Content</li>
           <li>1 Drone Credit</li>
           <li>2 agent automation included</li>
-          <li>Эхний сар automation FREE</li>
+          <li>Automation эхний хугацаа FREE</li>
         </ul>
         <button class="plan-order" type="button" data-order-plan="GROW">Захиалах</button>
       </article>
 
       <article class="plan-card" data-plan="PRO">
         <div class="plan-topline"><span>PRO</span><span class="plan-chip">Full system</span></div>
-        <div class="plan-price"><strong>₮5,490,000</strong><span>/ сар</span></div>
+        <div class="plan-price"><strong>₮5,490,000</strong></div>
         <p class="plan-copy">Контентын бүх урсгал болон personal branding-аа цогцоор нь хөгжүүлэх багц.</p>
         <ul class="plan-features">
           <li>8 Property Reel</li>
@@ -72,7 +72,7 @@
           <li>2 Drone Credit</li>
           <li>3 agent automation included</li>
           <li>Priority production</li>
-          <li>Эхний сар automation FREE</li>
+          <li>Automation эхний хугацаа FREE</li>
         </ul>
         <button class="plan-order" type="button" data-order-plan="PRO">Захиалах</button>
       </article>
@@ -93,12 +93,12 @@
       </div>
       <div class="faq-list">
         <details open>
-          <summary>Automation эхний сар үнэгүй юу?</summary>
-          <p>Тийм. Бүх багцад automation-ийн эхний сар FREE. START-д 1, GROW-д 2, PRO-д 3 agent эрх багтана.</p>
+          <summary>Automation эхний хугацаа үнэгүй юу?</summary>
+          <p>Тийм. Бүх багцад automation-ийн эхний хугацаа FREE. START-д 1, GROW-д 2, PRO-д 3 agent эрх багтана.</p>
         </details>
         <details>
           <summary>Нэмэлт agent нэмж болох уу?</summary>
-          <p>Болно. Багцад багтсан agent тооноос илүү эрх бүр 79,900₮ / сар байна.</p>
+          <p>Болно. Багцад багтсан agent тооноос илүү эрх бүр 79,900₮ байна.</p>
         </details>
         <details>
           <summary>Reel хийхэд заавал drone зураг авалт хэрэгтэй юу?</summary>
@@ -129,7 +129,7 @@
       <h2 id="order-title">Багц захиалах</h2>
 
       <div class="order-summary">
-        <div><span>Төлбөрийн хэлбэр</span><strong>Сараар</strong></div>
+        <div><span>Багц</span><strong id="order-plan-summary">—</strong></div>
         <div><span>Суурь үнэ</span><strong id="order-base-price">₮0</strong></div>
         <div><span>Багтсан agent</span><strong id="order-included-agents">0</strong></div>
         <label class="extra-agent-row">
@@ -167,6 +167,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./config.js?v=36"></script>
-  <script src="./pricing.js?v=1"></script>
+  <script src="./pricing.js?v=2"></script>
 </body>
 </html>
