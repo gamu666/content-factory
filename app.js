@@ -513,12 +513,12 @@ function pricingPage() {
         </div>
       </div>
       <div class="internal-service-grid">
-        <article><strong>Property Reel</strong><p>Үл хөдлөхийн объектыг сошиал орчинд сонирхол татахуйц байдлаар танилцуулах богино босоо видео.</p><small>Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</small></article>
-        <article><strong>Poster</strong><p>Объектын гол давуу тал, үнэ, байршил зэрэг мэдээллийг цэгцтэй харуулсан сошиал постын дизайн.</p><small>Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</small></article>
-        <article><strong>Expert Content</strong><p>Агентын мэдлэг, туршлага, зөвлөгөөг харуулсан 2–3 минутын мэргэжлийн контент.</p></article>
-        <article><strong>Agent Branding Reel</strong><p>Агентын дүр төрх, ажлын хэв маяг, үйлчилгээний онцлогийг тогтмол харуулах богино видео цуврал.</p></article>
-        <article><strong>Drone Credit</strong><p>Drone ашиглан объект, орчин, байршлын зураг болон бичлэг авна.</p><small>Нэмэлт Drone Credit — 250,000₮</small></article>
-        <article><strong>Camera Credit</strong><p>Мэргэжлийн камераар объектын дотор, гадна орчны зураг болон бичлэг авна.</p><small>Нэмэлт Camera Credit — 250,000₮</small></article>
+        <article><strong>Property Reel</strong><p>Үл хөдлөхийн объектыг сошиал орчинд сонирхол татахуйц байдлаар танилцуулах богино босоо видео. Бэлэн зураг, бичлэгээ ашиглуулж болно, эсвэл шаардлагатай үед манай зураг авалтын үйлчилгээг нэмэлтээр сонгох боломжтой.</p><small>Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</small></article>
+        <article><strong>Poster</strong><p>Объектын гол давуу тал, үнэ, байршил зэрэг мэдээллийг цэгцтэй харуулсан сошиал постын дизайн. Таны бэлэн зураг, мэдээлэл дээр тулгуурлан шууд нийтлэхэд бэлэн байдлаар бэлтгэнэ.</p><small>Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</small></article>
+        <article><strong>Expert Content</strong><p>Агентын мэдлэг, туршлага, зөвлөгөөг харуулсан 2–3 минутын мэргэжлийн контент. Та гол сэдэв, санаагаа өгнө; манай баг зураг авалт, edit, subtitle болон визуал боловсруулалтыг хариуцаж контент болгон гаргана.</p></article>
+        <article><strong>Agent Branding Reel</strong><p>Агентын өөрийн дүр төрх, ажлын хэв маяг, үйлчилгээний онцлогийг тогтмол харуулах богино видео цуврал. Хувийн брэндээ танигдахуйц, нэг өнгө аястай хөгжүүлэхэд зориулагдана.</p></article>
+        <article><strong>Drone Credit</strong><p>Drone ашиглан объект, орчин, байршлын зураг болон бичлэг авна. Агаараас харах өнцөг нь property контентыг илүү бүрэн, сонирхолтой харуулахад ашиглагдана.</p><small>Нэмэлт Drone Credit — 250,000₮</small></article>
+        <article><strong>Camera Credit</strong><p>Мэргэжлийн камераар объектын дотор, гадна орчны зураг болон бичлэг авна. Property Reel, Poster болон бусад контентод ашиглах чанартай эх материал бэлтгэнэ.</p><small>Нэмэлт Camera Credit — 250,000₮</small></article>
         <article class="wide"><strong>Automation</strong><p>Үл хөдлөхийн агентын контент, зар сурталчилгаа болон lead урсгалыг нэг дороос удирдах нэгдсэн систем. Facebook account/Page холбож зарах, түрээслүүлэх заруудыг тохирох group-үүд рүү queue, schedule-аар автоматаар түгээнэ. Caption, smart hashtag, зураг, video болон Reel publishing-ийг автоматжуулж, Meta Ads campaign үүсгэх, incoming lead-үүдийг CRM-д бүртгэх, agent-д хуваарилах, follow-up болон үр дүнг хянах боломжтой. Property бүр shareable landing page-тай бөгөөд зар түгээлтээс борлуулалтын lead хүртэлх процессыг нэг системд төвлөрүүлнэ.</p></article>
       </div>
     </section>
