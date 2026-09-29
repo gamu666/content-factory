@@ -106,7 +106,7 @@
       `Багц: ${currentPlan.name}`,
       `Суурь үнэ: ${money(currentPlan.price)}`,
       `Багтсан agent: ${currentPlan.includedAgents}`,
-      `Нэмэлт agent: ${extraAgents}${extraAgents ? ` (+${money(extraAgents * EXTRA_AGENT_PRICE)} / сар)` : ''}`,
+      `Нэмэлт agent: ${extraAgents}${extraAgents ? ` (+${money(extraAgents * EXTRA_AGENT_PRICE)})` : ''}`,
       `Тооцоолсон нийт: ${money(total)}`,
       'Automation: эхний хугацаа FREE',
       'Source: Content Factory pricing page',
