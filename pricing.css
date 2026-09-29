@@ -145,3 +145,30 @@ body.modal-open{overflow:hidden}
   display:block !important;
   padding-top:34px;
 }
+
+
+.lang-switch{display:flex;align-items:center;padding:3px;border:1px solid rgba(255,255,255,.08);background:#0d0f13;border-radius:999px}
+.lang-btn{height:32px;min-width:42px;padding:0 10px;border:0;border-radius:999px;background:transparent;color:#717783;font-size:10px;font-weight:800;cursor:pointer;transition:.18s ease}
+.lang-btn:hover{color:#fff}
+.lang-btn.is-active{background:#fff;color:#0b0c0f;box-shadow:0 5px 16px rgba(0,0,0,.24)}
+
+.service-guide{width:min(1160px,calc(100% - 40px));margin:112px auto 100px}
+.service-guide-head{text-align:center;max-width:700px;margin:0 auto 34px}
+.service-guide-head h2{margin:0 0 12px;font-size:clamp(34px,5vw,56px);letter-spacing:-.055em;line-height:1}
+.service-guide-head>p:last-child{margin:0 auto;color:#777d89;font-size:12px;line-height:1.7;max-width:590px}
+.service-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.service-guide-card{position:relative;min-height:220px;padding:24px 24px 22px;border:1px solid #252934;border-radius:16px;background:linear-gradient(180deg,#15181f 0%,#111318 100%);overflow:hidden}
+.service-guide-card::after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-95px;top:-95px;background:radial-gradient(circle,rgba(122,124,255,.09),transparent 68%);pointer-events:none}
+.service-guide-no{display:inline-block;margin-bottom:24px;color:#676e7c;font-size:9px;font-weight:800;letter-spacing:.12em}
+.service-guide-card h3{margin:0 0 10px;font-size:20px;letter-spacing:-.035em}
+.service-guide-card p{margin:0;color:#8f95a2;font-size:12px;line-height:1.75;max-width:520px}
+.service-guide-note{display:inline-flex;margin-top:17px;padding:8px 11px;border:1px solid rgba(122,124,255,.22);border-radius:999px;background:rgba(122,124,255,.08);color:#c7c9ff;font-size:10px;font-weight:760}
+
+@media(max-width:760px){
+  .service-guide-grid{grid-template-columns:1fr}
+  .service-guide{width:calc(100% - 28px);margin-top:82px}
+  .pricing-nav-actions{gap:5px}
+  .lang-btn{min-width:38px;padding:0 8px}
+}
+
+.pricing-notes{display:none!important}
