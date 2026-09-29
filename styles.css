@@ -3748,3 +3748,21 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
   .plan-request-main{grid-template-columns:1fr}
   .plan-request-actions .btn{flex:1}
 }
+
+
+.order-addon-credit-block{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.order-addon-credit-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.order-addon-credit-option{
+  display:flex;align-items:center;gap:10px;min-height:68px;padding:12px 13px;
+  border:1px solid var(--line);border-radius:13px;background:var(--surface-2);cursor:pointer
+}
+.order-addon-credit-option:has(input:checked){border-color:#7779ff;box-shadow:0 0 0 2px rgba(119,121,255,.10)}
+.order-addon-credit-option.disabled{opacity:.42;cursor:not-allowed}
+.order-addon-credit-option input{width:16px;height:16px;accent-color:#7779ff}
+.order-addon-credit-option>span{min-width:0;flex:1}
+.order-addon-credit-option strong{display:block;font-size:10px}
+.order-addon-credit-option small{display:block;margin-top:4px;color:var(--muted);font-size:8px;line-height:1.35}
+.order-addon-credit-option>b{font-size:9px;white-space:nowrap}
+@media(max-width:720px){
+  .order-addon-credit-options{grid-template-columns:1fr}
+}
