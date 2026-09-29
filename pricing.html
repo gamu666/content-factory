@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050506" />
   <title>Content Factory — Үнийн мэдээлэл</title>
   <meta name="description" content="Content Factory real estate контент үйлдвэрлэл, Facebook automation багцын үнийн мэдээлэл." />
-  <link rel="stylesheet" href="./pricing.css?v=5" />
+  <link rel="stylesheet" href="./pricing.css?v=6" />
 </head>
 <body>
   <main class="pricing-page">
@@ -56,6 +56,7 @@
           <li>6 Poster</li>
           <li>2 Expert Content</li>
           <li>1 Drone Credit</li>
+          <li>1 Camera Credit</li>
           <li data-i18n="growAutomation">2 agent automation included</li>
         </ul>
         <button class="plan-order" type="button" data-order-plan="GROW" data-i18n="orderBtn">Захиалах</button>
@@ -71,6 +72,7 @@
           <li>4 Expert Content</li>
           <li>4 Agent Branding Reel</li>
           <li>2 Drone Credit</li>
+          <li>2 Camera Credit</li>
           <li data-i18n="proAutomation">3 agent automation included</li>
           <li data-i18n="priorityProduction">Priority production</li>
         </ul>
@@ -90,7 +92,7 @@
           <span class="service-guide-no">01</span>
           <h3>Property Reel</h3>
           <p data-i18n="propertyReelDesc">Үл хөдлөхийн объектыг сошиал орчинд сонирхол татахуйц байдлаар танилцуулах богино босоо видео. Бэлэн зураг, бичлэгээ ашиглуулж болно, эсвэл шаардлагатай үед манай зураг авалтын үйлчилгээг нэмэлтээр сонгох боломжтой.</p>
-          <div class="service-guide-note" data-i18n="dronePrice">Нэмэлт Drone зураг авалт — 250,000₮</div>
+          <div class="service-guide-note" data-i18n="shootingAddonsPrice">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
         </article>
 
         <article class="service-guide-card">
@@ -114,11 +116,19 @@
         <article class="service-guide-card">
           <span class="service-guide-no">05</span>
           <h3>Drone Credit</h3>
-          <p data-i18n="droneCreditDesc">Объект, орчин, байршлыг агаараас илүү өргөн хүрээнд харуулах зураг авалтын эрх. Багцад орсон Drone Credit-ээ тохирох контент дээр ашиглаж болно; нэмэлт зураг авалт шаардлагатай бол тусад нь захиалах боломжтой.</p>
+          <p data-i18n="droneCreditDesc">Drone ашиглан объект, орчин, байршлын зураг болон бичлэг авна. Агаараас харах өнцөг нь property контентыг илүү бүрэн, сонирхолтой харуулахад ашиглагдана.</p>
+          <div class="service-guide-note" data-i18n="droneCreditPrice">Нэмэлт Drone Credit — 250,000₮</div>
         </article>
 
         <article class="service-guide-card">
           <span class="service-guide-no">06</span>
+          <h3>Camera Credit</h3>
+          <p data-i18n="cameraCreditDesc">Мэргэжлийн камераар объектын дотор, гадна орчны зураг болон бичлэг авна. Property Reel, Poster болон бусад контентод ашиглах чанартай эх материал бэлтгэнэ.</p>
+          <div class="service-guide-note" data-i18n="cameraCreditPrice">Нэмэлт Camera Credit — 250,000₮</div>
+        </article>
+
+        <article class="service-guide-card">
+          <span class="service-guide-no">07</span>
           <h3>Automation</h3>
           <p data-i18n="automationDesc">Facebook контент түгээлтийг илүү цэгцтэй удирдах автоматжуулалтын хэсэг. Agent бүр өөрийн account/page-аа холбоод post queue, caption variation болон auto posting урсгалаа нэг дороос хянах боломжтой.</p>
         </article>
@@ -142,6 +152,8 @@
         <div><span data-i18n="planLabel">Багц</span><strong id="order-plan-summary">—</strong></div>
         <div><span data-i18n="basePriceLabel">Суурь үнэ</span><strong id="order-base-price">₮0</strong></div>
         <div><span data-i18n="includedAgentLabel">Багтсан agent</span><strong id="order-included-agents">0</strong></div>
+        <div><span data-i18n="includedCameraLabel">Багтсан Camera Credit</span><strong id="order-included-camera">0</strong></div>
+        <div><span data-i18n="includedDroneLabel">Багтсан Drone Credit</span><strong id="order-included-drone">0</strong></div>
         <label class="extra-agent-row">
           <span data-i18n="extraAgentLabel">Нэмэлт agent</span>
           <select id="extra-agent-count" name="extra_agents">
@@ -158,6 +170,37 @@
             <option value="10">10</option>
           </select>
         </label>
+
+        <label class="extra-agent-row order-addon-row">
+          <span class="addon-copy">
+            <span data-i18n="extraCameraLabel">Нэмэлт Camera Credit</span>
+            <small data-i18n="cameraAddonPrice">1 credit = 250,000₮</small>
+          </span>
+          <select id="extra-camera-count" name="extra_camera_credits">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+
+        <label class="extra-agent-row order-addon-row">
+          <span class="addon-copy">
+            <span data-i18n="extraDroneLabel">Нэмэлт Drone Credit</span>
+            <small data-i18n="droneAddonPrice">1 credit = 250,000₮</small>
+          </span>
+          <select id="extra-drone-count" name="extra_drone_credits">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+
         <div class="order-total"><span data-i18n="totalLabel">Тооцоолсон нийт</span><strong id="order-total-price">₮0</strong></div>
       </div>
 
@@ -184,6 +227,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./config.js?v=36"></script>
-  <script src="./pricing.js?v=9"></script>
+  <script src="./pricing.js?v=10"></script>
 </body>
 </html>
