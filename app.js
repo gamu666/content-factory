@@ -446,6 +446,85 @@ function orderCard(order) {
   </article>`;
 }
 
+function pricingPage() {
+  return shell(`<div class="container internal-pricing-page">
+    <div class="page-head internal-pricing-head">
+      <div>
+        <div class="page-kicker">CONTENT FACTORY</div>
+        <h1 class="page-title">Үнийн мэдээлэл</h1>
+        <p class="page-subtitle">Контент үйлдвэрлэл болон automation багцаа нэг дороос харна.</p>
+      </div>
+    </div>
+
+    <section class="internal-plan-grid">
+      <article class="internal-plan-card">
+        <div class="internal-plan-top"><strong>START</strong><span>Эхлэхэд</span></div>
+        <div class="internal-plan-price">₮1,290,000</div>
+        <p class="internal-plan-copy">Өөрийн зураг, бичлэгтэй агентуудад зориулсан үндсэн багц.</p>
+        <ul>
+          <li>4 Property Reel</li>
+          <li>4 Poster</li>
+          <li>1 agent automation</li>
+          <li>Facebook auto posting</li>
+          <li>Caption variation + posting queue</li>
+        </ul>
+        <div class="internal-plan-extra">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
+      </article>
+
+      <article class="internal-plan-card featured">
+        <div class="internal-plan-badge">САНАЛ БОЛГОХ</div>
+        <div class="internal-plan-top"><strong>GROW</strong><span>Recommended</span></div>
+        <div class="internal-plan-price">₮2,990,000</div>
+        <p class="internal-plan-copy">Тогтмол property контент болон expert presence хөгжүүлэх агентуудад.</p>
+        <ul>
+          <li>6 Property Reel</li>
+          <li>6 Poster</li>
+          <li>2 Expert Content</li>
+          <li>1 Camera Credit</li>
+          <li>1 Drone Credit</li>
+          <li>2 agent automation</li>
+        </ul>
+        <div class="internal-plan-extra">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
+      </article>
+
+      <article class="internal-plan-card">
+        <div class="internal-plan-top"><strong>PRO</strong><span>Full system</span></div>
+        <div class="internal-plan-price">₮5,490,000</div>
+        <p class="internal-plan-copy">Контентын бүх урсгал болон personal branding-аа цогцоор нь хөгжүүлэх багц.</p>
+        <ul>
+          <li>8 Property Reel</li>
+          <li>8 Poster</li>
+          <li>4 Expert Content</li>
+          <li>4 Agent Branding Reel</li>
+          <li>2 Camera Credit</li>
+          <li>2 Drone Credit</li>
+          <li>3 agent automation</li>
+          <li>Priority production</li>
+        </ul>
+        <div class="internal-plan-extra">Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</div>
+      </article>
+    </section>
+
+    <section class="internal-service-section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Багц доторх үйлчилгээ</h2>
+          <p class="section-note">Контент болон credit бүрийн зориулалт.</p>
+        </div>
+      </div>
+      <div class="internal-service-grid">
+        <article><strong>Property Reel</strong><p>Үл хөдлөхийн объектыг сошиал орчинд сонирхол татахуйц байдлаар танилцуулах богино босоо видео.</p><small>Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</small></article>
+        <article><strong>Poster</strong><p>Объектын гол давуу тал, үнэ, байршил зэрэг мэдээллийг цэгцтэй харуулсан сошиал постын дизайн.</p><small>Нэмэлт Camera / Drone Credit — тус бүр 250,000₮</small></article>
+        <article><strong>Expert Content</strong><p>Агентын мэдлэг, туршлага, зөвлөгөөг харуулсан 2–3 минутын мэргэжлийн контент.</p></article>
+        <article><strong>Agent Branding Reel</strong><p>Агентын дүр төрх, ажлын хэв маяг, үйлчилгээний онцлогийг тогтмол харуулах богино видео цуврал.</p></article>
+        <article><strong>Drone Credit</strong><p>Drone ашиглан объект, орчин, байршлын зураг болон бичлэг авна.</p><small>Нэмэлт Drone Credit — 250,000₮</small></article>
+        <article><strong>Camera Credit</strong><p>Мэргэжлийн камераар объектын дотор, гадна орчны зураг болон бичлэг авна.</p><small>Нэмэлт Camera Credit — 250,000₮</small></article>
+        <article class="wide"><strong>Automation</strong><p>Үл хөдлөхийн агентын контент, зар сурталчилгаа болон lead урсгалыг нэг дороос удирдах нэгдсэн систем. Facebook account/Page холбож зарах, түрээслүүлэх заруудыг тохирох group-үүд рүү queue, schedule-аар автоматаар түгээнэ. Caption, smart hashtag, зураг, video болон Reel publishing-ийг автоматжуулж, Meta Ads campaign үүсгэх, incoming lead-үүдийг CRM-д бүртгэх, agent-д хуваарилах, follow-up болон үр дүнг хянах боломжтой. Property бүр shareable landing page-тай бөгөөд зар түгээлтээс борлуулалтын lead хүртэлх процессыг нэг системд төвлөрүүлнэ.</p></article>
+      </div>
+    </section>
+  </div>`, 'pricing');
+}
+
 function dashboardPage() {
   const db=getDb(), user=currentUser(db);
   const orders=db.orders.filter(o=>o.agent_id===user.id).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
@@ -947,6 +1026,7 @@ async function render() {
     return;
   }
   if(user.role==='admin') {
+    if(r==='/pricing') { document.getElementById('app').innerHTML=pricingPage(); return; }
     if(!r.startsWith('/admin')) { navigate('/admin'); return; }
     let html;
     if(r==='/admin') html=adminDashboard();
@@ -962,6 +1042,7 @@ async function render() {
   if(r.startsWith('/admin')) { navigate('/dashboard'); return; }
   let html;
   if(r==='/dashboard') html=dashboardPage();
+  else if(r==='/pricing') html=pricingPage();
   else if(r==='/orders') html=ordersPage();
   else if(r==='/orders/new') html=newOrderPage();
   else if(r==='/queue') html=queuePage();
