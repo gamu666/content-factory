@@ -755,7 +755,6 @@ function loginPage(mode='login') {
       <div class="auth-foot">Бүртгэлтэй юу? <button data-nav="/login">Нэвтрэх</button></div>
       <a class="auth-choice-btn auth-choice-btn--pricing auth-choice-btn--register-pricing" href="./pricing.html">
         <span>Үнийн мэдээлэл харах</span>
-        <span class="auth-choice-arrow" aria-hidden="true">→</span>
       </a>
     </div></section></div>`;
   }
