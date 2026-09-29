@@ -14,6 +14,8 @@
   const extraAgentSelect = document.getElementById('extra-agent-count');
   const feedback = document.getElementById('order-feedback');
   const submitButton = form?.querySelector('.order-submit');
+  const successState = document.getElementById('order-success');
+  const orderSummary = document.getElementById('order-summary');
 
   function money(value) {
     return `₮${Number(value || 0).toLocaleString('en-US')}`;
@@ -40,6 +42,9 @@
       feedback.textContent = 'Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.';
       feedback.className = 'order-feedback';
     }
+    if (form) form.hidden = false;
+    if (orderSummary) orderSummary.hidden = false;
+    if (successState) successState.hidden = true;
     modal.hidden = false;
     document.body.classList.add('modal-open');
     window.setTimeout(() => form?.querySelector('input[name="name"]')?.focus(), 30);
@@ -137,7 +142,11 @@
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
 
       feedback.className = 'order-feedback is-success';
-      feedback.textContent = 'Хүсэлт амжилттай илгээгдлээ. НАЙМАН САР-ын админ хэсэгт бүртгэгдсэн.';
+      feedback.textContent = 'Хүсэлт амжилттай илгээгдлээ.';
+      if (form) form.hidden = true;
+      if (orderSummary) orderSummary.hidden = true;
+      if (successState) successState.hidden = false;
+      document.getElementById('order-title').textContent = 'Амжилттай';
       const savedName = String(data.get('name') || '').trim();
       const savedEmail = String(data.get('email') || '').trim();
       const savedPhone = String(data.get('phone') || '').trim();
