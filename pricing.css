@@ -188,3 +188,21 @@ body.modal-open{overflow:hidden}
   font-size:9px;
   font-weight:600;
 }
+
+
+.service-guide-card--wide{
+  grid-column:1 / -1;
+  min-height:auto;
+  padding:28px 30px;
+}
+.service-guide-card--wide p{
+  max-width:none;
+  font-size:13px;
+  line-height:1.8;
+}
+@media(max-width:760px){
+  .service-guide-card--wide{
+    grid-column:auto;
+    padding:24px 24px 22px;
+  }
+}
