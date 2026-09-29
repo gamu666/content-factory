@@ -10,7 +10,7 @@
     const style = document.createElement('style');
     style.id = 'pricing-entry-style';
     style.textContent = `
-      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0 18px;padding:15px 16px;border:1px solid rgba(72,99,255,.20);border-radius:16px;background:linear-gradient(135deg,rgba(42,139,255,.10),rgba(105,88,255,.07));box-shadow:0 12px 34px rgba(39,91,220,.09);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0 30px;padding:15px 16px;border:1px solid rgba(72,99,255,.20);border-radius:16px;background:linear-gradient(135deg,rgba(42,139,255,.10),rgba(105,88,255,.07));box-shadow:0 12px 34px rgba(39,91,220,.09);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
       .pricing-auth-promo:hover{transform:translateY(-2px);border-color:rgba(72,99,255,.38);box-shadow:0 16px 38px rgba(39,91,220,.14)}
       .pricing-auth-promo-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
       .pricing-auth-promo-copy strong{font-size:13px;color:#111827;letter-spacing:-.01em}
