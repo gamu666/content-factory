@@ -10,14 +10,14 @@
     const style = document.createElement('style');
     style.id = 'pricing-entry-style';
     style.textContent = `
-      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:46px 0 0;padding:17px 18px;border:1px solid rgba(90,72,255,.30);border-radius:18px;background:linear-gradient(135deg,rgba(73,95,255,.14),rgba(121,68,255,.10));box-shadow:0 18px 46px rgba(67,73,220,.13);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-      .pricing-auth-promo:hover{transform:translateY(-2px);border-color:rgba(90,72,255,.52);box-shadow:0 20px 50px rgba(67,73,220,.18)}
-      .pricing-auth-promo-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
-      .pricing-auth-promo-copy strong{font-size:16px;line-height:1.15;color:#5446ff;letter-spacing:-.025em;font-weight:820}
-      .pricing-auth-promo-copy small{font-size:10px;color:#7a8291;font-weight:650;letter-spacing:.01em}
-      .pricing-auth-promo-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(135deg,#4f7cff,#6a4cff);color:white;box-shadow:0 10px 24px rgba(79,95,255,.28)}
-      .pricing-auth-promo-icon svg{width:19px;height:19px}
-      .pricing-auth-promo-arrow{font-size:20px;color:#5a4cff;font-weight:800;flex:0 0 auto}
+      .pricing-auth-promo{width:min(310px,100%);display:flex;align-items:center;gap:4px;margin:46px auto 0;padding:4px;border:1px solid #dedede;border-radius:999px;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.08);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease}
+      .pricing-auth-promo:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(0,0,0,.12)}
+      .pricing-auth-promo-copy{min-width:0;flex:1;display:flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;background:#303030}
+      .pricing-auth-promo-copy strong{font-size:15px;line-height:1;color:#fff;letter-spacing:-.025em;font-weight:800;white-space:nowrap}
+      .pricing-auth-promo-copy small{display:none}
+      .pricing-auth-promo-icon{display:none}
+      .pricing-auth-promo-arrow{width:44px;height:40px;display:grid;place-items:center;flex:0 0 44px;border-radius:999px;color:#242424;font-size:20px;line-height:1;font-weight:800;transition:transform .18s ease}
+      .pricing-auth-promo:hover .pricing-auth-promo-arrow{transform:translateX(2px)}
       .auth-box.pricing-login-layout{transform:translateY(-62px)}
       @media(max-width:820px){.auth-box.pricing-login-layout{transform:translateY(-24px)}.pricing-auth-promo{margin-top:34px}}
       .pricing-top-link{height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#5a5f68;text-decoration:none}
@@ -48,9 +48,8 @@
       link.href = PRICE_URL;
       link.dataset.pricingAuth = '1';
       link.innerHTML = `
-        <span class="pricing-auth-promo-icon">${pricingIcon()}</span>
-        <span class="pricing-auth-promo-copy"><strong>Үнийн мэдээлэл харах</strong><small>START · GROW · PRO багцууд</small></span>
-        <span class="pricing-auth-promo-arrow">→</span>
+        <span class="pricing-auth-promo-copy"><strong>Үнийн мэдээлэл харах</strong></span>
+        <span class="pricing-auth-promo-arrow" aria-hidden="true">→</span>
       `;
       const form = box.querySelector('.auth-form');
       if (form?.id === 'login-form') box.classList.add('pricing-login-layout');
