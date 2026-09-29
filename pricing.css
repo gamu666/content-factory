@@ -103,8 +103,16 @@ body.modal-open{overflow:hidden}
 
 @media(max-width:900px){
   .plan-grid{grid-template-columns:1fr;max-width:590px}
-  .plan-card{min-height:auto}
+  .plan-card{min-height:auto;padding-bottom:20px}
   .plan-copy{min-height:0}
+  .plan-features{margin-bottom:0}
+  .plan-order{
+    position:relative;
+    z-index:1;
+    flex:0 0 46px;
+    width:100%;
+    margin-top:28px;
+  }
   .pricing-notes{grid-template-columns:1fr 1fr;max-width:590px}
 }
 @media(max-width:620px){
