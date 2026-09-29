@@ -45,7 +45,7 @@ let remoteRefreshTimer = null;
 let PASSWORD_RECOVERY_ACTIVE = new URLSearchParams(window.location.search).get('reset') === '1';
 
 function blankDb() {
-  return {profiles:[],orders:[],briefs:[],activity:[],notifications:[],order_status_history:[],productionQueue:[]};
+  return {profiles:[],orders:[],briefs:[],activity:[],notifications:[],order_status_history:[],productionQueue:[],contentEntitlements:[],contentPlanRequests:[]};
 }
 function throwIfError(result, fallback='Supabase алдаа') {
   if (result?.error) throw new Error(result.error.message || fallback);
@@ -53,7 +53,7 @@ function throwIfError(result, fallback='Supabase алдаа') {
 }
 function normalizeRemoteDb(db) {
   db ||= blankDb();
-  db.profiles ||= []; db.orders ||= []; db.briefs ||= []; db.activity ||= []; db.notifications ||= []; db.order_status_history ||= []; db.productionQueue ||= [];
+  db.profiles ||= []; db.orders ||= []; db.briefs ||= []; db.activity ||= []; db.notifications ||= []; db.order_status_history ||= []; db.productionQueue ||= []; db.contentEntitlements ||= []; db.contentPlanRequests ||= [];
   db.profiles = db.profiles.map(p=>({organization_name:p.organization_name||p.agency_name||'',branch_name:p.branch_name||'',organization_logo_url:p.organization_logo_url||'',avatar_url:p.avatar_url||'',...p}));
   db.orders = db.orders.map(o=>({shoot_started_at:o.shoot_started_at??null,...o,order_number:String(o.order_number||'').replace(/^REEL-/i,'Контент-')}));
   db.notifications = db.notifications.map(n=>({...n,message:String(n.message||'').replace(/REEL-/gi,'Контент-'),title:String(n.title||'').replace(/Reel/gi,'контент')}));
@@ -79,18 +79,22 @@ async function loadRemoteDb() {
     return;
   }
 
-  const [ordersRes, activityRes, notificationsRes, historyRes, queueRes] = await Promise.all([
+  const [ordersRes, activityRes, notificationsRes, historyRes, queueRes, entitlementsRes, planRequestsRes] = await Promise.all([
     sb.from('orders').select('*').order('created_at',{ascending:false}),
     sb.from('order_activity').select('*').order('created_at',{ascending:true}),
     sb.from('notifications').select('*').order('created_at',{ascending:false}),
     sb.from('order_status_history').select('*').order('created_at',{ascending:true}),
-    sb.rpc('get_production_queue')
+    sb.rpc('get_production_queue'),
+    sb.from('content_entitlements').select('*'),
+    sb.from('content_plan_requests').select('*').order('created_at',{ascending:false})
   ]);
   const orders = throwIfError(ordersRes,'Захиалга уншиж чадсангүй') || [];
   const activity = throwIfError(activityRes,'Үйл явц уншиж чадсангүй') || [];
   const notifications = throwIfError(notificationsRes,'Мэдэгдэл уншиж чадсангүй') || [];
   const order_status_history = throwIfError(historyRes,'Төлөвийн түүх уншиж чадсангүй') || [];
   const productionQueue = queueRes.error ? [] : (queueRes.data || []);
+  const contentEntitlements = throwIfError(entitlementsRes,'Багцын эрх уншиж чадсангүй') || [];
+  const contentPlanRequests = throwIfError(planRequestsRes,'Багцын хүсэлт уншиж чадсангүй') || [];
 
   let briefs = [];
   if (me.role === 'admin') {
@@ -104,7 +108,7 @@ async function loadRemoteDb() {
     briefs = rows.flat().map(b=>({id:`safe_${b.order_id}`, ...b}));
   }
 
-  REMOTE_DB = normalizeRemoteDb({profiles,orders,briefs,activity,notifications,order_status_history,productionQueue});
+  REMOTE_DB = normalizeRemoteDb({profiles,orders,briefs,activity,notifications,order_status_history,productionQueue,contentEntitlements,contentPlanRequests});
   REMOTE_LOADED = true;
 }
 function scheduleRemoteRefresh() {
@@ -123,6 +127,8 @@ function setupRealtime() {
     .on('postgres_changes',{event:'*',schema:'public',table:'order_activity'},scheduleRemoteRefresh)
     .on('postgres_changes',{event:'*',schema:'public',table:'creative_briefs'},scheduleRemoteRefresh)
     .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},scheduleRemoteRefresh)
+    .on('postgres_changes',{event:'*',schema:'public',table:'content_entitlements'},scheduleRemoteRefresh)
+    .on('postgres_changes',{event:'*',schema:'public',table:'content_plan_requests'},scheduleRemoteRefresh)
     .subscribe();
 }
 async function uploadPublicProfileAsset(bucket,userId,file,baseName) {
@@ -149,6 +155,24 @@ function formatDate(iso, includeTime=false) {
   if (includeTime) Object.assign(opts,{hour:'2-digit',minute:'2-digit',hour12:false});
   return new Intl.DateTimeFormat('mn-MN', opts).format(d);
 }
+const CONTENT_TYPE_LABELS = {
+  PROPERTY_REEL:'Property Reel',
+  POSTER:'Poster',
+  EXPERT_CONTENT:'Expert Content',
+  AGENT_BRANDING_REEL:'Agent Branding Reel'
+};
+const CONTENT_CREDIT_FIELDS = {
+  PROPERTY_REEL:'property_reel_remaining',
+  POSTER:'poster_remaining',
+  EXPERT_CONTENT:'expert_content_remaining',
+  AGENT_BRANDING_REEL:'agent_branding_reel_remaining'
+};
+function contentTypeLabel(type) { return CONTENT_TYPE_LABELS[type] || 'Property Reel'; }
+function entitlementFor(db,userId) { return (db.contentEntitlements||[]).find(x=>x.agent_id===userId) || null; }
+function pendingPlanFor(db,userId) { return (db.contentPlanRequests||[]).find(x=>x.agent_id===userId && x.status==='PENDING') || null; }
+function contentRemaining(ent,type) { return ent ? Number(ent[CONTENT_CREDIT_FIELDS[type]]||0) : 0; }
+function planPrice(plan) { return ({START:1290000,GROW:2990000,PRO:5490000})[plan] || 0; }
+
 function brandLogoHtml(cls='brand-logo-img') { return `<img src="${BRAND_LOGO_SRC}" alt="${BRAND_NAME}" class="${cls}" />`; }
 
 function initials(name='') { return name.split(/\s+/).filter(Boolean).slice(-2).map(x=>x[0]).join('').toUpperCase() || 'RF'; }
@@ -197,7 +221,11 @@ function seedDb() {
     {id:'n2', recipient_id:'admin_1', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Агент хэрэглэгч · Контент-0025 · Жишээ объект', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'},
     {id:'n3', recipient_id:'admin_2', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Агент хэрэглэгч · Контент-0025 · Жишээ объект', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'}
   ];
-  return {profiles, orders, briefs, activity, notifications};
+  const contentEntitlements = [
+    {agent_id:'agent_1',plan_code:'GROW',property_reel_remaining:4,poster_remaining:5,expert_content_remaining:2,agent_branding_reel_remaining:0,camera_credit_remaining:1,drone_credit_remaining:1,automation_agent_limit:2,activated_at:'2026-09-20T08:00:00Z',updated_at:'2026-09-26T08:00:00Z'}
+  ];
+  const contentPlanRequests = [];
+  return {profiles, orders, briefs, activity, notifications, contentEntitlements, contentPlanRequests};
 }
 
 function getDb() {
