@@ -209,7 +209,7 @@ function seedDb() {
     {id:'a1', order_id:'order_24', public_message:'Боловсруулалт эхэллээ', visible_to_agent:true, created_by:'admin_1', created_at:'2026-09-26T01:20:00Z'},
     {id:'a2', order_id:'order_24', public_message:'Зураг авалт дууслаа', visible_to_agent:true, created_by:'admin_1', created_at:'2026-09-25T10:40:00Z'},
     {id:'a3', order_id:'order_24', public_message:'Зураг авалт товлогдлоо', visible_to_agent:true, created_by:'admin_1', created_at:'2026-09-24T08:30:00Z'},
-    {id:'a4', order_id:'order_24', public_message:'Бичлэгийн төлөвлөгөө баталгаажлаа', visible_to_agent:true, created_by:'admin_1', created_at:'2026-09-24T08:10:00Z'},
+    {id:'a4', order_id:'order_24', public_message:'Контентын төлөвлөгөө баталгаажлаа', visible_to_agent:true, created_by:'admin_1', created_at:'2026-09-24T08:10:00Z'},
     {id:'a5', order_id:'order_24', public_message:'Захиалга хүлээн авлаа', visible_to_agent:true, created_by:'agent_1', created_at:'2026-09-24T06:32:00Z'},
     {id:'a6', order_id:'order_25', public_message:'Зураг авалт товлогдлоо', visible_to_agent:true, created_by:'admin_2', created_at:'2026-09-24T09:00:00Z'},
     {id:'a7', order_id:'order_25', public_message:'Захиалга хүлээн авлаа', visible_to_agent:true, created_by:'agent_1', created_at:'2026-09-23T04:10:00Z'},
@@ -217,7 +217,7 @@ function seedDb() {
     {id:'a9', order_id:'order_26', public_message:'Боловсруулалт эхэллээ', visible_to_agent:true, created_by:'admin_1', created_at:'2026-09-18T08:20:00Z'}
   ];
   const notifications = [
-    {id:'n1', recipient_id:'agent_1', type:'STATUS_CHANGE', title:'Бичлэгийн төлөв шинэчлэгдлээ', message:'Контент-0024 · Боловсруулж байна', order_id:'order_24', read_at:null, created_at:'2026-09-26T01:20:00Z'},
+    {id:'n1', recipient_id:'agent_1', type:'STATUS_CHANGE', title:'Контентын төлөв шинэчлэгдлээ', message:'Контент-0024 · Боловсруулж байна', order_id:'order_24', read_at:null, created_at:'2026-09-26T01:20:00Z'},
     {id:'n2', recipient_id:'admin_1', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Агент хэрэглэгч · Контент-0025 · Жишээ объект', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'},
     {id:'n3', recipient_id:'admin_2', type:'NEW_ORDER', title:'Шинэ контент захиалга', message:'Агент хэрэглэгч · Контент-0025 · Жишээ объект', order_id:'order_25', read_at:null, created_at:'2026-09-23T04:10:00Z'}
   ];
@@ -423,7 +423,7 @@ function shell(content, active='dashboard') {
     ['dashboard','/dashboard','home','Нүүр'],
     ['orders','/orders','orders','Захиалгууд'],
     ['queue','/queue','queue','Дараалал'],
-    ['videos','/videos','video','Миний бичлэгүүд'],
+    ['videos','/videos','video','Миний контентууд'],
     ['profile','/profile','user','Профайл']
   ];
   const mobile = admin ? nav : [
@@ -468,10 +468,10 @@ function pageHead(title, sub='', actions='') {
 
 function orderCard(order) {
   const deliveryState=order.status==='COMPLETED'
-    ? `<span class="delivery-card-state ${order.final_video_url?'ready':'waiting'}">${order.final_video_url?`${icon('video')} Бичлэг үзэх боломжтой`:`${icon('clock')} Бичлэгийн линк хүлээгдэж байна`}</span>`
+    ? `<span class="delivery-card-state ${order.final_video_url?'ready':'waiting'}">${order.final_video_url?`${icon('video')} Контент үзэх боломжтой`:`${icon('clock')} Контентын линк хүлээгдэж байна`}</span>`
     : '';
   return `<article class="card order-card" data-nav="/orders/${order.id}">
-    <div class="order-card-top"><div><div class="order-number">${esc(order.order_number)}</div><h3>${esc(order.property_name)}</h3><div class="order-location">${esc(order.location)}</div></div>${statusPill(order)}</div>
+    <div class="order-card-top"><div><div class="order-number">${esc(order.order_number)} · ${esc(contentTypeLabel(order.content_type))}</div><h3>${esc(order.property_name)}</h3><div class="order-location">${esc(order.location)}</div></div>${statusPill(order)}</div>
     ${progressHtml(order.status)}
     <div class="order-meta"><span>${order.shoot_date?`Зураг авалт: <strong>${formatDate(order.shoot_date,true)}</strong>`:`Сүүлд шинэчилсэн: <strong>${formatDate(order.updated_at,true)}</strong>`}</span>${deliveryState}</div>
   </article>`;
@@ -720,19 +720,19 @@ function orderDetailPage(id) {
       ? `<div class="revision-request-sent"><strong>Засварын хүсэлт илгээгдсэн</strong><p>${esc(revisionRequest?.public_message?.replace(/^Засварын хүсэлт:\s*/,'')||'Манай баг хүсэлтийг хүлээн авч засварлаж байна.')}</p></div>`
       : '';
   const finalPanel=order.final_video_url
-    ? `<section class="card panel final-delivery-agent"><div class="panel-title">Бэлэн болсон бичлэг</div><p class="brief">${order.status==='REVISION'?'Засварын хүсэлт дээр ажиллаж байна.':'Бичлэг тань бэлэн болсон.'}</p><div class="actions" style="margin-top:14px"><a class="btn btn-primary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">${icon('video')} Бичлэг үзэх</a><a class="btn btn-secondary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">Линк нээх</a></div>${revisionUi}</section>`
+    ? `<section class="card panel final-delivery-agent"><div class="panel-title">Бэлэн болсон контент</div><p class="brief">${order.status==='REVISION'?'Засварын хүсэлт дээр ажиллаж байна.':'Контент тань бэлэн болсон.'}</p><div class="actions" style="margin-top:14px"><a class="btn btn-primary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">${icon('video')} Контент үзэх</a><a class="btn btn-secondary" href="${esc(order.final_video_url)}" target="_blank" rel="noopener">Линк нээх</a></div>${revisionUi}</section>`
     : order.status==='COMPLETED'
-      ? `<section class="card panel final-delivery-agent final-delivery-missing"><div class="panel-title">Бэлэн болсон бичлэг</div><div class="delivery-missing-box">${icon('video')}<div><strong>Бичлэгийн линк хараахан оруулаагүй байна</strong><p>Админ бичлэгийн линк нэммэгц энд <b>Бичлэг үзэх</b> товч автоматаар гарна.</p></div></div></section>`
+      ? `<section class="card panel final-delivery-agent final-delivery-missing"><div class="panel-title">Бэлэн болсон контент</div><div class="delivery-missing-box">${icon('video')}<div><strong>Контентын линк хараахан оруулаагүй байна</strong><p>Админ контентын линк нэммэгц энд <b>Контент үзэх</b> товч автоматаар гарна.</p></div></div></section>`
       : '';
   return shell(`<div class="container">${pageHead(`${esc(order.order_number)} · ${esc(order.property_name)}`, esc(order.location), `<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
     <div class="detail-grid"><div class="detail-main">
       <section class="card panel"><div class="panel-title">Одоогийн төлөв</div><div class="current-status"><div><h2>${esc(statusLabels[order.status])}</h2><p>${esc(sub||'Явц шинэчлэгдэж байна')}</p></div>${statusPill(order)}</div>${progressHtml(order.status)}</section>
       ${order.shoot_date?`<section class="card panel"><div class="panel-title">Production дараалал</div>${queueInfoHtml(db,order)}</section><section class="card panel"><div class="panel-title">Зураг авалт</div><div class="info-list"><div class="info-row"><span>Огноо, цаг</span><strong>${formatDate(order.shoot_date,true)}</strong></div><div class="info-row"><span>Байршил</span><strong>${esc(order.shoot_location||order.location)}</strong></div></div></section>`:''}
-      <section class="card panel"><div class="panel-title">Бичлэгийн төлөвлөгөө</div><p class="brief">${esc(brief?.client_summary || 'Манай баг тантай ярилцсаны дараа бичлэгийн товч төлөвлөгөө энд харагдана.')}</p></section>
+      <section class="card panel"><div class="panel-title">Контентын төлөвлөгөө</div><p class="brief">${esc(brief?.client_summary || 'Манай баг тантай ярилцсаны дараа бичлэгийн товч төлөвлөгөө энд харагдана.')}</p></section>
       ${finalPanel}
     </div><aside class="detail-side">
       <section class="card panel"><div class="panel-title">Төлбөр</div><div class="price">${price}</div>${paymentPill(order.payment_status)}</section>
-      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list"><div class="info-row"><span>Төрөл</span><strong>${esc(order.property_type)}</strong></div><div class="info-row"><span>Зорилго</span><strong>${esc(order.purpose)}</strong></div><div class="info-row"><span>Захиалсан</span><strong>${formatDate(order.created_at,true)}</strong></div></div></section>
+      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list"><div class="info-row"><span>Контент</span><strong>${esc(contentTypeLabel(order.content_type))}</strong></div><div class="info-row"><span>Төрөл</span><strong>${esc(order.property_type)}</strong></div><div class="info-row"><span>Зорилго</span><strong>${esc(order.purpose)}</strong></div><div class="info-row"><span>Захиалсан</span><strong>${formatDate(order.created_at,true)}</strong></div></div></section>
       <section class="card panel"><div class="panel-title">Үйл явц</div>${acts.length?`<div class="timeline">${acts.map(a=>`<div class="timeline-item"><div class="timeline-time">${formatDate(a.created_at,true)}</div><div class="timeline-text">${esc(a.public_message)}</div></div>`).join('')}</div>`:'<p class="brief">Одоогоор шинэчлэлт алга.</p>'}</section>
     </aside></div>
   </div>`,'orders');
@@ -773,7 +773,7 @@ function videosPage() {
   const db=getDb(), user=currentUser(db), orders=db.orders.filter(o=>o.agent_id===user.id).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
   const q=route().split('?')[1]||''; const params=new URLSearchParams(q); const tab=params.get('tab')||'active';
   let filtered = tab==='completed'?orders.filter(o=>o.status==='COMPLETED'):tab==='upcoming'?orders.filter(o=>o.status==='SHOOTING' && o.shoot_date):orders.filter(o=>o.status!=='COMPLETED');
-  return shell(`<div class="container">${pageHead('Миний бичлэгүүд','Хийгдэж байгаа болон бэлэн болсон контентууд.')}
+  return shell(`<div class="container">${pageHead('Миний контентууд','Хийгдэж байгаа болон бэлэн болсон контентууд.')}
     <div class="tabs"><button class="tab ${tab==='active'?'active':''}" data-nav="/videos?tab=active">Хийгдэж байгаа</button><button class="tab ${tab==='upcoming'?'active':''}" data-nav="/videos?tab=upcoming">Удахгүй</button><button class="tab ${tab==='completed'?'active':''}" data-nav="/videos?tab=completed">Бэлэн болсон</button></div>
     ${filtered.length?`<div class="order-grid">${filtered.map(orderCard).join('')}</div>`:emptyState('Энд одоогоор бичлэг алга','Тухайн ангилалд харагдах контент одоогоор байхгүй байна.')}
   </div>`,'videos');
@@ -1071,7 +1071,7 @@ function adminOrderDetailPage(id) {
       <section class="card panel"><div class="panel-title">Public update</div><div class="field"><label>Agent-д харагдах шинэчлэлт</label><input name="public_update" placeholder="Жишээ: Боловсруулалт эхэллээ" /></div></section>
     </div><aside class="detail-side">
       <section class="card panel"><div class="panel-title">Төлбөр</div><div class="field"><label>Тохиролцсон үнэ</label><input name="agreed_price" type="number" min="0" step="1000" value="${order.agreed_price??''}" placeholder="350000" /></div><div class="field" style="margin-top:14px"><label>Төлбөрийн төлөв</label><select name="payment_status">${Object.entries(paymentLabels).map(([v,l])=>`<option value="${v}" ${order.payment_status===v?'selected':''}>${l}</option>`).join('')}</select></div></section>
-      <section class="card panel final-delivery-admin"><div class="panel-title">Бэлэн болсон бичлэг</div><div class="field"><label>Бичлэгийн линк</label><input name="final_video_url" value="${esc(order.final_video_url||'')}" placeholder="Google Drive, YouTube, Vimeo зэрэг линк..." /></div>${order.status==='COMPLETED'&&!order.final_video_url?`<div class="delivery-admin-warning">Бэлэн болсон төлөвтэй боловч бичлэгийн линк оруулаагүй байна.</div>`:`<p class="help">Линк хадгалагдсаны дараа agent-ийн захиалгын дэлгэрэнгүй болон “Бэлэн болсон” хэсэгт шууд харагдана.</p>`}</section>
+      <section class="card panel final-delivery-admin"><div class="panel-title">Бэлэн болсон контент</div><div class="field"><label>Бичлэгийн линк</label><input name="final_video_url" value="${esc(order.final_video_url||'')}" placeholder="Google Drive, YouTube, Vimeo зэрэг линк..." /></div>${order.status==='COMPLETED'&&!order.final_video_url?`<div class="delivery-admin-warning">Бэлэн болсон төлөвтэй боловч бичлэгийн линк оруулаагүй байна.</div>`:`<p class="help">Линк хадгалагдсаны дараа agent-ийн захиалгын дэлгэрэнгүй болон “Бэлэн болсон” хэсэгт шууд харагдана.</p>`}</section>
       <section class="card panel"><div class="panel-title">Агент</div>${agent?`<button class="agent-profile-mini" type="button" data-nav="/admin/agents/${agent.id}">${userAvatarHtml(agent,'agent-card-logo')}<span><strong>${esc(agent.full_name)}</strong><small>${esc(agentSubtitle(agent))}</small></span>${icon('arrow')}</button>`:''}<div class="info-list" style="margin-top:14px"><div class="info-row"><span>Утас</span><strong>${esc(agent?.phone||'—')}</strong></div><div class="info-row"><span>Байгууллага</span><strong>${esc(orgName(agent||{})||'—')}</strong></div><div class="info-row"><span>Салбар</span><strong>${esc(agent?.branch_name||'—')}</strong></div></div></section>
       <button class="btn btn-primary" type="submit" style="width:100%;min-height:46px">Өөрчлөлт хадгалах</button>
     </aside></div></form>
@@ -1578,7 +1578,7 @@ async function handleAdminOrder(form) {
   if(prevStatus!==newStatus) {
     db.order_status_history ||= []; db.order_status_history.push({id:uid('hist'),order_id:o.id,previous_status:prevStatus,new_status:newStatus,changed_by:getSession(),created_at:nowIso()});
     addActivity(db,o.id,`${statusLabels[newStatus]} төлөвт шилжлээ`,true,getSession());
-    addNotification(db,o.agent_id,'STATUS_CHANGE','Бичлэгийн төлөв шинэчлэгдлээ',`${o.order_number} · ${statusLabels[newStatus]}`,o.id);
+    addNotification(db,o.agent_id,'STATUS_CHANGE','Контентын төлөв шинэчлэгдлээ',`${o.order_number} · ${statusLabels[newStatus]}`,o.id);
     if(newStatus==='COMPLETED') o.completed_at=nowIso();
   }
   let brief=db.briefs.find(b=>b.order_id===o.id); if(!brief) { brief={id:uid('brief'),order_id:o.id,created_at:nowIso()}; db.briefs.push(brief); }
