@@ -3634,3 +3634,7 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
   padding-bottom:0;
   pointer-events:none;
 }
+
+.auth-choice-btn--register-pricing{
+  margin-top:24px;
+}
