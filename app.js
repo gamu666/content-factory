@@ -641,18 +641,60 @@ function ordersPage() {
 
 function newOrderPage() {
   const db=getDb(), user=currentUser(db);
-  return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Объектын үндсэн мэдээллээ илгээнэ үү. Зураг, бичлэг файл оруулах шаардлагагүй. Бичлэгийн style, зураг авалтын шийдлийг дараа нь хамт ярилцана.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
-    <form id="new-order-form" class="card form-card">
+  const ent=entitlementFor(db,user.id);
+  if(!ent) {
+    const pending=pendingPlanFor(db,user.id);
+    return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Контент захиалахын өмнө идэвхтэй багц шаардлагатай.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
+      <section class="card no-plan-order">
+        <span class="feature-kicker">БАГЦ ШААРДЛАГАТАЙ</span>
+        <h2>${pending?esc(pending.plan_code)+' багцын хүсэлт хүлээгдэж байна':'Идэвхтэй багц алга'}</h2>
+        <p>${pending?'Админ баталгаажуулсны дараа контентын эрхүүд автоматаар идэвхжинэ.':'Үнийн мэдээлэл хэсгээс START, GROW эсвэл PRO багцаа сонгоод хүсэлт илгээнэ үү.'}</p>
+        <button class="btn btn-primary" type="button" data-nav="/pricing">${pending?'Хүсэлт харах':'Багц сонгох'}</button>
+      </section>
+    </div>`,'orders');
+  }
+
+  const types=[
+    ['PROPERTY_REEL','Property Reel',ent.property_reel_remaining,'Үл хөдлөхийн богино босоо видео'],
+    ['POSTER','Poster',ent.poster_remaining,'Сошиал постын дизайн'],
+    ['EXPERT_CONTENT','Expert Content',ent.expert_content_remaining,'2–3 минутын мэргэжлийн контент'],
+    ['AGENT_BRANDING_REEL','Agent Branding Reel',ent.agent_branding_reel_remaining,'Хувийн брэндийн богино видео']
+  ];
+  const available=types.some(x=>Number(x[2])>0);
+
+  return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Контентын төрлөө сонгоно. Захиалга илгээхэд тухайн төрлийн 1 эрх автоматаар хасагдана.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
+    <section class="order-credit-summary">
+      <div class="order-credit-plan"><span>Одоогийн багц</span><strong>${esc(ent.plan_code)}</strong><button type="button" class="mini-link" data-nav="/pricing">Багц харах ${icon('arrow')}</button></div>
+      <div class="order-credit-items">
+        <div><span>Property Reel</span><strong>${ent.property_reel_remaining}</strong></div>
+        <div><span>Poster</span><strong>${ent.poster_remaining}</strong></div>
+        <div><span>Expert Content</span><strong>${ent.expert_content_remaining}</strong></div>
+        <div><span>Agent Branding</span><strong>${ent.agent_branding_reel_remaining}</strong></div>
+      </div>
+    </section>
+
+    <form id="new-order-form" class="card form-card content-order-form">
+      <div class="content-type-block">
+        <div class="field-label-row"><div><strong>Контентын төрөл *</strong><span>Үлдсэн эрхээс 1-ийг ашиглана.</span></div></div>
+        <div class="content-type-options">
+          ${types.map(([value,label,count,desc],idx)=>`<label class="content-type-option ${Number(count)<=0?'disabled':''}">
+            <input type="radio" name="content_type" value="${value}" ${idx===0&&Number(count)>0?'checked':''} ${Number(count)<=0?'disabled':''} required>
+            <span class="content-type-option-main"><strong>${label}</strong><small>${desc}</small></span>
+            <span class="content-type-count"><b>${count}</b><small>үлдсэн</small></span>
+          </label>`).join('')}
+        </div>
+      </div>
+
       <div class="form-grid">
-        <div class="field"><label>Объектын нэр *</label><input name="property_name" required placeholder="Объектын нэрийг оруулна уу" /></div>
-        <div class="field"><label>Байршил *</label><input name="location" required placeholder="Жишээ: Зайсан, ХУД" /></div>
+        <div class="field"><label>Контент / объектын нэр *</label><input name="property_name" required placeholder="Жишээ: River Garden 3 өрөө / Ипотекийн зөвлөгөө" /></div>
+        <div class="field"><label>Зураг авалтын байршил *</label><input name="location" required placeholder="Жишээ: Зайсан, ХУД / Studio" /></div>
         <div class="field"><label>Үл хөдлөхийн төрөл *</label><select name="property_type" required><option value="">Сонгох</option>${propertyTypes.map(x=>`<option>${x}</option>`).join('')}</select></div>
-        <div class="field"><label>Бичлэгийн зорилго *</label><select name="purpose" required><option value="">Сонгох</option>${purposes.map(x=>`<option>${x}</option>`).join('')}</select></div>
-        <div class="field full"><label>Объектын товч мэдээлэл *</label><textarea name="description" required placeholder="Талбай, өрөөний тоо, онцлох давуу тал зэрэг..."></textarea></div>
+        <div class="field"><label>Контентын зорилго *</label><select name="purpose" required><option value="">Сонгох</option>${purposes.map(x=>`<option>${x}</option>`).join('')}</select></div>
+        <div class="field full"><label>Товч мэдээлэл *</label><textarea name="description" required placeholder="Объектын мэдээлэл, expert content-ийн гол сэдэв, branding санаа зэрэг..."></textarea></div>
         <div class="field full"><label>Зарын холбоос</label><input name="listing_url" type="url" placeholder="https://..." /></div>
         <div class="field full"><label>Нэмэлт тайлбар</label><textarea name="additional_notes" placeholder="Зураг авалтын цаг, онцгой хүсэлт байвал энд бичнэ үү."></textarea></div>
       </div>
-      <div class="form-actions"><button type="button" class="btn btn-secondary" data-nav="/orders">Цуцлах</button><button class="btn btn-primary" type="submit">Захиалга илгээх</button></div>
+      <div class="form-actions"><button type="button" class="btn btn-secondary" data-nav="/orders">Цуцлах</button><button class="btn btn-primary" type="submit" ${available?'':'disabled'}>1 эрх ашиглан захиалах</button></div>
     </form>
   </div>`,'orders');
 }
