@@ -10,14 +10,16 @@
     const style = document.createElement('style');
     style.id = 'pricing-entry-style';
     style.textContent = `
-      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0 30px;padding:15px 16px;border:1px solid rgba(72,99,255,.20);border-radius:16px;background:linear-gradient(135deg,rgba(42,139,255,.10),rgba(105,88,255,.07));box-shadow:0 12px 34px rgba(39,91,220,.09);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-      .pricing-auth-promo:hover{transform:translateY(-2px);border-color:rgba(72,99,255,.38);box-shadow:0 16px 38px rgba(39,91,220,.14)}
-      .pricing-auth-promo-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
-      .pricing-auth-promo-copy strong{font-size:13px;color:#111827;letter-spacing:-.01em}
-      .pricing-auth-promo-copy small{font-size:10px;color:#7a8291;font-weight:600}
-      .pricing-auth-promo-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;background:#1d8df2;color:white;box-shadow:0 8px 20px rgba(29,141,242,.24)}
-      .pricing-auth-promo-icon svg{width:18px;height:18px}
-      .pricing-auth-promo-arrow{font-size:18px;color:#1d8df2;font-weight:700;flex:0 0 auto}
+      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:30px 0 0;padding:17px 18px;border:1px solid rgba(90,72,255,.30);border-radius:18px;background:linear-gradient(135deg,rgba(73,95,255,.14),rgba(121,68,255,.10));box-shadow:0 16px 42px rgba(67,73,220,.12);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+      .pricing-auth-promo:hover{transform:translateY(-2px);border-color:rgba(90,72,255,.52);box-shadow:0 20px 50px rgba(67,73,220,.18)}
+      .pricing-auth-promo-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+      .pricing-auth-promo-copy strong{font-size:16px;line-height:1.15;color:#5446ff;letter-spacing:-.025em;font-weight:820}
+      .pricing-auth-promo-copy small{font-size:10px;color:#7a8291;font-weight:650;letter-spacing:.01em}
+      .pricing-auth-promo-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(135deg,#4f7cff,#6a4cff);color:white;box-shadow:0 10px 24px rgba(79,95,255,.28)}
+      .pricing-auth-promo-icon svg{width:19px;height:19px}
+      .pricing-auth-promo-arrow{font-size:20px;color:#5a4cff;font-weight:800;flex:0 0 auto}
+      .auth-box.pricing-login-layout{transform:translateY(-54px)}
+      @media(max-width:820px){.auth-box.pricing-login-layout{transform:translateY(-22px)}}
       .pricing-top-link{height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#5a5f68;text-decoration:none}
       .pricing-top-link:hover{background:var(--surface-2);color:var(--text)}
       .pricing-top-link svg{width:15px;height:15px}
@@ -51,7 +53,9 @@
         <span class="pricing-auth-promo-arrow">→</span>
       `;
       const form = box.querySelector('.auth-form');
-      if (form) box.insertBefore(link, form);
+      if (form?.id === 'login-form') box.classList.add('pricing-login-layout');
+      const foot = box.querySelector('.auth-foot');
+      if (foot) foot.insertAdjacentElement('afterend', link);
       else box.appendChild(link);
     });
 
