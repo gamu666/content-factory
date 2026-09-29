@@ -41,6 +41,7 @@
     if (extraAgentSelect) extraAgentSelect.value = '0';
     updateSummary();
     if (feedback) {
+      feedback.hidden = false;
       feedback.textContent = 'Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.';
       feedback.className = 'order-feedback';
     }
@@ -143,8 +144,7 @@
       });
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
 
-      feedback.className = 'order-feedback is-success';
-      feedback.textContent = 'Хүсэлт амжилттай илгээгдлээ.';
+      feedback.hidden = true;
       if (form) form.hidden = true;
       if (orderSummary) orderSummary.hidden = true;
       if (successState) successState.hidden = false;
