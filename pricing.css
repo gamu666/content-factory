@@ -172,3 +172,19 @@ body.modal-open{overflow:hidden}
 }
 
 .pricing-notes{display:none!important}
+
+
+.order-addon-row .addon-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+}
+.order-addon-row .addon-copy>span{
+  color:#c2c6cf;
+}
+.order-addon-row .addon-copy small{
+  color:#777d8a;
+  font-size:9px;
+  font-weight:600;
+}
