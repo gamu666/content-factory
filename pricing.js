@@ -29,7 +29,9 @@
   function updateSummary() {
     document.getElementById('order-title').textContent = `${currentPlan.name} багц`;
     document.getElementById('order-plan-input').value = currentPlan.name;
-    document.getElementById('order-base-price').textContent = money(currentPlan.price);\n    const planSummary = document.getElementById('order-plan-summary');\n    if (planSummary) planSummary.textContent = currentPlan.name;
+    document.getElementById('order-base-price').textContent = money(currentPlan.price);
+    const planSummary = document.getElementById('order-plan-summary');
+    if (planSummary) planSummary.textContent = currentPlan.name;
     document.getElementById('order-included-agents').textContent = `${currentPlan.includedAgents} agent`;
     document.getElementById('order-total-price').textContent = money(totalPrice());
   }
