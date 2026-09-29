@@ -740,19 +740,57 @@ function adminProfilePage() {
 
 function loginPage(mode='login') {
   const register=mode==='register';
-  return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Контентын явц<br>нэг дор.</h1><p>Үл хөдлөхийн агент, контент production багийн хоорондох захиалга, зураг авалт, edit, delivery-г цэгцтэй удирдах веб орчин.</p></div><div style="color:#777c85;font-size:11px">Real estate контент үйлдвэрлэлийн портал</div></section><section class="auth-side"><div class="auth-box"><h2>${register?'Бүртгэл үүсгэх':'Тавтай морил'}</h2><p>${register?'Контент захиалга өгч, үйлдвэрлэлийн явцаа нэг дор хянаарай.':'Өөрийн захиалга, зураг авалт, бичлэгийн явцаа харахын тулд нэвтэрнэ үү.'}</p>
-  <form id="${register?'register-form':'login-form'}" class="auth-form">
-    ${register?`<div class="field"><label>Овог нэр</label><input name="full_name" required placeholder="Овог нэрээ оруулна уу" autocomplete="name" /></div><div class="field"><label>Утасны дугаар</label><input name="phone" required placeholder="Утасны дугаараа оруулна уу" autocomplete="tel" /></div><div class="field"><label>Байгууллага / агентлаг</label><input name="agency_name" placeholder="Байгууллагын нэр" /></div>`:''}
-    ${register?`<div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="email" /></div>`:`<div class="field"><label>И-мэйл</label><input name="identifier" type="text" inputmode="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="username" /></div>`}
-    <div class="field"><label>Нууц үг</label><input id="register-password" name="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="${register?'new-password':'current-password'}" /></div>
-    ${register?`<div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>`:`<div class="auth-recovery-link"><button type="button" data-nav="/forgot-password">Нууц үгээ мартсан уу?</button></div>`}
-    <button class="btn btn-primary" type="submit">${register?'Бүртгүүлэх':'Нэвтрэх'}</button>
-  </form>
-  <div class="auth-foot">${register?'Бүртгэлтэй юу?':'Бүртгэлгүй юу?'} <button data-nav="${register?'/login':'/register'}">${register?'Нэвтрэх':'Бүртгэл үүсгэх'}</button></div>
-  ${!register && !REMOTE_ENABLED?`<div class="demo-box"><strong>Demo нэвтрэх</strong><br>Agent: agent@demo.mn / demo123<br>Admin: admin@demo.mn / admin123</div>`:''}
-  </div></section></div>`;
-}
 
+  if (register) {
+    return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Контентын явц<br>нэг дор.</h1><p>Үл хөдлөхийн агент, контент production багийн хоорондох захиалга, зураг авалт, edit, delivery-г цэгцтэй удирдах веб орчин.</p></div><div style="color:#777c85;font-size:11px">Real estate контент үйлдвэрлэлийн портал</div></section><section class="auth-side"><div class="auth-box"><h2>Бүртгэл үүсгэх</h2><p>Контент захиалга өгч, үйлдвэрлэлийн явцаа нэг дор хянаарай.</p>
+      <form id="register-form" class="auth-form">
+        <div class="field"><label>Овог нэр</label><input name="full_name" required placeholder="Овог нэрээ оруулна уу" autocomplete="name" /></div>
+        <div class="field"><label>Утасны дугаар</label><input name="phone" required placeholder="Утасны дугаараа оруулна уу" autocomplete="tel" /></div>
+        <div class="field"><label>Байгууллага / агентлаг</label><input name="agency_name" placeholder="Байгууллагын нэр" /></div>
+        <div class="field"><label>И-мэйл</label><input name="email" type="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="email" /></div>
+        <div class="field"><label>Нууц үг</label><input id="register-password" name="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /></div>
+        <div class="field"><label>Нууц үг давтах</label><input id="register-password-confirm" name="password_confirm" type="password" required minlength="6" placeholder="••••••••" autocomplete="new-password" /><div class="help">Дээрх нууц үгтэй яг ижил оруулна.</div></div>
+        <button class="btn btn-primary" type="submit">Бүртгүүлэх</button>
+      </form>
+      <div class="auth-foot">Бүртгэлтэй юу? <button data-nav="/login">Нэвтрэх</button></div>
+    </div></section></div>`;
+  }
+
+  return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Контентын явц<br>нэг дор.</h1><p>Үл хөдлөхийн агент, контент production багийн хоорондох захиалга, зураг авалт, edit, delivery-г цэгцтэй удирдах веб орчин.</p></div><div style="color:#777c85;font-size:11px">Real estate контент үйлдвэрлэлийн портал</div></section>
+    <section class="auth-side">
+      <div class="auth-box auth-box--entry">
+        <h2>Тавтай морил</h2>
+        <p>Өөрийн захиалга, зураг авалт, бичлэгийн явцаа харах эсвэл үйлчилгээний үнийн мэдээлэлтэй танилцана уу.</p>
+
+        <div class="auth-choice-stack">
+          <button class="auth-choice-btn auth-choice-btn--login" type="button" data-action="show-login-form" aria-expanded="false" aria-controls="login-reveal-panel">
+            <span>Нэвтрэх</span>
+          </button>
+
+          <div id="login-reveal-panel" class="auth-login-panel" aria-hidden="true">
+            <div class="auth-login-panel-inner">
+              <div class="auth-login-panel-content">
+                <form id="login-form" class="auth-form">
+                  <div class="field"><label>И-мэйл</label><input name="identifier" type="text" inputmode="email" required placeholder="И-мэйл хаягаа оруулна уу" autocomplete="username" /></div>
+                  <div class="field"><label>Нууц үг</label><input name="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="current-password" /></div>
+                  <div class="auth-recovery-link"><button type="button" data-nav="/forgot-password">Нууц үгээ мартсан уу?</button></div>
+                  <button class="btn btn-primary" type="submit">Нэвтрэх</button>
+                </form>
+                <div class="auth-foot">Бүртгэлгүй юу? <button data-nav="/register">Бүртгэл үүсгэх</button></div>
+                ${!REMOTE_ENABLED?`<div class="demo-box"><strong>Demo нэвтрэх</strong><br>Agent: agent@demo.mn / demo123<br>Admin: admin@demo.mn / admin123</div>`:''}
+              </div>
+            </div>
+          </div>
+
+          <a class="auth-choice-btn auth-choice-btn--pricing" href="./pricing.html">
+            <span>Үнийн мэдээлэл харах</span>
+            <span class="auth-choice-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
 
 function forgotPasswordPage() {
   return `<div class="auth-page"><section class="auth-visual"><div class="auth-brand"><span class="brand-mark brand-mark-logo">${brandLogoHtml()}</span>${BRAND_NAME}</div><div class="auth-quote"><h1>Нууц үгээ<br>сэргээх.</h1><p>Бүртгэлтэй и-мэйл хаяг руу нууц үг шинэчлэх хамгаалалттай холбоос илгээнэ.</p></div></section><section class="auth-side"><div class="auth-box"><h2>Нууц үгээ мартсан уу?</h2><p>Бүртгэлтэй и-мэйл хаягаа оруулна уу.</p>
@@ -1309,6 +1347,17 @@ document.addEventListener('click', e=>{
   const nav=e.target.closest('[data-nav]'); if(nav){ e.preventDefault(); navigate(nav.dataset.nav); return; }
   const actionEl=e.target.closest('[data-action]');
   const action=actionEl?.dataset.action;
+  if(action==='show-login-form'){
+    const panel=document.getElementById('login-reveal-panel');
+    const trigger=actionEl;
+    if(panel){
+      panel.classList.add('is-open');
+      panel.setAttribute('aria-hidden','false');
+      trigger?.setAttribute('aria-expanded','true');
+      window.setTimeout(()=>panel.querySelector('input[name="identifier"]')?.focus(),240);
+    }
+    return;
+  }
   if(action==='logout'){ if(REMOTE_ENABLED){ void (async()=>{ await sb.auth.signOut(); REMOTE_USER_ID=null; REMOTE_DB=blankDb(); REMOTE_LOADED=true; if(realtimeChannel){ sb.removeChannel(realtimeChannel); realtimeChannel=null; } toast('Системээс гарлаа.'); navigate('/login'); })(); } else { setSession(null); toast('Системээс гарлаа.'); navigate('/login'); } return; }
   if(action==='toggle-theme'){ setTheme(getTheme()==='dark'?'light':'dark'); render(); return; }
   if(action==='set-theme'){ setTheme(actionEl.dataset.theme==='dark'?'dark':'light'); render(); return; }
