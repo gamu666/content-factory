@@ -587,6 +587,24 @@ function dashboardPage() {
   const nextShoot=active.filter(o=>o.shoot_date && new Date(o.shoot_date)>=new Date()).sort((a,b)=>new Date(a.shoot_date)-new Date(b.shoot_date))[0];
   const unread=(db.notifications||[]).filter(n=>n.recipient_id===user.id&&!n.read_at).length;
   const actions=`<button class="btn btn-primary" data-nav="/orders/new">${icon('plus')}<span class="hide-sm">Шинэ контент захиалах</span></button>`;
+  const ent=entitlementFor(db,user.id);
+  const pendingPlan=pendingPlanFor(db,user.id);
+  const planWallet=ent?`<section class="plan-wallet-card">
+      <div class="plan-wallet-head"><div><span class="feature-kicker">МИНИЙ БАГЦ</span><h2>${esc(ent.plan_code)}</h2></div><button class="mini-link" type="button" data-nav="/pricing">Багцын мэдээлэл ${icon('arrow')}</button></div>
+      <div class="plan-wallet-grid">
+        <div><span>Property Reel</span><strong>${ent.property_reel_remaining}</strong><small>үлдсэн</small></div>
+        <div><span>Poster</span><strong>${ent.poster_remaining}</strong><small>үлдсэн</small></div>
+        <div><span>Expert Content</span><strong>${ent.expert_content_remaining}</strong><small>үлдсэн</small></div>
+        <div><span>Agent Branding</span><strong>${ent.agent_branding_reel_remaining}</strong><small>үлдсэн</small></div>
+        <div><span>Camera Credit</span><strong>${ent.camera_credit_remaining}</strong><small>үлдсэн</small></div>
+        <div><span>Drone Credit</span><strong>${ent.drone_credit_remaining}</strong><small>үлдсэн</small></div>
+      </div>
+      <div class="plan-wallet-foot"><span>Automation agent limit</span><strong>${ent.automation_agent_limit}</strong></div>
+    </section>`
+    :`<section class="plan-wallet-card plan-wallet-empty">
+      <div><span class="feature-kicker">МИНИЙ БАГЦ</span><h2>${pendingPlan?esc(pendingPlan.plan_code)+' хүсэлт хүлээгдэж байна':'Идэвхтэй багц алга'}</h2><p>${pendingPlan?'Админ баталгаажуулсны дараа контентын эрхүүд энд автоматаар харагдана.':'Багцаа сонгож хүсэлт илгээсний дараа контентын эрхүүд идэвхжинэ.'}</p></div>
+      <button class="btn btn-primary" type="button" data-nav="/pricing">${pendingPlan?'Хүсэлт харах':'Багц сонгох'}</button>
+    </section>`;
   const hero=primary?`<section class="dashboard-feature" data-nav="/orders/${primary.id}">
       <div class="feature-top"><div><span class="feature-kicker">Одоо хийгдэж байгаа</span><div class="feature-order-no">${esc(primary.order_number)}</div></div>${statusPill(primary)}</div>
       <div class="feature-copy"><h2>${esc(primary.property_name)}</h2><p>${esc(primary.location)} · ${esc(primary.property_type)}</p></div>
@@ -601,6 +619,7 @@ function dashboardPage() {
       <button class="mini-link" data-nav="/orders/${nextShoot.id}">Захиалга харах ${icon('arrow')}</button>
     </div>`:`<div class="module-card next-shoot-card"><div class="module-head"><span>Дараагийн зураг авалт</span>${icon('calendar')}</div><div class="module-empty-mark">—</div><strong>Товлогдоогүй</strong><p>Зураг авалтын шинэ тов энд харагдана.</p></div>`;
   return shell(`<div class="container dashboard-home">${pageHead(`Сайн байна уу, ${esc(user.full_name.split(' ').slice(-1)[0])}`, 'Контент үйлдвэрлэлийн хамгийн чухал мэдээллүүд.', actions)}
+    ${planWallet}
     <div class="dashboard-modules">${hero}<aside class="dashboard-side-modules">
       <div class="module-card compact-stats"><div class="module-head"><span>Тойм</span><span class="module-live"><i></i> live</span></div><div class="stat-tiles"><div><strong>${active.length}</strong><span>Хийгдэж байгаа</span></div><div><strong>${complete.length}</strong><span>Бэлэн болсон</span></div><div><strong>${unread}</strong><span>Шинэ мэдэгдэл</span></div></div></div>
       ${nextShootCard}
