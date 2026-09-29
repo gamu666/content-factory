@@ -165,6 +165,10 @@
     }
   }
 
+  document.querySelectorAll('[data-lang]').forEach((button) => {
+    button.addEventListener('click', () => applyLanguage(button.dataset.lang));
+  });
+
   document.querySelectorAll('[data-order-plan]').forEach((button) => {
     button.addEventListener('click', () => openModal(button.dataset.orderPlan));
   });
