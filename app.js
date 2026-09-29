@@ -1354,6 +1354,7 @@ document.addEventListener('click', e=>{
       panel.classList.add('is-open');
       panel.setAttribute('aria-hidden','false');
       trigger?.setAttribute('aria-expanded','true');
+      trigger?.classList.add('is-hidden-after-open');
       window.setTimeout(()=>panel.querySelector('input[name="identifier"]')?.focus(),240);
     }
     return;
