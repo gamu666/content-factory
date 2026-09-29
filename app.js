@@ -1344,33 +1344,59 @@ async function handleRevisionRequest(form) {
 
 async function handleNewOrder(form) {
   const fd=new FormData(form);
+  const contentType=String(fd.get('content_type')||'').trim();
+  if(!CONTENT_TYPE_LABELS[contentType]) { toast('Контентын төрлөө сонгоно уу.','error'); return; }
+
   if (REMOTE_ENABLED) {
     try {
       const user=currentUser(); if(!user) throw new Error('Нэвтрэх шаардлагатай.');
-      const payload={
-        agent_id:user.id,
-        property_name:String(fd.get('property_name')).trim(),
-        location:String(fd.get('location')).trim(),
-        property_type:String(fd.get('property_type')),
-        purpose:String(fd.get('purpose')),
-        description:String(fd.get('description')).trim(),
-        listing_url:String(fd.get('listing_url')||'').trim()||null,
-        additional_notes:String(fd.get('additional_notes')||'').trim()||null
-      };
-      const ins=await sb.from('orders').insert(payload).select('*').single();
-      const order=throwIfError(ins,'Захиалга хадгалж чадсангүй');
+      const rpc=await sb.rpc('create_content_order',{
+        p_content_type:contentType,
+        p_property_name:String(fd.get('property_name')||'').trim(),
+        p_location:String(fd.get('location')||'').trim(),
+        p_property_type:String(fd.get('property_type')||'').trim(),
+        p_purpose:String(fd.get('purpose')||'').trim(),
+        p_description:String(fd.get('description')||'').trim(),
+        p_listing_url:String(fd.get('listing_url')||'').trim()||null,
+        p_additional_notes:String(fd.get('additional_notes')||'').trim()||null
+      });
+      const orderId=throwIfError(rpc,'Захиалга хадгалж чадсангүй');
       await loadRemoteDb();
-      toast('Захиалга амжилттай илгээгдлээ.','success');
-      navigate(`/orders/${order.id}`);
+      toast(`${contentTypeLabel(contentType)} захиалга амжилттай илгээгдлээ. 1 эрх хасагдлаа.`,'success');
+      navigate(`/orders/${orderId}`);
     } catch(e) { console.error(e); toast(e.message,'error'); }
     return;
   }
-  const db=getDb(), user=currentUser(db); const id=uid('order');
-  const order={id,order_number:generateOrderNumber(db),agent_id:user.id,assigned_admin_id:null,property_name:String(fd.get('property_name')).trim(),location:String(fd.get('location')).trim(),property_type:String(fd.get('property_type')),purpose:String(fd.get('purpose')),description:String(fd.get('description')).trim(),listing_url:String(fd.get('listing_url')||'').trim(),additional_notes:String(fd.get('additional_notes')||'').trim(),status:'PLANNING',sub_status:'',agreed_price:null,payment_status:'NOT_SET',shoot_date:null,shoot_started_at:null,shoot_location:'',thumbnail_url:'',final_video_url:'',created_at:nowIso(),updated_at:nowIso(),completed_at:null};
+
+  const db=getDb(), user=currentUser(db);
+  const ent=entitlementFor(db,user?.id);
+  const field=CONTENT_CREDIT_FIELDS[contentType];
+  if(!ent) { toast('Идэвхтэй багц байхгүй байна.','error'); return; }
+  if(Number(ent[field]||0)<=0) { toast(`${contentTypeLabel(contentType)} эрх дууссан байна.`,'error'); return; }
+  ent[field]=Number(ent[field])-1;
+  ent.updated_at=nowIso();
+
+  const id=uid('order');
+  const order={
+    id,order_number:generateOrderNumber(db),agent_id:user.id,assigned_admin_id:null,
+    content_type:contentType,credit_charged:true,
+    property_name:String(fd.get('property_name')).trim(),
+    location:String(fd.get('location')).trim(),
+    property_type:String(fd.get('property_type')),
+    purpose:String(fd.get('purpose')),
+    description:String(fd.get('description')).trim(),
+    listing_url:String(fd.get('listing_url')||'').trim(),
+    additional_notes:String(fd.get('additional_notes')||'').trim(),
+    status:'PLANNING',sub_status:'',agreed_price:null,payment_status:'NOT_SET',
+    shoot_date:null,shoot_started_at:null,shoot_location:'',thumbnail_url:'',final_video_url:'',
+    created_at:nowIso(),updated_at:nowIso(),completed_at:null
+  };
   db.orders.push(order);
-  addActivity(db,id,'Захиалга хүлээн авлаа',true,user.id);
-  db.profiles.filter(p=>p.role==='admin').forEach(admin=>addNotification(db,admin.id,'NEW_ORDER','Шинэ контент захиалга',`${user.full_name} · ${order.order_number} · ${order.property_name}`,order.id));
-  saveDb(db); toast('Захиалга амжилттай илгээгдлээ.','success'); navigate(`/orders/${id}`);
+  addActivity(db,id,`${contentTypeLabel(contentType)} захиалга хүлээн авлаа`,true,user.id);
+  db.profiles.filter(p=>p.role==='admin').forEach(admin=>addNotification(db,admin.id,'NEW_ORDER','Шинэ контент захиалга',`${user.full_name} · ${contentTypeLabel(contentType)} · ${order.order_number}`,order.id));
+  saveDb(db);
+  toast(`${contentTypeLabel(contentType)} захиалга илгээгдлээ. 1 эрх хасагдлаа.`,'success');
+  navigate(`/orders/${id}`);
 }
 
 async function handleProfile(form) {
