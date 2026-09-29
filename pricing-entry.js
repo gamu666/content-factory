@@ -10,7 +10,7 @@
     const style = document.createElement('style');
     style.id = 'pricing-entry-style';
     style.textContent = `
-      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:30px 0 0;padding:17px 18px;border:1px solid rgba(90,72,255,.30);border-radius:18px;background:linear-gradient(135deg,rgba(73,95,255,.14),rgba(121,68,255,.10));box-shadow:0 16px 42px rgba(67,73,220,.12);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+      .pricing-auth-promo{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:46px 0 0;padding:17px 18px;border:1px solid rgba(90,72,255,.30);border-radius:18px;background:linear-gradient(135deg,rgba(73,95,255,.14),rgba(121,68,255,.10));box-shadow:0 18px 46px rgba(67,73,220,.13);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
       .pricing-auth-promo:hover{transform:translateY(-2px);border-color:rgba(90,72,255,.52);box-shadow:0 20px 50px rgba(67,73,220,.18)}
       .pricing-auth-promo-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
       .pricing-auth-promo-copy strong{font-size:16px;line-height:1.15;color:#5446ff;letter-spacing:-.025em;font-weight:820}
@@ -18,8 +18,8 @@
       .pricing-auth-promo-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(135deg,#4f7cff,#6a4cff);color:white;box-shadow:0 10px 24px rgba(79,95,255,.28)}
       .pricing-auth-promo-icon svg{width:19px;height:19px}
       .pricing-auth-promo-arrow{font-size:20px;color:#5a4cff;font-weight:800;flex:0 0 auto}
-      .auth-box.pricing-login-layout{transform:translateY(-54px)}
-      @media(max-width:820px){.auth-box.pricing-login-layout{transform:translateY(-22px)}}
+      .auth-box.pricing-login-layout{transform:translateY(-62px)}
+      @media(max-width:820px){.auth-box.pricing-login-layout{transform:translateY(-24px)}.pricing-auth-promo{margin-top:34px}}
       .pricing-top-link{height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#5a5f68;text-decoration:none}
       .pricing-top-link:hover{background:var(--surface-2);color:var(--text)}
       .pricing-top-link svg{width:15px;height:15px}
