@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050506" />
   <title>Content Factory — Үнийн мэдээлэл</title>
   <meta name="description" content="Content Factory real estate контент үйлдвэрлэл, Facebook automation багцын үнийн мэдээлэл." />
-  <link rel="stylesheet" href="./pricing.css?v=4" />
+  <link rel="stylesheet" href="./pricing.css?v=5" />
 </head>
 <body>
   <main class="pricing-page">
@@ -16,108 +16,119 @@
         <span>Content Factory</span>
       </a>
       <div class="pricing-nav-actions">
-        <a class="pricing-nav-link" href="./index.html#/login">Нэвтрэх</a>
-        <a class="pricing-nav-cta" href="#plans">Багц харах</a>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn is-active" data-lang="mn">MN</button>
+          <button type="button" class="lang-btn" data-lang="en">ENG</button>
+        </div>
+        <a class="pricing-nav-link" href="./index.html#/login" data-i18n="navLogin">Нэвтрэх</a>
+        <a class="pricing-nav-cta" href="#plans" data-i18n="navPlans">Багц харах</a>
       </div>
     </header>
 
     <section class="pricing-hero" aria-labelledby="pricing-title">
       <p class="eyebrow">REAL ESTATE CONTENT + AUTOMATION</p>
-      <h1 id="pricing-title">Танд тохирох багц.</h1>
-      <p class="pricing-lead">Контент үйлдвэрлэл болон Facebook түгээлтийн automation нэг системд.</p>
-      <div class="billing-pill" aria-label="Үйлчилгээний төрөл"><span>Контент + Automation</span></div>
+      <h1 id="pricing-title" data-i18n="heroTitle">Танд тохирох багц.</h1>
+      <p class="pricing-lead" data-i18n="heroLead">Контент үйлдвэрлэл болон Facebook түгээлтийн automation нэг системд.</p>
+      <div class="billing-pill" aria-label="Үйлчилгээний төрөл"><span data-i18n="heroPill">Контент + Automation</span></div>
     </section>
 
     <section id="plans" class="plan-grid" aria-label="Content Factory багцууд">
       <article class="plan-card" data-plan="START">
-        <div class="plan-topline"><span>START</span><span class="plan-chip">Эхлэхэд</span></div>
+        <div class="plan-topline"><span>START</span><span class="plan-chip" data-i18n="startChip">Эхлэхэд</span></div>
         <div class="plan-price"><strong>₮1,290,000</strong></div>
-        <p class="plan-copy">Өөрийн зураг, бичлэгтэй агентуудад зориулсан үндсэн багц.</p>
+        <p class="plan-copy" data-i18n="startCopy">Өөрийн зураг, бичлэгтэй агентуудад зориулсан үндсэн багц.</p>
         <ul class="plan-features">
           <li>4 Property Reel</li>
           <li>4 Poster</li>
-          <li>1 agent automation included</li>
-          <li>Facebook auto posting</li>
-          <li>Caption variation + posting queue</li>
-          <li>Automation эхний хугацаа FREE</li>
+          <li data-i18n="startAutomation">1 agent automation included</li>
+          <li data-i18n="facebookPosting">Facebook auto posting</li>
+          <li data-i18n="captionQueue">Caption variation + posting queue</li>
         </ul>
-        <button class="plan-order" type="button" data-order-plan="START">Захиалах</button>
+        <button class="plan-order" type="button" data-order-plan="START" data-i18n="orderBtn">Захиалах</button>
       </article>
 
       <article class="plan-card plan-card--featured" data-plan="GROW">
-        <div class="plan-recommended">САНАЛ БОЛГОХ</div>
+        <div class="plan-recommended" data-i18n="recommended">САНАЛ БОЛГОХ</div>
         <div class="plan-topline"><span>GROW</span><span class="plan-chip">Recommended</span></div>
         <div class="plan-price"><strong>₮2,990,000</strong></div>
-        <p class="plan-copy">Тогтмол property контент болон expert presence хөгжүүлэх агентуудад.</p>
+        <p class="plan-copy" data-i18n="growCopy">Тогтмол property контент болон expert presence хөгжүүлэх агентуудад.</p>
         <ul class="plan-features">
           <li>6 Property Reel</li>
           <li>6 Poster</li>
           <li>2 Expert Content</li>
           <li>1 Drone Credit</li>
-          <li>2 agent automation included</li>
-          <li>Automation эхний хугацаа FREE</li>
+          <li data-i18n="growAutomation">2 agent automation included</li>
         </ul>
-        <button class="plan-order" type="button" data-order-plan="GROW">Захиалах</button>
+        <button class="plan-order" type="button" data-order-plan="GROW" data-i18n="orderBtn">Захиалах</button>
       </article>
 
       <article class="plan-card" data-plan="PRO">
         <div class="plan-topline"><span>PRO</span><span class="plan-chip">Full system</span></div>
         <div class="plan-price"><strong>₮5,490,000</strong></div>
-        <p class="plan-copy">Контентын бүх урсгал болон personal branding-аа цогцоор нь хөгжүүлэх багц.</p>
+        <p class="plan-copy" data-i18n="proCopy">Контентын бүх урсгал болон personal branding-аа цогцоор нь хөгжүүлэх багц.</p>
         <ul class="plan-features">
           <li>8 Property Reel</li>
           <li>8 Poster</li>
           <li>4 Expert Content</li>
           <li>4 Agent Branding Reel</li>
           <li>2 Drone Credit</li>
-          <li>3 agent automation included</li>
-          <li>Priority production</li>
-          <li>Automation эхний хугацаа FREE</li>
+          <li data-i18n="proAutomation">3 agent automation included</li>
+          <li data-i18n="priorityProduction">Priority production</li>
         </ul>
-        <button class="plan-order" type="button" data-order-plan="PRO">Захиалах</button>
+        <button class="plan-order" type="button" data-order-plan="PRO" data-i18n="orderBtn">Захиалах</button>
       </article>
     </section>
 
-    <section class="pricing-notes" aria-label="Багцын тайлбар">
-      <div><strong>Property Reel</strong><span>Base Reel-д зураг, бичлэгийг захиалагч талаас өгч болно. Drone ашиглавал Drone Credit эсвэл нэмэлт drone үнэ тооцогдоно.</span></div>
-      <div><strong>Poster</strong><span>Энгийн poster-д захиалагчийн зураг ашиглана. Drone зураг шаардвал Drone Credit эсвэл нэмэлт drone үнэ тооцогдоно.</span></div>
-      <div><strong>Expert Content</strong><span>Сэдэв, мэргэжлийн мэдээлэл, ярих агуулгыг захиалагч бэлтгэнэ. Script болон expert сэдэв зохиох үйлчилгээ багцад орохгүй.</span></div>
-      <div><strong>Model</strong><span>Үндсэн багцад model ороогүй. Нэмэлтээр захиалах эсвэл урт хугацааны гэрээний benefit хэлбэрээр тохиролцоно.</span></div>
-    </section>
-
-    <section class="faq" aria-labelledby="faq-title">
-      <div class="faq-head">
-        <p class="eyebrow">FAQ</p>
-        <h2 id="faq-title">Түгээмэл асуултууд</h2>
-        <p>Багц болон automation-ийн гол нөхцөлүүд.</p>
+    <section class="service-guide" aria-labelledby="service-guide-title">
+      <div class="service-guide-head">
+        <p class="eyebrow" data-i18n="guideEyebrow">БАГЦ ДОТОРХ ҮЙЛЧИЛГЭЭ</p>
+        <h2 id="service-guide-title" data-i18n="guideTitle">Яг юу багтаж байгаа вэ?</h2>
+        <p data-i18n="guideLead">Нэршил бүр ямар төрлийн контент, үйлчилгээ болохыг товч бөгөөд ойлгомжтой тайлбарлав.</p>
       </div>
-      <div class="faq-list">
-        <details open>
-          <summary>Automation эхний хугацаа үнэгүй юу?</summary>
-          <p>Тийм. Бүх багцад automation-ийн эхний хугацаа FREE. START-д 1, GROW-д 2, PRO-д 3 agent эрх багтана.</p>
-        </details>
-        <details>
-          <summary>Нэмэлт agent нэмж болох уу?</summary>
-          <p>Болно. Багцад багтсан agent тооноос илүү эрх бүр 79,900₮ байна.</p>
-        </details>
-        <details>
-          <summary>Reel хийхэд заавал drone зураг авалт хэрэгтэй юу?</summary>
-          <p>Үгүй. Өөрийн зураг, бичлэгээ өгч болно. Drone шаардлагатай үед багцын Drone Credit ашиглах эсвэл нэмэлтээр захиална.</p>
-        </details>
-        <details>
-          <summary>Expert Content-д script бичиж өгөх үү?</summary>
-          <p>Үгүй. Expert-ийн сэдэв, мэдээлэл, ярих агуулгыг захиалагч бэлтгэнэ. Манай баг production, зураг авалт, edit, subtitle болон visual treatment-ийг хариуцна.</p>
-        </details>
-        <details>
-          <summary>Model оролцуулж болох уу?</summary>
-          <p>Болно. Model нь нэмэлт үйлчилгээ. Урт хугацааны гэрээтэй үед model benefit-ийг тусгай нөхцөлөөр багцад оруулах боломжтой.</p>
-        </details>
+
+      <div class="service-guide-grid">
+        <article class="service-guide-card">
+          <span class="service-guide-no">01</span>
+          <h3>Property Reel</h3>
+          <p data-i18n="propertyReelDesc">Үл хөдлөхийн объект танилцуулах богино босоо видео. Үндсэн Property Reel-д манай зураг авалт орохгүй — захиалагч өөрийн зураг, бичлэгээ өгнө. Манайхаар объектын зураг авалт хийлгэх бол тусад нь зураг авалт / Drone Credit тооцно.</p>
+          <div class="service-guide-note" data-i18n="dronePrice">Drone зураг авалт: 1 удаа — 250,000₮</div>
+        </article>
+
+        <article class="service-guide-card">
+          <span class="service-guide-no">02</span>
+          <h3>Poster</h3>
+          <p data-i18n="posterDesc">Зар сурталчилгаанд ашиглах нэг кадрын дизайн. Захиалагчийн өгсөн property зураг, мэдээллээр social post-д бэлэн poster бэлтгэнэ. Drone зураг хэрэгтэй бол тусдаа зураг авалт тооцно.</p>
+        </article>
+
+        <article class="service-guide-card">
+          <span class="service-guide-no">03</span>
+          <h3>Expert Content</h3>
+          <p data-i18n="expertDesc">Агент өөрийн мэдлэг, туршлагаа тайлбарласан 2–3 минутын мэргэжлийн контент. Сэдэв, мэдээлэл, ярих агуулгыг захиалагч бэлтгэнэ; манай баг зураг авалт, edit, subtitle, visual treatment-ийг хариуцна.</p>
+        </article>
+
+        <article class="service-guide-card">
+          <span class="service-guide-no">04</span>
+          <h3>Agent Branding Reel</h3>
+          <p data-i18n="brandingDesc">Агентыг өөрийг нь брэнд болгон таниулах богино видео. Ажлын хэв маяг, дүр төрх, үйлчилгээний онцлог, өдөр тутмын professional image-ийг тогтмол контент болгон хөгжүүлнэ.</p>
+        </article>
+
+        <article class="service-guide-card">
+          <span class="service-guide-no">05</span>
+          <h3>Drone Credit</h3>
+          <p data-i18n="droneCreditDesc">Объект, орчин, байршлыг агаараас авах нэмэлт зураг авалтын эрх. Багцад Drone Credit байвал тухайн credit-ээ ашиглана; credit хүрэлцэхгүй бол нэмэлт drone зураг авалт 250,000₮-өөр тооцогдоно.</p>
+        </article>
+
+        <article class="service-guide-card">
+          <span class="service-guide-no">06</span>
+          <h3>Automation</h3>
+          <p data-i18n="automationDesc">Facebook зар түгээлтийг системээр удирдах хэсэг. Agent бүр өөрийн account/page-аа холбоод post queue, caption variation болон auto posting урсгалаа нэг дороос хянах боломжтой.</p>
+        </article>
       </div>
     </section>
 
     <footer class="pricing-footer">
       <span>Content Factory</span>
-      <span>Real estate content production portal</span>
+      <span data-i18n="footerSub">Real estate content production portal</span>
     </footer>
   </main>
 
@@ -125,15 +136,15 @@
     <div class="order-backdrop" data-close-modal></div>
     <section class="order-dialog" role="dialog" aria-modal="true" aria-labelledby="order-title">
       <button class="order-close" type="button" aria-label="Хаах" data-close-modal>×</button>
-      <p class="order-kicker">ЗАХИАЛГА</p>
+      <p class="order-kicker" data-i18n="orderKicker">ЗАХИАЛГА</p>
       <h2 id="order-title">Багц захиалах</h2>
 
       <div class="order-summary" id="order-summary">
-        <div><span>Багц</span><strong id="order-plan-summary">—</strong></div>
-        <div><span>Суурь үнэ</span><strong id="order-base-price">₮0</strong></div>
-        <div><span>Багтсан agent</span><strong id="order-included-agents">0</strong></div>
+        <div><span data-i18n="planLabel">Багц</span><strong id="order-plan-summary">—</strong></div>
+        <div><span data-i18n="basePriceLabel">Суурь үнэ</span><strong id="order-base-price">₮0</strong></div>
+        <div><span data-i18n="includedAgentLabel">Багтсан agent</span><strong id="order-included-agents">0</strong></div>
         <label class="extra-agent-row">
-          <span>Нэмэлт agent</span>
+          <span data-i18n="extraAgentLabel">Нэмэлт agent</span>
           <select id="extra-agent-count" name="extra_agents">
             <option value="0">0</option>
             <option value="1">1</option>
@@ -148,32 +159,32 @@
             <option value="10">10</option>
           </select>
         </label>
-        <div class="order-total"><span>Тооцоолсон нийт</span><strong id="order-total-price">₮0</strong></div>
+        <div class="order-total"><span data-i18n="totalLabel">Тооцоолсон нийт</span><strong id="order-total-price">₮0</strong></div>
       </div>
 
       <form id="pricing-order-form" class="order-form">
         <input type="hidden" name="plan" id="order-plan-input" />
         <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
-        <label><span>Таны нэр *</span><input name="name" required maxlength="120" autocomplete="name" placeholder="Таны нэр" /></label>
-        <label><span>Байгууллага</span><input name="organisation" maxlength="160" autocomplete="organization" placeholder="Байгууллага / агентлаг" /></label>
-        <label><span>И-мэйл *</span><input name="email" type="email" required maxlength="254" autocomplete="email" placeholder="name@company.com" /></label>
-        <label><span>Утас *</span><input name="phone" type="tel" required minlength="8" maxlength="24" autocomplete="tel" placeholder="+976 9911 2233" /></label>
-        <label><span>Нэмэх зүйл? <small>(заавал биш)</small></span><textarea name="note" rows="4" maxlength="2000" placeholder="Нэмэлт хэрэгцээ, асуултаа бичнэ үү."></textarea></label>
-        <button class="order-submit" type="submit">Захиалгын хүсэлт илгээх <span>→</span></button>
-        <p class="order-feedback" id="order-feedback" role="status">Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.</p>
+        <label><span data-i18n="nameLabel">Таны нэр *</span><input name="name" required maxlength="120" autocomplete="name" placeholder="Таны нэр" data-i18n-placeholder="namePlaceholder" /></label>
+        <label><span data-i18n="orgLabel">Байгууллага</span><input name="organisation" maxlength="160" autocomplete="organization" placeholder="Байгууллага / агентлаг" data-i18n-placeholder="orgPlaceholder" /></label>
+        <label><span data-i18n="emailLabel">И-мэйл *</span><input name="email" type="email" required maxlength="254" autocomplete="email" placeholder="name@company.com" /></label>
+        <label><span data-i18n="phoneLabel">Утас *</span><input name="phone" type="tel" required minlength="8" maxlength="24" autocomplete="tel" placeholder="+976 9911 2233" /></label>
+        <label><span><span data-i18n="noteLabel">Нэмэх зүйл?</span> <small data-i18n="optionalLabel">(заавал биш)</small></span><textarea name="note" rows="4" maxlength="2000" placeholder="Нэмэлт хэрэгцээ, асуултаа бичнэ үү." data-i18n-placeholder="notePlaceholder"></textarea></label>
+        <button class="order-submit" type="submit"><span data-i18n="submitOrder">Захиалгын хүсэлт илгээх</span> <span>→</span></button>
+        <p class="order-feedback" id="order-feedback" role="status" data-i18n="requestDestination">Хүсэлт НАЙМАН САР-ын админ хэсэгт шууд очно.</p>
       </form>
 
       <div class="order-success" id="order-success" hidden>
         <div class="order-success-icon" aria-hidden="true">✓</div>
-        <h3>Хүсэлт илгээгдлээ</h3>
-        <p>Таны хүсэлт амжилттай бүртгэгдлээ. НАЙМАН САР-ын админ хэсэгт очсон.</p>
-        <button class="order-success-close" type="button" data-close-modal>Хаах</button>
+        <h3 data-i18n="successTitle">Хүсэлт илгээгдлээ</h3>
+        <p data-i18n="successDesc">Таны хүсэлт амжилттай бүртгэгдлээ. НАЙМАН САР-ын админ хэсэгт очсон.</p>
+        <button class="order-success-close" type="button" data-close-modal data-i18n="closeBtn">Хаах</button>
       </div>
     </section>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./config.js?v=36"></script>
-  <script src="./pricing.js?v=6"></script>
+  <script src="./pricing.js?v=7"></script>
 </body>
 </html>
