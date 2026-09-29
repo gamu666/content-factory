@@ -3618,3 +3618,19 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
   .auth-box--entry{max-width:420px}
   .auth-choice-stack{margin-top:22px}
 }
+
+.auth-choice-btn--login{
+  overflow:hidden;
+  max-height:48px;
+  opacity:1;
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease,max-height .32s ease,opacity .22s ease,margin .32s ease,padding .32s ease;
+}
+.auth-choice-btn--login.is-hidden-after-open{
+  max-height:0;
+  min-height:0;
+  opacity:0;
+  margin:0;
+  padding-top:0;
+  padding-bottom:0;
+  pointer-events:none;
+}
