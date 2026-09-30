@@ -642,6 +642,21 @@ function ordersPage() {
   return shell(`<div class="container">${pageHead('Захиалгууд','Таны бүх контент захиалгын түүх.',actions)}${orders.length?`<div class="list">${orders.map(o=>`<div class="card list-row queue-list-row" data-nav="/orders/${o.id}"><div class="row-main"><strong>${esc(o.property_name)}</strong><span>${esc(o.order_number)} · ${esc(o.location)}</span></div><div class="queue-cell">${queueInfoHtml(db,o,true)}</div><div class="row-cell status-cell">${statusPill(o)}</div><div class="row-cell shoot-cell">${o.shoot_date?formatDate(o.shoot_date,true):'Товлогдоогүй'}<span>Зураг авалт</span></div><div class="row-arrow">${icon('arrow')}</div></div>`).join('')}</div>`:emptyState('Одоогоор захиалга алга','Анхны контент захиалгаа үүсгээрэй.','Контент захиалах','/orders/new')}</div>`,'orders');
 }
 
+function syncContentOrderForm() {
+  const form=document.getElementById('new-order-form');
+  if(!form) return;
+  const selected=form.querySelector('input[name="content_type"]:checked')?.value || '';
+  form.querySelectorAll('[data-content-fields]').forEach(section=>{
+    const allowed=String(section.dataset.contentFields||'').split(',').map(x=>x.trim()).filter(Boolean);
+    const active=allowed.includes(selected);
+    section.hidden=!active;
+    section.querySelectorAll('input,select,textarea').forEach(el=>{
+      el.disabled=!active;
+      if(el.dataset.required==='1') el.required=active;
+    });
+  });
+}
+
 function newOrderPage() {
   const db=getDb(), user=currentUser(db);
   const ent=entitlementFor(db,user.id);
@@ -663,9 +678,13 @@ function newOrderPage() {
     ['EXPERT_CONTENT','Expert Content',ent.expert_content_remaining,'2–3 минутын мэргэжлийн контент'],
     ['AGENT_BRANDING_REEL','Agent Branding Reel',ent.agent_branding_reel_remaining,'Хувийн брэндийн богино видео']
   ];
-  const available=types.some(x=>Number(x[2])>0);
+  const firstAvailable=types.find(x=>Number(x[2])>0)?.[0] || '';
+  const available=!!firstAvailable;
+  const propertyActive=['PROPERTY_REEL','POSTER'].includes(firstAvailable);
+  const expertActive=firstAvailable==='EXPERT_CONTENT';
+  const brandingActive=firstAvailable==='AGENT_BRANDING_REEL';
 
-  return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Контентын төрлөө сонгоно. Захиалга илгээхэд тухайн төрлийн 1 эрх автоматаар хасагдана.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
+  return shell(`<div class="container">${pageHead('Шинэ контент захиалах','Дээрээс контентын төрлөө сонгоход доорх асуултууд тухайн контентод тааруулж автоматаар өөрчлөгдөнө.',`<button class="btn btn-secondary" data-nav="/orders">${icon('back')} Буцах</button>`)}
     <section class="order-credit-summary">
       <div class="order-credit-plan"><span>Одоогийн багц</span><strong>${esc(ent.plan_code)}</strong><button type="button" class="mini-link" data-nav="/pricing">Багц харах ${icon('arrow')}</button></div>
       <div class="order-credit-items">
@@ -682,8 +701,8 @@ function newOrderPage() {
       <div class="content-type-block">
         <div class="field-label-row"><div><strong>Контентын төрөл *</strong><span>Үлдсэн эрхээс 1-ийг ашиглана.</span></div></div>
         <div class="content-type-options">
-          ${types.map(([value,label,count,desc],idx)=>`<label class="content-type-option ${Number(count)<=0?'disabled':''}">
-            <input type="radio" name="content_type" value="${value}" ${idx===0&&Number(count)>0?'checked':''} ${Number(count)<=0?'disabled':''} required>
+          ${types.map(([value,label,count,desc])=>`<label class="content-type-option ${Number(count)<=0?'disabled':''}">
+            <input type="radio" name="content_type" value="${value}" ${value===firstAvailable?'checked':''} ${Number(count)<=0?'disabled':''} required>
             <span class="content-type-option-main"><strong>${label}</strong><small>${desc}</small></span>
             <span class="content-type-count"><b>${count}</b><small>үлдсэн</small></span>
           </label>`).join('')}
@@ -691,7 +710,7 @@ function newOrderPage() {
       </div>
 
       <div class="order-addon-credit-block">
-        <div class="field-label-row"><div><strong>Зураг авалтын credit ашиглах</strong><span>Багцад үлдсэн credit-ээсээ энэ захиалгад нэмэж болно.</span></div></div>
+        <div class="field-label-row"><div><strong>Зураг авалтын credit ашиглах</strong><span>Шаардлагатай бол багцад үлдсэн Camera / Drone Credit-ээсээ энэ захиалгад нэмнэ.</span></div></div>
         <div class="order-addon-credit-options">
           <label class="order-addon-credit-option ${Number(ent.camera_credit_remaining)<=0?'disabled':''}">
             <input type="checkbox" name="use_camera_credit" ${Number(ent.camera_credit_remaining)<=0?'disabled':''}>
@@ -706,15 +725,46 @@ function newOrderPage() {
         </div>
       </div>
 
-      <div class="form-grid">
-        <div class="field"><label>Контент / объектын нэр *</label><input name="property_name" required placeholder="Жишээ: River Garden 3 өрөө / Ипотекийн зөвлөгөө" /></div>
-        <div class="field"><label>Зураг авалтын байршил *</label><input name="location" required placeholder="Жишээ: Зайсан, ХУД / Studio" /></div>
-        <div class="field"><label>Үл хөдлөхийн төрөл *</label><select name="property_type" required><option value="">Сонгох</option>${propertyTypes.map(x=>`<option>${x}</option>`).join('')}</select></div>
-        <div class="field"><label>Контентын зорилго *</label><select name="purpose" required><option value="">Сонгох</option>${purposes.map(x=>`<option>${x}</option>`).join('')}</select></div>
-        <div class="field full"><label>Товч мэдээлэл *</label><textarea name="description" required placeholder="Объектын мэдээлэл, expert content-ийн гол сэдэв, branding санаа зэрэг..."></textarea></div>
-        <div class="field full"><label>Зарын холбоос</label><input name="listing_url" type="url" placeholder="https://..." /></div>
-        <div class="field full"><label>Нэмэлт тайлбар</label><textarea name="additional_notes" placeholder="Зураг авалтын цаг, онцгой хүсэлт байвал энд бичнэ үү."></textarea></div>
+      <section class="smart-order-fields" data-content-fields="PROPERTY_REEL,POSTER" ${propertyActive?'':'hidden'}>
+        <div class="smart-order-fields-head"><strong>Үл хөдлөхийн мэдээлэл</strong><span>Property Reel болон Poster-д хэрэгтэй мэдээлэл.</span></div>
+        <div class="form-grid">
+          <div class="field"><label>Объектын нэр *</label><input name="property_name" data-required="1" ${propertyActive?'required':'disabled'} placeholder="Жишээ: River Garden 3 өрөө" /></div>
+          <div class="field"><label>Байршил *</label><input name="location" data-required="1" ${propertyActive?'required':'disabled'} placeholder="Жишээ: Зайсан, ХУД" /></div>
+          <div class="field"><label>Үл хөдлөхийн төрөл *</label><select name="property_type" data-required="1" ${propertyActive?'required':'disabled'}><option value="">Сонгох</option>${propertyTypes.map(x=>`<option>${x}</option>`).join('')}</select></div>
+          <div class="field"><label>Зарын төрөл / зорилго *</label><select name="purpose" data-required="1" ${propertyActive?'required':'disabled'}><option value="">Сонгох</option><option>Зарах</option><option>Түрээслүүлэх</option><option>Төслийн сурталчилгаа</option><option>Бусад</option></select></div>
+          <div class="field full"><label>Объектын товч мэдээлэл *</label><textarea name="description" data-required="1" ${propertyActive?'required':'disabled'} placeholder="Талбай, өрөөний тоо, үнэ, онцлох давуу тал болон контентод заавал оруулах мэдээлэл..."></textarea></div>
+          <div class="field full"><label>Зарын холбоос</label><input name="listing_url" type="url" ${propertyActive?'':'disabled'} placeholder="https://..." /></div>
+        </div>
+      </section>
+
+      <section class="smart-order-fields" data-content-fields="EXPERT_CONTENT" ${expertActive?'':'hidden'}>
+        <div class="smart-order-fields-head"><strong>Expert Content-ийн мэдээлэл</strong><span>Объектын мэдээлэл биш, таны ярих сэдэв болон expert санааг авна.</span></div>
+        <div class="form-grid">
+          <div class="field"><label>Контентын сэдэв *</label><input name="property_name" data-required="1" ${expertActive?'required':'disabled'} placeholder="Жишээ: Анх удаа байр авахдаа юуг шалгах вэ?" /></div>
+          <div class="field"><label>Зураг авалтын байршил *</label><input name="location" data-required="1" ${expertActive?'required':'disabled'} placeholder="Жишээ: Оффис / Studio / Гадна орчин" /></div>
+          <div class="field"><label>Сэдвийн чиглэл *</label><select name="property_type" data-required="1" ${expertActive?'required':'disabled'}><option value="">Сонгох</option><option>Зах зээлийн мэдээлэл</option><option>Худалдан авагчийн зөвлөгөө</option><option>Худалдагчийн зөвлөгөө</option><option>Ипотек / санхүү</option><option>Гэрээ / процесс</option><option>Агентын туршлага</option><option>Бусад</option></select></div>
+          <div class="field"><label>Хэнд зориулсан контент вэ? *</label><select name="purpose" data-required="1" ${expertActive?'required':'disabled'}><option value="">Сонгох</option><option>Худалдан авагч</option><option>Худалдагч</option><option>Түрээслэгч</option><option>Түрээслүүлэгч</option><option>Үл хөдлөх сонирхогчид</option><option>Ерөнхий audience</option></select></div>
+          <div class="field full"><label>Гол санаа, ярих мэдээлэл *</label><textarea name="description" data-required="1" ${expertActive?'required':'disabled'} placeholder="Ярих гол санаа, баримт, зөвлөгөө, заавал дурдах зүйлсээ бичнэ үү. Манай баг үүнийг зураг авалт, edit, subtitle, visual хэлбэрээр боловсруулна."></textarea></div>
+          <div class="field full"><label>Reference линк</label><input name="listing_url" type="url" ${expertActive?'':'disabled'} placeholder="TikTok / Reel / YouTube жишээ линк..." /></div>
+        </div>
+      </section>
+
+      <section class="smart-order-fields" data-content-fields="AGENT_BRANDING_REEL" ${brandingActive?'':'hidden'}>
+        <div class="smart-order-fields-head"><strong>Agent Branding Reel-ийн мэдээлэл</strong><span>Таны дүр төрх, ажлын хэв маяг, personal brand-д тохирох мэдээлэл.</span></div>
+        <div class="form-grid">
+          <div class="field"><label>Reel / контентын санааны нэр *</label><input name="property_name" data-required="1" ${brandingActive?'required':'disabled'} placeholder="Жишээ: Миний нэг ажлын өдөр" /></div>
+          <div class="field"><label>Зураг авалтын байршил *</label><input name="location" data-required="1" ${brandingActive?'required':'disabled'} placeholder="Жишээ: Оффис / объект / хотын төв" /></div>
+          <div class="field"><label>Branding контентын төрөл *</label><select name="property_type" data-required="1" ${brandingActive?'required':'disabled'}><option value="">Сонгох</option><option>Агент танилцуулга</option><option>Ажлын өдөр / Behind the scenes</option><option>Үйлчилгээний давуу тал</option><option>Client-тэй ажиллах процесс</option><option>Lifestyle / Personal brand</option><option>Бусад</option></select></div>
+          <div class="field"><label>Харуулах дүр төрх / өнгө аяс *</label><select name="purpose" data-required="1" ${brandingActive?'required':'disabled'}><option value="">Сонгох</option><option>Professional / Premium</option><option>Friendly / Natural</option><option>Expert / Trustworthy</option><option>Dynamic / Energetic</option><option>Minimal / Clean</option><option>Бусад</option></select></div>
+          <div class="field full"><label>Ямар дүр төрх, мессеж харуулах вэ? *</label><textarea name="description" data-required="1" ${brandingActive?'required':'disabled'} placeholder="Өөрийн ажлын онцлог, ямар хүн гэдгээ харуулах, гол мессеж, заавал оруулах кадр эсвэл санаагаа бичнэ үү."></textarea></div>
+          <div class="field full"><label>Reference линк</label><input name="listing_url" type="url" ${brandingActive?'':'disabled'} placeholder="Таалагдсан Reel / TikTok / YouTube жишээ..." /></div>
+        </div>
+      </section>
+
+      <div class="form-grid smart-order-common">
+        <div class="field full"><label>Нэмэлт тайлбар</label><textarea name="additional_notes" placeholder="Зураг авалтын цаг, хувцаслалт, заавал анхаарах зүйл, бусад хүсэлт..."></textarea></div>
       </div>
+
       <div class="form-actions"><button type="button" class="btn btn-secondary" data-nav="/orders">Цуцлах</button><button class="btn btn-primary" type="submit" ${available?'':'disabled'}>1 эрх ашиглан захиалах</button></div>
     </form>
   </div>`,'orders');
@@ -1243,6 +1293,7 @@ async function render() {
   else if(r==='/profile') html=profilePage();
   else html=notFound();
   document.getElementById('app').innerHTML=html;
+  syncContentOrderForm();
 }
 
 function generateOrderNumber(db) {
@@ -1804,6 +1855,10 @@ document.addEventListener('submit', e=>{
 });
 
 document.addEventListener('change', e=>{
+  if(e.target.matches('input[name="content_type"]')) {
+    syncContentOrderForm();
+    return;
+  }
   if(e.target.id==='admin-status-filter') {
     const v=e.target.value||'';
     navigate(v?`/admin/orders?status=${v}`:'/admin/orders');
