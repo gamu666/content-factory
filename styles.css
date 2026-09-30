@@ -3796,3 +3796,37 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
 .smart-order-fields-head strong{display:block;font-size:12px}
 .smart-order-fields-head span{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.5}
 .smart-order-common{margin-top:2px}
+
+.admin-custom-credit{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  display:grid;
+  gap:10px;
+}
+.admin-custom-credit-head strong{display:block;font-size:11px}
+.admin-custom-credit-head span{display:block;margin-top:4px;color:var(--muted);font-size:8px;line-height:1.5}
+.admin-custom-credit-grid{display:grid;grid-template-columns:minmax(0,1fr) 86px;gap:8px}
+.admin-custom-credit .field{margin:0}
+.admin-custom-credit select,
+.admin-custom-credit input{
+  width:100%;
+  min-height:40px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface-2);
+  color:var(--text);
+  padding:0 10px;
+  font-size:10px;
+  outline:none;
+}
+.admin-custom-credit select:focus,
+.admin-custom-credit input:focus{
+  border-color:#7779ff;
+  box-shadow:0 0 0 3px rgba(119,121,255,.08);
+}
+.admin-custom-credit p{margin:0;color:var(--muted);font-size:8px;line-height:1.5}
+.admin-custom-credit .btn{width:100%;justify-content:center}
+@media(max-width:720px){
+  .admin-custom-credit-grid{grid-template-columns:1fr}
+}
