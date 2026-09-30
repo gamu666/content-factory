@@ -168,6 +168,11 @@ const CONTENT_CREDIT_FIELDS = {
   AGENT_BRANDING_REEL:'agent_branding_reel_remaining'
 };
 function contentTypeLabel(type) { return CONTENT_TYPE_LABELS[type] || 'Property Reel'; }
+function contentOrderMetaLabels(type) {
+  if(type==='EXPERT_CONTENT') return {type:'Сэдвийн чиглэл',purpose:'Зорилтот audience'};
+  if(type==='AGENT_BRANDING_REEL') return {type:'Branding төрөл',purpose:'Дүр төрх / өнгө аяс'};
+  return {type:'Үл хөдлөхийн төрөл',purpose:'Зарын төрөл / зорилго'};
+}
 function entitlementFor(db,userId) { return (db.contentEntitlements||[]).find(x=>x.agent_id===userId) || null; }
 function pendingPlanFor(db,userId) { return (db.contentPlanRequests||[]).find(x=>x.agent_id===userId && x.status==='PENDING') || null; }
 function contentRemaining(ent,type) { return ent ? Number(ent[CONTENT_CREDIT_FIELDS[type]]||0) : 0; }
@@ -774,6 +779,7 @@ function orderDetailPage(id) {
   const db=getDb(), user=currentUser(db), order=db.orders.find(o=>o.id===id && o.agent_id===user.id);
   if(!order) return notFound();
   const brief=db.briefs.find(b=>b.order_id===order.id);
+  const metaLabels=contentOrderMetaLabels(order.content_type);
   const acts=db.activity.filter(a=>a.order_id===order.id && a.visible_to_agent).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const sub=order.sub_status ? subStatusLabels[order.sub_status] : '';
   const price = order.agreed_price!=null ? formatMoney(order.agreed_price) : 'Үнэ тохиролцож байна';
@@ -799,8 +805,15 @@ function orderDetailPage(id) {
       <section class="card panel"><div class="panel-title">Контентын төлөвлөгөө</div><p class="brief">${esc(brief?.client_summary || 'Манай баг тантай ярилцсаны дараа бичлэгийн товч төлөвлөгөө энд харагдана.')}</p></section>
       ${finalPanel}
     </div><aside class="detail-side">
+      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list">
+        <div class="info-row"><span>Контент</span><strong>${esc(contentTypeLabel(order.content_type))}</strong></div>
+        <div class="info-row"><span>${esc(metaLabels.type)}</span><strong>${esc(order.property_type||'—')}</strong></div>
+        <div class="info-row"><span>${esc(metaLabels.purpose)}</span><strong>${esc(order.purpose||'—')}</strong></div>
+        ${order.camera_credit_used?`<div class="info-row"><span>Camera Credit</span><strong>1 ашигласан</strong></div>`:''}
+        ${order.drone_credit_used?`<div class="info-row"><span>Drone Credit</span><strong>1 ашигласан</strong></div>`:''}
+      </div></section>
       <section class="card panel"><div class="panel-title">Төлбөр</div><div class="price">${price}</div>${paymentPill(order.payment_status)}</section>
-      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list"><div class="info-row"><span>Контент</span><strong>${esc(contentTypeLabel(order.content_type))}</strong></div>${order.camera_credit_used?`<div class="info-row"><span>Camera Credit</span><strong>1 ашигласан</strong></div>`:''}${order.drone_credit_used?`<div class="info-row"><span>Drone Credit</span><strong>1 ашигласан</strong></div>`:''}<div class="info-row"><span>Төрөл</span><strong>${esc(order.property_type)}</strong></div><div class="info-row"><span>Зорилго</span><strong>${esc(order.purpose)}</strong></div><div class="info-row"><span>Захиалсан</span><strong>${formatDate(order.created_at,true)}</strong></div></div></section>
+      <section class="card panel"><div class="panel-title">Захиалгын мэдээлэл</div><div class="info-list"><div class="info-row"><span>Контент</span><strong>${esc(contentTypeLabel(order.content_type))}</strong></div>${order.camera_credit_used?`<div class="info-row"><span>Camera Credit</span><strong>1 ашигласан</strong></div>`:''}${order.drone_credit_used?`<div class="info-row"><span>Drone Credit</span><strong>1 ашигласан</strong></div>`:''}<div class="info-row"><span>${esc(metaLabels.type)}</span><strong>${esc(order.property_type)}</strong></div><div class="info-row"><span>${esc(metaLabels.purpose)}</span><strong>${esc(order.purpose)}</strong></div><div class="info-row"><span>Захиалсан</span><strong>${formatDate(order.created_at,true)}</strong></div></div></section>
       <section class="card panel"><div class="panel-title">Үйл явц</div>${acts.length?`<div class="timeline">${acts.map(a=>`<div class="timeline-item"><div class="timeline-time">${formatDate(a.created_at,true)}</div><div class="timeline-text">${esc(a.public_message)}</div></div>`).join('')}</div>`:'<p class="brief">Одоогоор шинэчлэлт алга.</p>'}</section>
     </aside></div>
   </div>`,'orders');
@@ -1126,6 +1139,7 @@ function adminOrdersPage() {
 function adminOrderDetailPage(id) {
   const db=getDb(), order=db.orders.find(o=>o.id===id); if(!order) return notFound();
   const agent=db.profiles.find(p=>p.id===order.agent_id); const admins=db.profiles.filter(p=>p.role==='admin'); const brief=db.briefs.find(b=>b.order_id===order.id);
+  const metaLabels=contentOrderMetaLabels(order.content_type);
   const acts=db.activity.filter(a=>a.order_id===order.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   const revisionRequests=acts.filter(a=>a.activity_type==='REVISION_REQUEST');
   const latestRevision=revisionRequests.slice(-1)[0];
