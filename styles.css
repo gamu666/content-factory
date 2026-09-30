@@ -3781,3 +3781,18 @@ body.dark-theme .queue-rule-note { background: #0f2136; border: 1px solid #18365
 .admin-plan-assign select:focus{border-color:#7779ff;box-shadow:0 0 0 3px rgba(119,121,255,.08)}
 .admin-plan-assign p{margin:0;color:var(--muted);font-size:8px;line-height:1.5}
 .admin-plan-assign .btn{width:100%;justify-content:center}
+
+
+/* Smart content-specific order fields */
+.smart-order-fields{
+  margin:0 0 22px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--surface-2);
+}
+.smart-order-fields[hidden]{display:none!important}
+.smart-order-fields-head{margin-bottom:15px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.smart-order-fields-head strong{display:block;font-size:12px}
+.smart-order-fields-head span{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.5}
+.smart-order-common{margin-top:2px}
