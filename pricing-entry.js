@@ -10,9 +10,6 @@
     const style=document.createElement('style');
     style.id='pricing-entry-style';
     style.textContent=`
-      .pricing-top-link{height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#5a5f68;text-decoration:none}
-      .pricing-top-link:hover{background:var(--surface-2);color:var(--text)}
-      .pricing-top-link svg{width:15px;height:15px}
 
       .internal-pricing-page{padding-bottom:54px}
       .internal-pricing-head{margin-bottom:24px}
@@ -39,7 +36,6 @@
       .internal-service-grid small{display:inline-block;margin-top:12px;color:#7376e9;font-size:9px;font-weight:700}
       @media(max-width:1000px){.internal-plan-grid{grid-template-columns:1fr}.internal-plan-card{min-height:auto}}
       @media(max-width:820px){
-        .pricing-top-link{height:34px;padding:0 10px}.pricing-top-link span{display:none}
         .internal-service-grid{grid-template-columns:1fr}.internal-service-grid article.wide{grid-column:auto}
         .internal-plan-price{font-size:30px}
       }
@@ -62,18 +58,7 @@
       link.className=`nav-link ${active?'active':''}`;
       link.href=PRICE_ROUTE;
     });
-
-    document.querySelectorAll('.topbar,.mobile-top-actions').forEach((bar)=>{
-      let link=bar.querySelector('[data-pricing-top]');
-      if(!link){
-        link=document.createElement('a');
-        link.className='pricing-top-link';
-        link.dataset.pricingTop='1';
-        link.innerHTML=`${pricingIcon()}<span>Үнийн мэдээлэл</span>`;
-        bar.prepend(link);
-      }
-      link.href=PRICE_ROUTE;
-    });
+    document.querySelectorAll("[data-pricing-top]").forEach(el=>el.remove());
   }
 
   const observer=new MutationObserver(()=>inject());
