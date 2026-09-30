@@ -1156,16 +1156,16 @@ function adminAgentDetailPage(id) {
   const logoName=(orgName(agent)||agent.full_name||'organization').replace(/[^a-zA-Z0-9А-Яа-яӨөҮү_-]+/g,'-');
   return shell(`<div class="container">${pageHead(agent.full_name,`${esc(agentSubtitle(agent))} · ${esc(agent.phone||'')}`,`<button class="btn btn-secondary" data-nav="/admin/agents">${icon('back')} Буцах</button>`)}
     <div class="detail-grid"><div class="detail-main"><section class="card panel"><div class="panel-title">Захиалгын түүх</div>${os.length?`<div class="list">${os.map(o=>`<div class="card list-row" data-nav="/admin/orders/${o.id}"><div class="row-main"><strong>${esc(o.property_name)}</strong><span>${esc(o.order_number)} · ${esc(o.location)}</span></div><div class="row-cell">${statusPill(o)}</div><div class="row-cell">${formatDate(o.created_at)}</div><div>${icon('arrow')}</div></div>`).join('')}</div>`:'<p class="brief">Захиалга алга.</p>'}</section></div><aside class="detail-side"><section class="card panel"><div class="panel-title">Профайл</div><div class="agent-profile-head">${userAvatarHtml(agent,'agent-profile-photo')}<div><strong>${esc(agent.full_name)}</strong><span>${esc(agentSubtitle(agent))}</span></div></div><div class="info-list"><div class="info-row"><span>И-мэйл</span><strong>${esc(agent.email)}</strong></div><div class="info-row"><span>Утас</span><strong>${esc(agent.phone||'—')}</strong></div><div class="info-row"><span>Байгууллага</span><strong>${esc(orgName(agent)||'—')}</strong></div><div class="info-row"><span>Салбар</span><strong>${esc(agent.branch_name||'—')}</strong></div></div></section><section class="card panel"><div class="panel-title">Багц ба эрх</div>
-      \${ent?\`<div class="agent-plan-summary"><div class="agent-plan-title"><strong>\${esc(ent.plan_code)}</strong><span>Идэвхтэй багц</span></div><div class="agent-plan-rights"><span>Reel <b>\${ent.property_reel_remaining}</b></span><span>Poster <b>\${ent.poster_remaining}</b></span><span>Expert <b>\${ent.expert_content_remaining}</b></span><span>Branding <b>\${ent.agent_branding_reel_remaining}</b></span><span>Camera <b>\${ent.camera_credit_remaining}</b></span><span>Drone <b>\${ent.drone_credit_remaining}</b></span></div></div>\`:\`<p class="brief">\${pending ? esc(pending.plan_code)+' багцын хүсэлт хүлээгдэж байна.' : 'Идэвхтэй багц алга.'}</p>\`}
+      ${ent?`<div class="agent-plan-summary"><div class="agent-plan-title"><strong>${esc(ent.plan_code)}</strong><span>Идэвхтэй багц</span></div><div class="agent-plan-rights"><span>Reel <b>${ent.property_reel_remaining}</b></span><span>Poster <b>${ent.poster_remaining}</b></span><span>Expert <b>${ent.expert_content_remaining}</b></span><span>Branding <b>${ent.agent_branding_reel_remaining}</b></span><span>Camera <b>${ent.camera_credit_remaining}</b></span><span>Drone <b>${ent.drone_credit_remaining}</b></span></div></div>`:`<p class="brief">${pending ? esc(pending.plan_code)+' багцын хүсэлт хүлээгдэж байна.' : 'Идэвхтэй багц алга.'}</p>`}
       <div class="admin-plan-assign">
-        <label for="admin-agent-plan-\${esc(agent.id)}">Багц сонгох</label>
-        <select id="admin-agent-plan-\${esc(agent.id)}" data-admin-plan-select>
-          <option value="START" \${ent?.plan_code==='START'?'selected':''}>START · 1,290,000₮</option>
-          <option value="GROW" \${ent?.plan_code==='GROW'?'selected':''}>GROW · 2,990,000₮</option>
-          <option value="PRO" \${ent?.plan_code==='PRO'?'selected':''}>PRO · 5,490,000₮</option>
+        <label for="admin-agent-plan-${esc(agent.id)}">Багц сонгох</label>
+        <select id="admin-agent-plan-${esc(agent.id)}" data-admin-plan-select>
+          <option value="START" ${ent?.plan_code==='START'?'selected':''}>START · 1,290,000₮</option>
+          <option value="GROW" ${ent?.plan_code==='GROW'?'selected':''}>GROW · 2,990,000₮</option>
+          <option value="PRO" ${ent?.plan_code==='PRO'?'selected':''}>PRO · 5,490,000₮</option>
         </select>
         <p>Идэвхжүүлэхэд тухайн багцын стандарт эрхүүдээр шинэчлэгдэнэ.</p>
-        <button class="btn btn-primary" type="button" data-action="admin-assign-plan" data-agent-id="\${esc(agent.id)}">\${ent?'Багц шинэчлэх':'Багц идэвхжүүлэх'}</button>
+        <button class="btn btn-primary" type="button" data-action="admin-assign-plan" data-agent-id="${esc(agent.id)}">${ent?'Багц шинэчлэх':'Багц идэвхжүүлэх'}</button>
       </div>
     </section><section class="card panel"><div class="panel-title">Байгууллагын лого</div>${organizationLogoHtml(agent,'admin-org-logo')}${logo?`<a class="btn btn-secondary logo-download-btn" href="${esc(logo)}" download="${esc(logoName)}-logo.png">${icon('upload')} Лого татах</a>`:`<p class="brief">Агент одоогоор лого оруулаагүй байна.</p>`}</section></aside></div>
   </div>`,'admin-agents');
@@ -1709,7 +1709,7 @@ document.addEventListener('click', e=>{
           const r=await sb.rpc('admin_assign_content_plan',{p_agent_id:agentId,p_plan_code:plan});
           throwIfError(r,'Багц идэвхжүүлж чадсангүй');
           await loadRemoteDb();
-          toast(\`\${plan} багц амжилттай идэвхжлээ.\`,'success');
+          toast(`${plan} багц амжилттай идэвхжлээ.`,'success');
           await render();
         }catch(err){
           console.error(err);
@@ -1726,7 +1726,7 @@ document.addEventListener('click', e=>{
       const pending=(db.contentPlanRequests||[]).find(x=>x.agent_id===agentId&&x.status==='PENDING');
       if(pending){ pending.status=pending.plan_code===plan?'APPROVED':'REJECTED'; pending.reviewed_at=nowIso(); pending.reviewed_by=getSession(); }
       saveDb(db);
-      toast(\`\${plan} багц амжилттай идэвхжлээ.\`,'success');
+      toast(`${plan} багц амжилттай идэвхжлээ.`,'success');
       render();
     }
     return;
