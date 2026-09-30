@@ -177,6 +177,7 @@ function entitlementFor(db,userId) { return (db.contentEntitlements||[]).find(x=
 function pendingPlanFor(db,userId) { return (db.contentPlanRequests||[]).find(x=>x.agent_id===userId && x.status==='PENDING') || null; }
 function contentRemaining(ent,type) { return ent ? Number(ent[CONTENT_CREDIT_FIELDS[type]]||0) : 0; }
 function planPrice(plan) { return ({START:1290000,GROW:2990000,PRO:5490000})[plan] || 0; }
+function planDisplayName(plan) { return plan==='CUSTOM' ? 'Дан эрх' : (plan || '—'); }
 
 function brandLogoHtml(cls='brand-logo-img') { return `<img src="${BRAND_LOGO_SRC}" alt="${BRAND_NAME}" class="${cls}" />`; }
 
@@ -497,7 +498,7 @@ function pricingPage() {
   };
   const statusNote = user?.role==='agent'
     ? ent
-      ? `<div class="internal-pricing-current"><strong>Одоогийн багц: ${esc(ent.plan_code)}</strong><span>Dashboard дээр үлдсэн эрхүүд тань харагдана.</span></div>`
+      ? `<div class="internal-pricing-current"><strong>Одоогийн эрх: ${esc(planDisplayName(ent.plan_code))}</strong><span>Dashboard дээр үлдсэн эрхүүд тань харагдана.</span></div>`
       : pending
         ? `<div class="internal-pricing-current pending"><strong>${esc(pending.plan_code)} багцын хүсэлт илгээгдсэн</strong><span>Админ баталгаажуулсны дараа эрхүүд автоматаар идэвхжинэ.</span></div>`
         : `<div class="internal-pricing-current"><strong>Идэвхтэй багц алга</strong><span>Доорх багцаас сонгоод хүсэлт илгээнэ үү.</span></div>`
@@ -598,7 +599,7 @@ function dashboardPage() {
   const ent=entitlementFor(db,user.id);
   const pendingPlan=pendingPlanFor(db,user.id);
   const planWallet=ent?`<section class="plan-wallet-card">
-      <div class="plan-wallet-head"><div><span class="feature-kicker">МИНИЙ БАГЦ</span><h2>${esc(ent.plan_code)}</h2></div><button class="mini-link" type="button" data-nav="/pricing">Багцын мэдээлэл ${icon('arrow')}</button></div>
+      <div class="plan-wallet-head"><div><span class="feature-kicker">МИНИЙ ЭРХ</span><h2>${esc(planDisplayName(ent.plan_code))}</h2></div><button class="mini-link" type="button" data-nav="/pricing">Багцын мэдээлэл ${icon('arrow')}</button></div>
       <div class="plan-wallet-grid">
         <div><span>Property Reel</span><strong>${ent.property_reel_remaining}</strong><small>үлдсэн</small></div>
         <div><span>Poster</span><strong>${ent.poster_remaining}</strong><small>үлдсэн</small></div>
@@ -1220,7 +1221,7 @@ function adminAgentDetailPage(id) {
   const logoName=(orgName(agent)||agent.full_name||'organization').replace(/[^a-zA-Z0-9А-Яа-яӨөҮү_-]+/g,'-');
   return shell(`<div class="container">${pageHead(agent.full_name,`${esc(agentSubtitle(agent))} · ${esc(agent.phone||'')}`,`<button class="btn btn-secondary" data-nav="/admin/agents">${icon('back')} Буцах</button>`)}
     <div class="detail-grid"><div class="detail-main"><section class="card panel"><div class="panel-title">Захиалгын түүх</div>${os.length?`<div class="list">${os.map(o=>`<div class="card list-row" data-nav="/admin/orders/${o.id}"><div class="row-main"><strong>${esc(o.property_name)}</strong><span>${esc(o.order_number)} · ${esc(o.location)}</span></div><div class="row-cell">${statusPill(o)}</div><div class="row-cell">${formatDate(o.created_at)}</div><div>${icon('arrow')}</div></div>`).join('')}</div>`:'<p class="brief">Захиалга алга.</p>'}</section></div><aside class="detail-side"><section class="card panel"><div class="panel-title">Профайл</div><div class="agent-profile-head">${userAvatarHtml(agent,'agent-profile-photo')}<div><strong>${esc(agent.full_name)}</strong><span>${esc(agentSubtitle(agent))}</span></div></div><div class="info-list"><div class="info-row"><span>И-мэйл</span><strong>${esc(agent.email)}</strong></div><div class="info-row"><span>Утас</span><strong>${esc(agent.phone||'—')}</strong></div><div class="info-row"><span>Байгууллага</span><strong>${esc(orgName(agent)||'—')}</strong></div><div class="info-row"><span>Салбар</span><strong>${esc(agent.branch_name||'—')}</strong></div></div></section><section class="card panel"><div class="panel-title">Багц ба эрх</div>
-      ${ent?`<div class="agent-plan-summary"><div class="agent-plan-title"><strong>${esc(ent.plan_code)}</strong><span>Идэвхтэй багц</span></div><div class="agent-plan-rights"><span>Reel <b>${ent.property_reel_remaining}</b></span><span>Poster <b>${ent.poster_remaining}</b></span><span>Expert <b>${ent.expert_content_remaining}</b></span><span>Branding <b>${ent.agent_branding_reel_remaining}</b></span><span>Camera <b>${ent.camera_credit_remaining}</b></span><span>Drone <b>${ent.drone_credit_remaining}</b></span></div></div>`:`<p class="brief">${pending ? esc(pending.plan_code)+' багцын хүсэлт хүлээгдэж байна.' : 'Идэвхтэй багц алга.'}</p>`}
+      ${ent?`<div class="agent-plan-summary"><div class="agent-plan-title"><strong>${esc(planDisplayName(ent.plan_code))}</strong><span>${ent.plan_code==='CUSTOM'?'Дангаар нэмсэн эрх':'Идэвхтэй багц'}</span></div><div class="agent-plan-rights"><span>Reel <b>${ent.property_reel_remaining}</b></span><span>Poster <b>${ent.poster_remaining}</b></span><span>Expert <b>${ent.expert_content_remaining}</b></span><span>Branding <b>${ent.agent_branding_reel_remaining}</b></span><span>Camera <b>${ent.camera_credit_remaining}</b></span><span>Drone <b>${ent.drone_credit_remaining}</b></span></div></div>`:`<p class="brief">${pending ? esc(pending.plan_code)+' багцын хүсэлт хүлээгдэж байна.' : 'Идэвхтэй багц алга.'}</p>`}
       <div class="admin-plan-assign">
         <label for="admin-agent-plan-${esc(agent.id)}">Багц сонгох</label>
         <select id="admin-agent-plan-${esc(agent.id)}" data-admin-plan-select>
@@ -1230,6 +1231,37 @@ function adminAgentDetailPage(id) {
         </select>
         <p>Идэвхжүүлэхэд тухайн багцын стандарт эрхүүдээр шинэчлэгдэнэ.</p>
         <button class="btn btn-primary" type="button" data-action="admin-assign-plan" data-agent-id="${esc(agent.id)}">${ent?'Багц шинэчлэх':'Багц идэвхжүүлэх'}</button>
+      </div>
+
+      <div class="admin-custom-credit">
+        <div class="admin-custom-credit-head">
+          <strong>Custom эрх нэмэх</strong>
+          <span>Багц авахгүйгээр эсвэл одоо байгаа багц дээр хүссэн эрхийг хүссэн тоогоор нэмнэ.</span>
+        </div>
+        <div class="admin-custom-credit-grid">
+          <div class="field">
+            <label>Эрхийн төрөл</label>
+            <select data-admin-credit-type>
+              <option value="PROPERTY_REEL">Property Reel</option>
+              <option value="POSTER">Poster</option>
+              <option value="EXPERT_CONTENT">Expert Content</option>
+              <option value="AGENT_BRANDING_REEL">Agent Branding Reel</option>
+              <option value="CAMERA_CREDIT">Camera Credit</option>
+              <option value="DRONE_CREDIT">Drone Credit</option>
+              <option value="AUTOMATION_AGENT">Automation agent</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Тоо</label>
+            <input data-admin-credit-qty type="number" min="1" max="100" step="1" value="1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Тэмдэглэл</label>
+          <input data-admin-credit-note placeholder="Жишээ: 1 Property Reel дангаар авсан" />
+        </div>
+        <p>Энэ үйлдэл одоо байгаа эрхийг reset хийхгүй, зөвхөн сонгосон эрх дээр нэмнэ.</p>
+        <button class="btn btn-secondary" type="button" data-action="admin-add-credit" data-agent-id="${esc(agent.id)}">+ Эрх нэмэх</button>
       </div>
     </section><section class="card panel"><div class="panel-title">Байгууллагын лого</div>${organizationLogoHtml(agent,'admin-org-logo')}${logo?`<a class="btn btn-secondary logo-download-btn" href="${esc(logo)}" download="${esc(logoName)}-logo.png">${icon('upload')} Лого татах</a>`:`<p class="brief">Агент одоогоор лого оруулаагүй байна.</p>`}</section></aside></div>
   </div>`,'admin-agents');
@@ -1759,6 +1791,68 @@ document.addEventListener('click', e=>{
       if(pendingPlanFor(db,u.id)){toast('Танд хүлээгдэж буй багцын хүсэлт байна.','error');return;}
       db.contentPlanRequests.push({id:uid('plan'),agent_id:u.id,plan_code:plan,status:'PENDING',created_at:nowIso()});
       saveDb(db); toast(`${plan} багцын хүсэлт илгээгдлээ.`,'success'); render();
+    }
+    return;
+  }
+  if(action==='admin-add-credit'){
+    const agentId=actionEl.dataset.agentId;
+    const panel=actionEl.closest('.admin-custom-credit');
+    const creditType=panel?.querySelector('[data-admin-credit-type]')?.value;
+    const quantity=Number(panel?.querySelector('[data-admin-credit-qty]')?.value||0);
+    const note=String(panel?.querySelector('[data-admin-credit-note]')?.value||'').trim();
+    if(!agentId || !creditType) return;
+    if(!Number.isInteger(quantity) || quantity<1 || quantity>100){
+      toast('Эрхийн тоо 1-100 хооронд бүхэл тоо байна.','error');
+      return;
+    }
+
+    if(REMOTE_ENABLED){
+      void (async()=>{
+        try{
+          actionEl.disabled=true;
+          const r=await sb.rpc('admin_add_content_credit',{
+            p_agent_id:agentId,
+            p_credit_type:creditType,
+            p_quantity:quantity,
+            p_note:note||null
+          });
+          throwIfError(r,'Эрх нэмж чадсангүй');
+          await loadRemoteDb();
+          toast(`+${quantity} эрх амжилттай нэмэгдлээ.`,'success');
+          await render();
+        }catch(err){
+          console.error(err);
+          toast(err.message,'error');
+          actionEl.disabled=false;
+        }
+      })();
+    } else {
+      const db=getDb();
+      let ent=entitlementFor(db,agentId);
+      if(!ent){
+        ent={
+          agent_id:agentId,plan_code:'CUSTOM',
+          property_reel_remaining:0,poster_remaining:0,expert_content_remaining:0,
+          agent_branding_reel_remaining:0,camera_credit_remaining:0,drone_credit_remaining:0,
+          automation_agent_limit:0,activated_at:nowIso(),updated_at:nowIso()
+        };
+        db.contentEntitlements.push(ent);
+      }
+      const fieldMap={
+        PROPERTY_REEL:'property_reel_remaining',
+        POSTER:'poster_remaining',
+        EXPERT_CONTENT:'expert_content_remaining',
+        AGENT_BRANDING_REEL:'agent_branding_reel_remaining',
+        CAMERA_CREDIT:'camera_credit_remaining',
+        DRONE_CREDIT:'drone_credit_remaining',
+        AUTOMATION_AGENT:'automation_agent_limit'
+      };
+      const field=fieldMap[creditType];
+      ent[field]=Number(ent[field]||0)+quantity;
+      ent.updated_at=nowIso();
+      saveDb(db);
+      toast(`+${quantity} эрх амжилттай нэмэгдлээ.`,'success');
+      render();
     }
     return;
   }
